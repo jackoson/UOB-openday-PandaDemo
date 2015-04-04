@@ -9,9 +9,10 @@ var GameServer   = require('./game_server.js');
  */
 function Server() {
     this.game_id = -1;
-    this.colours = [];
+    this.colours = ['Black', 'Blue', 'Green', 'Red', 'White', 'Yellow'];
 
-    //TODO
+    this.player_server = new PlayerServer();
+    this.game_server = new GameServer();
 }
 
 /**
@@ -23,7 +24,19 @@ function Server() {
  * @param game_port
  */
 Server.prototype.start = function(player_port, game_port) {
-    //TODO
+    var self = this;
+    this.player_server.listen(player_port);
+    this.player_server.on('register', function(player, studentId) {
+        var colour = self.getNextColour();
+        self.game_server.addPlayer(player, colour, self.gameId());
+    });
+    this.player_server.on('move', function(player, move) {
+        self.game_server.makeMove(player, move);
+    });
+    this.game_server.listen(game_port);
+    this.game_server.on('initialised', function(id) {
+        self.game_id = id;
+    });
 }
 
 
@@ -31,7 +44,8 @@ Server.prototype.start = function(player_port, game_port) {
  * Function to close down the player server and the game server
  */
 Server.prototype.close = function() {
-    //TODO
+    this.player_server.close();
+    this.game_server.close();
 }
 
 
@@ -40,7 +54,7 @@ Server.prototype.close = function() {
  * @returns {number|*}
  */
 Server.prototype.gameId = function() {
-    //TODO
+    return this.game_id;
 }
 
 
@@ -50,7 +64,8 @@ Server.prototype.gameId = function() {
  * @returns {*}
  */
 Server.prototype.getNextColour = function() {
-    //TODO
+    var nextColour = this.colours.shift();
+    return nextColour;
 }
 
 

@@ -2,7 +2,6 @@ package client.view;
 
 import client.scotlandyard.*;
 import client.application.*;
-import client.algorithms.*;
 import client.model.*;
 
 import javax.swing.*;
@@ -13,72 +12,25 @@ import java.util.*;
 import java.util.List;
 
 /**
- * A view to display the players Tickets.
+ * A view to display the players tickets.
  */
 
-public class PlayerView extends JPanel implements ActionListener {
+public class PlayerTicketView extends JPanel {
   
-    private static final long serialVersionUID = -7393477099987885325L;
-    
+    private static final long serialVersionUID = -6751324761131131949L;
+  
     private Map<Colour, PlayerTile> tiles;
-    private PlayerTile currentTile;
     private FileAccess fileAccess;
-    private JButton hintButton;
     private ActionListener listener = null;
-    private JPanel viewHolder;
     
     /**
-     * Constructs a new PlayerView to display all players Tickets.
-     *
-     * @param fileAccess the FileAccess object that contains the images.
+     * Constructs a new PlayerTicketView object.
      */
-    public PlayerView(FileAccess fileAccess) {
+    public PlayerTicketView(FileAccess fileAccess) {
         this.tiles = new HashMap<Colour, PlayerTile>();
         this.fileAccess = fileAccess;
-        setPreferredSize(new Dimension(300, 749));
-        setBackground(new Color(255, 255, 255, 240));
         setLayout(new BorderLayout());
-        
-        hintButton = new JButton("Hint");
-        hintButton.setBackground(new Color(251, 68, 60, 255));
-        hintButton.setContentAreaFilled(false);
-        hintButton.setOpaque(true);
-        hintButton.setBorderPainted(false);
-        hintButton.setContentAreaFilled(false);
-        hintButton.setForeground(Color.WHITE);
-        hintButton.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
-        hintButton.setPreferredSize(new Dimension(120, 40));
-        hintButton.addActionListener(this);
-        add(hintButton, BorderLayout.NORTH);
-
-        viewHolder = new JPanel(new GridLayout(6, 1));
-        viewHolder.setOpaque(false);
-        viewHolder.setBorder(BorderFactory.createEmptyBorder(15, 23, 15, 22));
-        add(viewHolder, BorderLayout.CENTER);
-        
-    }
-    
-    /**
-     * Action listener method for the hint button
-     *
-     * @param e the action produced by the hint button.
-     */
-    public void actionPerformed(ActionEvent e) {
-        if (listener != null) {
-            listener.actionPerformed(new ActionEvent(true, 0, "hint"));
-        }
-    }
-    
-    /**
-     * Sets the new current player.
-     *
-     * @param colour the color of the new current player.
-     */
-    public void setCurrentPlayer(Colour colour) {
-        PlayerTile tile = tiles.get(colour);
-        currentTile.setCurrent(false);
-        tile.setCurrent(true);
-        currentTile = tile;
+        setOpaque(false);
     }
     
     /**
@@ -96,18 +48,15 @@ public class PlayerView extends JPanel implements ActionListener {
     /**
      * Initialises the displayed players with the players in the List.
      * 
-     * @param players the List of players to be added to the view.
+     * @param player the player to be added to the view.
      * @param listener the listener to receive events from the view.
      */
-    public void initialise(List<GamePlayer> players, ActionListener listener) {
-        for (GamePlayer player : players) {
-            PlayerTile tile = new PlayerTile(player);
-            if (player.colour().equals(Colour.Black)) currentTile =  tile;
-            tiles.put(player.colour(), tile);
-            viewHolder.add(tile);
-            setActionListener(listener);
-            validate();
-        }
+    public void initialise(GamePlayer player, ActionListener listener) {
+        PlayerTile tile = new PlayerTile(player);
+        tiles.put(player.colour(), tile);
+        add(tile, BorderLayout.WEST);
+        setActionListener(listener);
+        validate();
     }
     
     /**
@@ -123,15 +72,14 @@ public class PlayerView extends JPanel implements ActionListener {
         }
     }
     
-     // A class for displaying a players tickets and current
-     // player indicator.
-     private class PlayerTile extends JLabel {
+    // A class for displaying a players tickets and current
+    // player indicator.
+    private class PlayerTile extends JLabel {
        
         private static final long serialVersionUID = 7573800434542888781L;
         
         private GamePlayer player;
         private MouseListener mListener;
-        private Map<Colour, BufferedImage> playerImages;
         private Map<Ticket, TicketView> ticketViews;
         private boolean current;
         
@@ -143,8 +91,7 @@ public class PlayerView extends JPanel implements ActionListener {
          * @param player the player whose information is to be displayed.
          */
         public PlayerTile(GamePlayer player) {
-            playerImages = fileAccess.getPlayers();
-            setPreferredSize(new Dimension(255, 100));
+            setPreferredSize(new Dimension(255, 75));
             setLayout(null);
             setOpaque(false);
             this.player = player;
@@ -155,17 +102,6 @@ public class PlayerView extends JPanel implements ActionListener {
             } else {
                 drawDetective(player.colour());
             }
-        }
-        
-        /**
-         * Sets whether this player tile is current or not.
-         *
-         * @param isCurrent boolean value representing whether
-         * the player tile should be current.
-         */
-        public void setCurrent(boolean isCurrent) {
-            current = isCurrent;
-            repaint();
         }
         
         /**
@@ -194,32 +130,6 @@ public class PlayerView extends JPanel implements ActionListener {
             }
         }
         
-        /**
-         * Draws the view in the JLabel.
-         *
-         * @param g0 the Graphics object to draw to.
-         */
-        public void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            BufferedImage background = playerImages.get(player.colour());
-            g.drawImage(background, null, 0, 0);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                                RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setColor(Color.white);
-            if (current) {
-                g.fillOval(235, 10, 10, 10);
-            }
-            g.setFont(new Font("SansSerif", Font.BOLD, 16));
-            if (player.colour().equals(Colour.Black)) {
-                g.drawString("Mr X", 16, 21);
-            } else {
-                g.drawString(player.colour().toString() + " Detective", 16, 21);
-            }
-        }
-        
         // Draws a detective's Tickets.
         // @param colour the colour of the detective to be drawn.
         private void drawDetective(Colour colour) {
@@ -229,19 +139,19 @@ public class PlayerView extends JPanel implements ActionListener {
             int trainNo = player.tickets().get(Ticket.Underground);
             
             TicketView taxiTicket = new TicketView(ticketImages.get(Ticket.Taxi), Ticket.Taxi, colour);
-            taxiTicket.setBounds(16, 31, 65, 55);
+            taxiTicket.setBounds(16, 1, 75, 55);
             taxiTicket.setValue(taxiNo);
             add(taxiTicket);
             ticketViews.put(Ticket.Taxi, taxiTicket);
             
             TicketView busTicket = new TicketView(ticketImages.get(Ticket.Bus), Ticket.Bus, colour);
-            busTicket.setBounds(96, 31, 65, 55);
+            busTicket.setBounds(96, 1, 75, 55);
             busTicket.setValue(busNo);
             add(busTicket);
             ticketViews.put(Ticket.Bus, busTicket);
             
             TicketView trainTicket = new TicketView(ticketImages.get(Ticket.Underground), Ticket.Underground, colour);
-            trainTicket.setBounds(176, 31, 65, 55);
+            trainTicket.setBounds(176, 1, 75, 55);
             trainTicket.setValue(trainNo);
             add(trainTicket);
             ticketViews.put(Ticket.Underground, trainTicket);
@@ -257,31 +167,31 @@ public class PlayerView extends JPanel implements ActionListener {
             int doubleNo = player.tickets().get(Ticket.DoubleMove);
             
             TicketView taxiTicket = new TicketView(ticketImages.get(Ticket.Taxi), Ticket.Taxi, Colour.Black);
-            taxiTicket.setBounds(16, 31, 65, 55);
+            taxiTicket.setBounds(16, 1, 75, 55);
             taxiTicket.setValue(taxiNo);
             add(taxiTicket);
             ticketViews.put(Ticket.Taxi, taxiTicket);
             
             TicketView busTicket = new TicketView(ticketImages.get(Ticket.Bus), Ticket.Bus, Colour.Black);
-            busTicket.setBounds(56, 31, 65, 55);
+            busTicket.setBounds(56, 1, 75, 55);
             busTicket.setValue(busNo);
             add(busTicket);
             ticketViews.put(Ticket.Bus, busTicket);
             
             TicketView trainTicket = new TicketView(ticketImages.get(Ticket.Underground), Ticket.Underground, Colour.Black);
-            trainTicket.setBounds(96, 31, 65, 55);
+            trainTicket.setBounds(96, 1, 75, 55);
             trainTicket.setValue(trainNo);
             add(trainTicket);
             ticketViews.put(Ticket.Underground, trainTicket);
             
             TicketView doubleTicket = new TicketView(ticketImages.get(Ticket.SecretMove), Ticket.SecretMove, Colour.Black);
-            doubleTicket.setBounds(136, 31, 65, 55);
+            doubleTicket.setBounds(136, 1, 75, 55);
             doubleTicket.setValue(secretNo);
             add(doubleTicket);
             ticketViews.put(Ticket.SecretMove, doubleTicket);
             
             TicketView secretTicket = new TicketView(ticketImages.get(Ticket.DoubleMove), Ticket.DoubleMove, Colour.Black);
-            secretTicket.setBounds(176, 31, 65, 55);
+            secretTicket.setBounds(176, 1, 75, 55);
             secretTicket.setValue(doubleNo);
             add(secretTicket);
             ticketViews.put(Ticket.DoubleMove, secretTicket);
@@ -314,7 +224,7 @@ public class PlayerView extends JPanel implements ActionListener {
                 this.colour = colour;
                 
                 badge = new TicketBadge();
-                badge.setBounds(35, 0, 30, 30);
+                badge.setBounds(45, 0, 30, 30);
                 add(badge);
             }
             

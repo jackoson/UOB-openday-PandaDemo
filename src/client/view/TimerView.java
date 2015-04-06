@@ -25,7 +25,7 @@ public class TimerView extends JPanel implements ActionListener {
      * Constructs a new TimerView with a 4 minute countdown.
      */
     public TimerView() {
-        setPreferredSize(new Dimension(65, 65));
+        setPreferredSize(new Dimension(75, 75));
         setLayout(new GridBagLayout());
         setOpaque(false);
         this.aListener = null;
@@ -53,10 +53,10 @@ public class TimerView extends JPanel implements ActionListener {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(new Color(51, 51, 51));
-        g.fillOval(5, 5, 55, 55);
+        g.fillOval(10, 10, 55, 55);
         g.setColor(Color.white);
         g.setStroke(new BasicStroke(2.5f));
-        g.drawArc(9, 9, 47, 47, 90, calcAngle());
+        g.drawArc(14, 14, 47, 47, 90, calcAngle());
     }
     
     /**

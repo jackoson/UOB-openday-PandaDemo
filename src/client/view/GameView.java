@@ -20,10 +20,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private static final long serialVersionUID = -8523153159692178708L;
 
     private BoardView board;
-    private MoveView moves;
-    private PlayerView players;
     private NotifyView notify;
     private TimerView timer;
+    private PlayerTicketView ticket;
+    private ChatView chat;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
     
@@ -37,22 +37,26 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public GameView(FileAccess fileAccess, ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
-        
         setPreferredSize(new Dimension(1272, 809));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
         board = new BoardView(fileAccess);
-        players = new PlayerView(fileAccess);
+        notify = new NotifyView(fileAccess.getNotify());
+        JPanel info = new JPanel(new BorderLayout());
+        info.setBackground(new Color(20, 155, 247));
+        chat = new ChatView();
+        chat.setBackground(new Color(20, 155, 247));
+        chat.setActionListener(this);
+        info.add(chat, BorderLayout.WEST);
+        ticket = new PlayerTicketView(fileAccess);
+        ticket.setActionListener(this);
+        info.add(ticket, BorderLayout.CENTER);
         timer = new TimerView();
         timer.setActionListener(this);
-        notify = new NotifyView(fileAccess.getNotify());
-        moves = new MoveView(fileAccess);
-        moves.setActionListener(this);
+        info.add(timer, BorderLayout.EAST);
         board.setPreferredSize(new Dimension(1000, 749));
-        players.setPreferredSize(new Dimension(300, 749));
-        
         board.setLayout(new BorderLayout());
-        board.add(players, BorderLayout.EAST);
+        //Add suggested moves BorderLayout.EAST.
         board.setActionListener(this);
         JPanel jpanel = new JPanel(new BorderLayout());
         jpanel.setOpaque(false);
@@ -60,18 +64,9 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         centerPanel.setOpaque(false);
         centerPanel.add(notify);
         jpanel.add(centerPanel, BorderLayout.NORTH);
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setOpaque(false);
-        bottomPanel.add(timer, BorderLayout.SOUTH);
-        jpanel.add(bottomPanel, BorderLayout.EAST);
         board.add(jpanel, BorderLayout.CENTER);
         add(board, BorderLayout.CENTER);
-        JScrollPane moveScroll = new JScrollPane(moves);
-        moveScroll.setPreferredSize(new Dimension(1200, 80));
-        moveScroll.setBorder(null);
-        moveScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        moveScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        add(moveScroll, BorderLayout.SOUTH);
+        add(info, BorderLayout.SOUTH);
     }
     
     /**
@@ -91,9 +86,9 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         } else if (e.getActionCommand().equals("timer_warning")) {
             //Player has run out of time for their move
             threadCom.putEvent("timer_warning", true);
-        } else if (e.getActionCommand().equals("move")) {
-            //Player has clicked on a ticket in moves view, check to see if it can be flipped
-             threadCom.putEvent("move_clicked", (JLabel) e.getSource());
+        } else if (e.getActionCommand().equals("message")) {
+            //Player has pressed enter in the text field.
+             threadCom.putEvent("message_entered", (String) e.getSource());
         } else if (e.getActionCommand().equals("ticket")) {
             //Player has clicked on a ticket in the players view
             threadCom.putEvent("ticket_clicked", (Ticket) e.getSource());
@@ -120,8 +115,8 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void initialise(List<GamePlayer> players) {
         board.update(players);
-        this.players.initialise(players, this);
-        moves.clearMoves();
+        // Needs updating.
+        ticket.initialise(players.get(1), this);
         timer.stop();
     }
     
@@ -165,7 +160,8 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param colour the color of the new current player.
      */
     public void setCurrentPlayer(Colour colour){
-        players.setCurrentPlayer(colour);
+        //players.setCurrentPlayer(colour);
+        //TO BE REMOVED
     }
     
     /**
@@ -176,7 +172,11 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param ticketNo the new number of tickets for the player.
      */
     public void updatePlayers(Colour colour, Ticket ticket, Integer ticketNo) {
-        players.update(colour, ticket, ticketNo);
+        //players.update(colour, ticket, ticketNo);
+        //TODO;
+        if (colour.equals(Colour.Blue)) {
+            this.ticket.update(colour, ticket, ticketNo);
+        }
     }
     
     /**
@@ -195,8 +195,9 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param move the move containing the information to update the view.
      */
     public void updateMoves(Move move) {
-        moves.hideLocations();
-        moves.update(move);
+        //moves.hideLocations();
+        //moves.update(move);
+        //TO BE REMOVED
     }
     
     /**
@@ -206,6 +207,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
+        //Animation here
     }
     
     /**
@@ -213,6 +215,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomOut() {
         board.zoomOut();
+        //Animation here
     }
   
     /**
@@ -221,7 +224,8 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param label the JLabel containing the Move in the Move View.
      */
     public void showLocation(JLabel label) {
-        moves.showLocation(label);
+        //moves.showLocation(label);
+        //TO BE REMOVED
     }
     
     /**
@@ -232,8 +236,8 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void setActionListener(ActionListener listener) {
         board.setActionListener(listener);
-        players.setActionListener(listener);
-        moves.setActionListener(listener);
+        //players.setActionListener(listener);
+        //moves.setActionListener(listener);
         timer.setActionListener(listener);
     }
     

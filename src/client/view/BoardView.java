@@ -53,7 +53,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     // Updates all constants to do with image scaling and keeping aspect ratio.
     // @param size the size of the window.
     private void updateConstants(Dimension size) {
-        minX = size.width - map.getWidth() - 300;
+        minX = size.width - map.getWidth();
         minY = size.height - map.getHeight();
         double imgRatio = (double) map.getWidth() / (double) map.getHeight();
         double windowRatio = (double) size.width / (double) size.height;

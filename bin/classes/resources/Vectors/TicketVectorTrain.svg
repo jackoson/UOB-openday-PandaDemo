@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="60"
+   height="40"
+   id="svg3840"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="TicketVectorTrain.svg"
+   inkscape:export-filename="C:\Users\Julian\PANDA\panda-cwk5\resources\tickets\train.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs3842" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="27.117041"
+     inkscape:cy="25.456708"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3845">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1012.3622)">
+    <rect
+       style="fill:#fa433b;fill-opacity:1;stroke:none"
+       id="rect3848"
+       width="60"
+       height="40"
+       x="0"
+       y="1012.3622"
+       rx="6"
+       ry="6" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       d="M 30 3.5 C 24.416799 3.5 19.485657 4.42915 16.5 5.84375 C 16.43998 5.87275 16.370932 5.9085 16.3125 5.9375 C 14.08059 6.8103 12.5 8.9516 12.5 11.5 L 12.5 28 C 12.5 30.816828 14.422002 33.160503 17.03125 33.8125 C 17.022166 33.709688 17 33.605172 17 33.5 C 17 31.567003 18.567003 30 20.5 30 C 22.432997 30 24 31.567003 24 33.5 C 24 33.667732 23.991563 33.838564 23.96875 34 L 36.03125 34 C 36.008437 33.838564 36 33.667732 36 33.5 C 36 31.567003 37.567003 30 39.5 30 C 41.432997 30 43 31.567003 43 33.5 C 43 33.605172 42.977834 33.709688 42.96875 33.8125 C 45.577998 33.160503 47.5 30.816828 47.5 28 L 47.5 11.5 C 47.5 8.9516 45.91941 6.8103 43.6875 5.9375 C 43.62907 5.9085 43.560018 5.87275 43.5 5.84375 C 40.514343 4.42915 35.583201 3.5 30 3.5 z M 25.75 7 L 34.25 7 C 34.527 7 34.75 7.223 34.75 7.5 L 34.75 8.78125 L 34.75 18 L 34.75 18.09375 L 34.75 31.5 C 34.75 31.777 34.527 32 34.25 32 L 25.75 32 C 25.473 32 25.25 31.777 25.25 31.5 L 25.25 18.15625 L 25.25 17.90625 L 25.25 17.3125 L 25.25 8.8125 L 25.25 8.375 L 25.25 7.625 L 25.25 7.5 C 25.25 7.223 25.473 7 25.75 7 z M 17.09375 8.4375 C 17.222632 8.4167744 17.332075 8.4266125 17.46875 8.4375 C 19.469932 8.5968604 21.482205 8.6868328 23.5 8.75 L 23.5 17.25 C 21.455906 17.185218 19.437042 17.093431 17.46875 16.9375 C 16.375304 16.8509 15.5 16.01955 15.5 14.90625 L 15.5 10.4375 C 15.5 9.46345 16.191575 8.5825791 17.09375 8.4375 z M 42.53125 8.4375 C 43.626046 8.3705 44.5 9.3243 44.5 10.4375 L 44.5 14.90625 C 44.5 16.01955 43.625941 16.8684 42.53125 16.9375 C 40.482273 17.066764 38.479331 17.152663 36.5 17.21875 L 36.5 8.71875 C 38.506535 8.6502541 40.522324 8.5610314 42.53125 8.4375 z M 20.5 31 C 19.119288 31 18 32.119288 18 33.5 C 18 34.880712 19.119288 36 20.5 36 C 21.880712 36 23 34.880712 23 33.5 C 23 32.119288 21.880712 31 20.5 31 z M 39.5 31 C 38.119288 31 37 32.119288 37 33.5 C 37 34.880712 38.119288 36 39.5 36 C 40.880712 36 42 34.880712 42 33.5 C 42 32.119288 40.880712 31 39.5 31 z "
+       transform="translate(0,1012.3622)"
+       id="path4404" />
+  </g>
+</svg>

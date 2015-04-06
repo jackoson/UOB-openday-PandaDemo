@@ -1,3 +1,4 @@
 ant/
 bin/
 lib/
+*.DS_Store

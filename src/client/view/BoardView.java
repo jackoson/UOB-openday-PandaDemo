@@ -48,6 +48,9 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         this.map = fileAccess.getMap();
         this.counters = fileAccess.getCounters();
         locations = new HashMap<Colour, Integer>();
+        
+        //
+        ListView listView = new ListView();
     }
     
     // Updates all constants to do with image scaling and keeping aspect ratio.
@@ -67,6 +70,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         if (zoomed) scaleFactor = 1.0;
         else scaleFactor = (double) scaledX / (double) map.getWidth();
         correctCoordinates();
+        
     }
     
     // Returns the scaled height of the image.

@@ -1,3 +1,4 @@
+package client.view;
 
 abstract class ListCellView extends AnimatablePanel {
     private boolean selected = false;
@@ -22,6 +23,10 @@ abstract class ListCellView extends AnimatablePanel {
     
     public boolean highlighted() {
         return highlighted;
+    }
+    
+    public Object object() {
+        return null;
     }
 
 }

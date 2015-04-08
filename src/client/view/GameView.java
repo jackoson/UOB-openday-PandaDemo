@@ -40,6 +40,19 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         setPreferredSize(new Dimension(1272, 809));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
+        //
+        ListView listView = new ListView();
+        List<ListCellView> v = new ArrayList<ListCellView>();
+        for (int i = 0; i < 6; i++) {
+            List<Move> moves = new ArrayList<Move>();
+            moves.add(new MoveTicket(Colour.Blue, 56, Ticket.Taxi));
+            moves.add(new MoveTicket(Colour.Blue, 7, Ticket.Bus));
+            moves.add(new MoveTicket(Colour.Blue, 198, Ticket.Underground));
+            v.add(new RouteView(moves, fileAccess));
+        }
+        listView.setCells(v);
+        listView.setPreferredSize(new Dimension(200, 1000));
+        //
         board = new BoardView(fileAccess);
         notify = new NotifyView(fileAccess.getNotify());
         JPanel info = new JPanel(new BorderLayout());
@@ -56,7 +69,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         info.add(timer, BorderLayout.EAST);
         board.setPreferredSize(new Dimension(1000, 749));
         board.setLayout(new BorderLayout());
-        //Add suggested moves BorderLayout.EAST.
+        board.add(listView, BorderLayout.EAST);
         board.setActionListener(this);
         JPanel jpanel = new JPanel(new BorderLayout());
         jpanel.setOpaque(false);

@@ -25,6 +25,7 @@ public class FileAccess {
     private BufferedImage setupBackground;
     private Map<Ticket, BufferedImage> tickets;
     private Map<Ticket, BufferedImage> ticketsBlank;
+    private Map<Ticket, BufferedImage> ticketsSmall;
     private Map<Colour, BufferedImage> counters;
     private Map<Colour, BufferedImage> players;
     private Map<Integer, Dimension> mapPositions;
@@ -39,6 +40,7 @@ public class FileAccess {
     public FileAccess() {
         tickets = new HashMap<Ticket, BufferedImage>();
         ticketsBlank = new HashMap<Ticket, BufferedImage>();
+        ticketsSmall = new HashMap<Ticket, BufferedImage>();
         counters = new HashMap<Colour, BufferedImage>();
         players = new HashMap<Colour, BufferedImage>();
         mapPositions = makePositions();
@@ -74,6 +76,12 @@ public class FileAccess {
             ticketsBlank.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus_blank.png")));
             ticketsBlank.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground_blank.png")));
             ticketsBlank.put(Ticket.SecretMove, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_blank.png")));
+            
+            ticketsSmall.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi_small.png")));
+            ticketsSmall.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus_small.png")));
+            ticketsSmall.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground_small.png")));
+            ticketsSmall.put(Ticket.SecretMove, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_small.png")));
+            ticketsSmall.put(Ticket.DoubleMove, ImageIO.read(this.getClass().getResource("/resources/tickets/double_small.png")));
             
             startTickets.add(ImageIO.read(this.getClass().getResource("/resources/tickets/start.png")));
             startTickets.add(ImageIO.read(this.getClass().getResource("/resources/tickets/start_blank.png")));
@@ -178,6 +186,15 @@ public class FileAccess {
      */
     public Map<Ticket, BufferedImage> getTicketsBlank() {
         return ticketsBlank;
+    }
+    
+    /**
+     * Returns a Map of small Ticket images.
+     *
+     * @return the Map of small Ticket images.
+     */
+    public Map<Ticket, BufferedImage> getTicketsSmall() {
+        return ticketsSmall;
     }
     
     /**

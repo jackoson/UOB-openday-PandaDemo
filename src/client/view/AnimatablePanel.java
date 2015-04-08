@@ -1,3 +1,5 @@
+package client.view;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 class AnimatablePanel extends JPanel implements ActionListener {
     private Timer timer;
     private Double kTimeInterval = 1/50.0;
+    private List<Animator> activeAnimators;
     
     //Animatable properties
     private Animator preferredSizeX = null;
@@ -15,13 +18,12 @@ class AnimatablePanel extends JPanel implements ActionListener {
     private Animator green = null;
     private Animator blue = null;
     private Animator alpha = null;
-    private List<Animator> activeAnimators;
     
     public AnimatablePanel() {
         timer = new Timer((int)(1000.0*kTimeInterval), this);
         activeAnimators = new ArrayList<Animator>();
     }
-    
+    //Functions for animating the preferred size
     public void setPreferredSize(Dimension size, Double duration) {
         setPreferredSize(size, duration, AnimationEase.LINEAR);
     }
@@ -37,7 +39,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         if (! timer.isRunning()) timer.start();
         animationBegun();
     }
-    
+    //Functions for animating the background color
     public void setBackground(Color color, Double duration) {
         setBackground(color, duration, AnimationEase.LINEAR);
     }
@@ -70,7 +72,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         if (! timer.isRunning()) timer.start();
         animationBegun();
     }
-    
+    //Function to update animation properties
     public void actionPerformed(ActionEvent e) {
         boolean finished = true;
         List<Animator> finishedAnimators = new ArrayList<Animator>();
@@ -80,6 +82,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
             finished &= f;
         }
         for (Animator a : finishedAnimators) {
+            a = null;
             activeAnimators.remove(a);
         }
         
@@ -93,7 +96,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         revalidate();
         repaint();
     }
-    
+    //Function for aborting all animations
     public void cancelAllAnimations() {
         if (timer != null) timer.stop();
     }
@@ -105,8 +108,8 @@ class AnimatablePanel extends JPanel implements ActionListener {
     public void animationCompleted() {
         
     }
-    
-    public Animator createAnimator(Double value, Double duration, Double target) {
+    //Function to create Animator from outside of class
+    public Animator createAnimator(Double value, Double target, Double duration) {
         Animator animator = new Animator(value, duration, target);
         activeAnimators.add(animator);
         if (! timer.isRunning()) timer.start();

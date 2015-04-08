@@ -49,8 +49,6 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         this.counters = fileAccess.getCounters();
         locations = new HashMap<Colour, Integer>();
         
-        //
-        ListView listView = new ListView();
     }
     
     // Updates all constants to do with image scaling and keeping aspect ratio.

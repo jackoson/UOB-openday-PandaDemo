@@ -1,3 +1,5 @@
+package client.view;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -7,79 +9,82 @@ import java.util.List;
 import javax.imageio.*;
 
 public class ListView extends JPanel implements MouseListener {
-    private BufferedImage bg;//Testing
-    private ListCellView selectedObject = null;
-    private ListCellView highlightedObject = null;
-    private GridBagConstraints gbc;
-    private JPanel gb;
+    private ListCellView selectedCell = null;
+    private ListCellView highlightedCell= null;
+    private JPanel cellHolder;
     private Timer timer;
     
     public ListView() {
-        ///TESTING
-        try {
-            bg = ImageIO.read(new File("map.jpg"));
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-        //END TESTING
-        setMinimumSize(new Dimension(100, 700));
+        setOpaque(false);
         setLayout(new BorderLayout());
         
-        gb = new JPanel();
-        gb.setOpaque(false);
-        add(gb, BorderLayout.NORTH);
-        gb.setLayout(new GridBagLayout());
-        
-        gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.insets = new Insets(0, 6, 0, 6);
-        
+        cellHolder = new JPanel();
+        cellHolder.setOpaque(false);
+        cellHolder.setLayout(new GridBagLayout());
+        add(cellHolder, BorderLayout.CENTER);
     }
-    
-    public void setViews(java.util.List<ListCellView> cells) {
+    //Function to set the cells that the ListView displays
+    public void setCells(java.util.List<ListCellView> cells) {
+        //Constraints
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.NORTH;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.weightx = 1.0;
+        constraints.weighty = 0.0;
+        constraints.insets = new Insets(0, 6, 0, 6);
+        //Cells
         int gridy = 0;
         for (ListCellView cell : cells) {
-            gbc.gridy = gridy;
+            constraints.gridy = gridy;
             gridy++;
             
-            cell.setPreferredSize(new Dimension(160, 32));
+            cell.setPreferredSize(new Dimension(20, 32));
             cell.addMouseListener(this);
-            gb.add(cell, gbc);
+            cellHolder.add(cell, constraints);
         }
+        //Spacer
+        constraints.gridy = gridy + 1;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        JPanel spacer = new JPanel();
+        spacer.setOpaque(false);
+        cellHolder.add(spacer, constraints);
+    }
+    //Get an object from the selected cell
+    public Object selectedObject() {
+        if (selectedCell != null) return selectedCell.object();
+        return null;
+    }
+    //Highlighting and selecting cells
+    private void highlightCell(ListCellView cell) {
+        cell.setHighlighted(true);
+        cell.setPreferredSize(new Dimension(20, 58), 0.2, AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        highlightedCell = cell;
     }
     
-    private void highlightObject(ListCellView object) {
-        object.setHighlighted(true);
-        object.setPreferredSize(new Dimension(20, 58), 0.2, AnimatablePanel.AnimationEase.EASE_IN_OUT);
-        highlightedObject = object;
+    private void unhighlightCell(ListCellView cell) {
+        cell.setHighlighted(false);
+        cell.setPreferredSize(new Dimension(20, 32), 0.2, AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        highlightedCell = null;
     }
-    
-    private void unhighlightObject(ListCellView object) {
-        object.setHighlighted(false);
-        object.setPreferredSize(new Dimension(20, 32), 0.2, AnimatablePanel.AnimationEase.EASE_IN_OUT);
-        highlightedObject = null;
-    }
-
+    //Mouse events
     public void mouseClicked(MouseEvent e) {
-        ListCellView object = (ListCellView)e.getSource();
-        if (selectedObject != null) selectedObject.setSelected(false);
-        if (object != selectedObject) {object.setSelected(true); selectedObject = object;}
-        else selectedObject = null;
+        ListCellView cell = (ListCellView)e.getSource();
+        if (selectedCell != null) selectedCell.setSelected(false);
+        if (cell != selectedCell) {cell.setSelected(true); selectedCell = cell;}
+        else selectedCell = null;
     }
     
     public void mouseEntered(MouseEvent e) {
-        ListCellView object = (ListCellView)e.getSource();
-        if (highlightedObject != null) unhighlightObject(highlightedObject);
-        if (object != highlightedObject) highlightObject(object);
+        ListCellView cell = (ListCellView)e.getSource();
+        if (highlightedCell != null) unhighlightCell(highlightedCell);
+        if (cell != highlightedCell) highlightCell(cell);
     }
     
     public void mouseExited(MouseEvent e) {
-        ListCellView object = (ListCellView)e.getSource();
-        if (object == highlightedObject) unhighlightObject(object);
+        ListCellView cell = (ListCellView)e.getSource();
+        if (cell == highlightedCell) unhighlightCell(cell);
     }
     
     
@@ -103,12 +108,4 @@ public class ListView extends JPanel implements MouseListener {
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseMoved(MouseEvent e) {}
-    
-    ////////TESTING
-    public void paintComponent(Graphics g0) {
-        super.paintComponent(g0);
-        Graphics2D g = (Graphics2D) g0;
-        
-        g.drawImage(bg, 0, 0, 2570, 1926, null);
-    }
 }

@@ -154,7 +154,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 Object updateObject = threadCom.takeUpdate();
                 decodeUpdate(updateId, updateObject);
             } catch (Exception e) {
-                System.err.println(e);
+                System.err.println("Error taking items from the queue :" + e.getStackTrace());
             }
         }
     }

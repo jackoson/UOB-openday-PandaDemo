@@ -88,7 +88,7 @@ public class FileAccess {
             
             setupImage = ImageIO.read(this.getClass().getResource("/resources/setup_image.png"));
         } catch (Exception e) {
-            System.err.println("Error retrieving images :" + e);
+            System.err.println("Error retrieving images :" + e.getStackTrace());
             System.exit(1);
         }
         
@@ -243,7 +243,7 @@ public class FileAccess {
         try {
             scanner = new Scanner(this.getClass().getResourceAsStream("/resources/pos.txt"));
         } catch (Exception e) {
-            System.err.println("Error getting graph position file - quitting...");
+            System.err.println("Error getting graph position file :" + e.getStackTrace());
             System.exit(1);
         }
         

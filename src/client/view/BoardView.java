@@ -6,6 +6,7 @@ import client.algorithms.*;
 import client.model.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -16,7 +17,7 @@ import java.util.List;
  * A view to display the game map, the players counters and get which node the users click on.
  */
 
-public class BoardView extends JPanel implements MouseListener, MouseMotionListener {
+public class BoardView extends JPanel implements MouseListener, MouseMotionListener, ActionListener {
   
     private static final long serialVersionUID = -4785796174751700452L;
   
@@ -27,11 +28,14 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     private ActionListener aListener;
     private boolean zoomed = false;
     private boolean drawASCII = false;
-    private int x = 0, y = 0, startX, startY, minX, maxX = 0, minY, maxY = 0, scaledX = 0, scaledY = 0;
+    private int x = 0, y = 0, xPos, yPos, startX, startY, minX, maxX = 0, minY, maxY = 0, scaledX = 0, scaledY = 0;
     private double scaleFactor;
     private FileAccess fileAccess;
     private List<Integer> routeHint = new ArrayList<Integer>();
     private Integer selectedNode = 0;
+    private Colour animatedCounter = null;
+    private Animator animator;
+    private Timer timer;
   
     /**
      * Constructs a new BoardView object.
@@ -48,7 +52,6 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         this.map = fileAccess.getMap();
         this.counters = fileAccess.getCounters();
         locations = new HashMap<Colour, Integer>();
-        
     }
     
     // Updates all constants to do with image scaling and keeping aspect ratio.
@@ -61,12 +64,21 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         if (windowRatio < imgRatio) {
             scaledX = size.width;
             scaledY = scaleY(size.width);
+            xPos = 0;
+            yPos = (int) ((size.height - scaledY) / 2.0);
         } else {
             scaledX = scaleX(size.height);
             scaledY = size.height;
+            xPos = (int) ((size.width - scaledX) / 2.0);
+            yPos = 0;
         }
-        if (zoomed) scaleFactor = 1.0;
-        else scaleFactor = (double) scaledX / (double) map.getWidth();
+        if (zoomed) {
+            scaleFactor = 1.0;
+            xPos = 0;
+            yPos = 0;
+        } else {
+            scaleFactor = (double) scaledX / (double) map.getWidth();
+        }
         correctCoordinates();
         
     }
@@ -112,10 +124,16 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         updateConstants(getSize());
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         
-        if (!zoomed) g.drawImage(map, 0, 0, scaledX, scaledY, null);
+        if (!zoomed) g.drawImage(map, xPos, yPos, scaledX, scaledY, null);
         else g.drawImage(map, null, x, y);
         setBackground(UIManager.getColor("Panel.background"));
         drawCounters(g, locations);
+        if (animatedCounter != null) {            
+            int size = (int) ((double) counters.get(Colour.Black).getWidth() * scaleFactor);
+            int offset = (int) ((double) size / 2.0);
+            Dimension d = transformPointForMap(new Dimension(animator.getX(), animator.getY()));
+            drawCounter(g, d.width - offset, d.height - offset, size, animatedCounter);
+        }
         if (routeHint.size() > 0) drawRoute(g, routeHint);
         if (selectedNode > 0) drawSelectedNode(g, selectedNode);
     }
@@ -133,9 +151,19 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
                 d = transformPointForMap(d);
                 int xPos = d.width - offset;
                 int yPos = d.height - offset;
-                g.drawImage(counters.get(entry.getKey()), xPos, yPos, size, size, null);
+                drawCounter(g, xPos, yPos, size, entry.getKey());
             }
         }
+    }
+    
+    // Draws the specified player's counter.
+    // @param g the Graphics object to draw to.
+    // @param x the x coordinate to draw to.
+    // @param y the y coordinate to draw to.
+    // @param size the diameter of the scaled counter.
+    // @param colour the Colour of the player whose counter is to be drawn.
+    private void drawCounter(Graphics2D g, int x, int y, int size, Colour colour) {
+        g.drawImage(counters.get(colour), x, y, size, size, null);
     }
     
     /**
@@ -182,8 +210,8 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     // Transforms a point based on the map scale.
     // @param d the point to be transformed.
     private Dimension transformPointForMap(Dimension d) {
-        int xPos = x + (int) Math.round((double) d.width * scaleFactor);
-        int yPos = y + (int) Math.round((double) d.height * scaleFactor);
+        int xPos = x + (int) Math.round((double) d.width * scaleFactor) + this.xPos;
+        int yPos = y + (int) Math.round((double) d.height * scaleFactor) + this.yPos;
         return new Dimension(xPos, yPos);
     }
     
@@ -237,14 +265,51 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     public void update(Move move) {
         if (move instanceof MoveTicket) {
             MoveTicket moveTicket = (MoveTicket) move;
-            locations.remove(moveTicket.colour);
-            locations.put(moveTicket.colour, moveTicket.target);
+            animate(moveTicket);
         } else if (move instanceof MoveDouble) {
             MoveTicket moveTicket = (MoveTicket) ((MoveDouble) move).moves.get(1);
+            animate(moveTicket);
+        }
+    }
+    
+    // Animates the movement of a counter.
+    // @param moveTicket the MoveTicket containing the Move to be animated.
+    private void animate(MoveTicket moveTicket) {
+        Integer loc = locations.get(moveTicket.colour);
+        if (moveTicket.target == 0 || loc == null) {
             locations.remove(moveTicket.colour);
             locations.put(moveTicket.colour, moveTicket.target);
+        } else {
+            Map<Integer, Dimension> positions = fileAccess.getPositions();
+            Dimension start = positions.get(loc);
+            Dimension end = positions.get(moveTicket.target);
+            locations.remove(moveTicket.colour);
+            int duration = 1500;
+            int framesPerSec = 120;
+            double t = 1000.0 / (double) (duration * framesPerSec);
+            int time = (int) ((double) duration / 100);
+            animator = new Animator(start, end, moveTicket.target, t);
+            animatedCounter = moveTicket.colour;
+            timer = new Timer(time, this);
+            timer.start();
         }
-        repaint();
+    }
+    
+    /**
+     * Is called when the timer runs out. This method then notifies the
+     * ActionListener that has been set.
+     * 
+     * @param e the ActionEvent from the timer.
+     */
+    public void actionPerformed(ActionEvent e) {
+        if (animator.isOver()) {
+            locations.put(animatedCounter, animator.getDestination());
+            animatedCounter = null;
+            timer.stop();
+        } else {
+            animator.update();
+            repaint();
+        }
     }
     
     // Corrects the coordinates so the map can only be panned in a set area.
@@ -289,8 +354,8 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
      * @param e the MouseEvent containing the location of the click.
      */
     public void mouseClicked(MouseEvent e) {
-        double clickX = e.getX();
-        double clickY = e.getY();
+        double clickX = e.getX() - this.xPos;
+        double clickY = e.getY() - this.yPos;
         int xPos = (int) Math.round(clickX / scaleFactor) - x;
         int yPos = (int) Math.round(clickY / scaleFactor) - y;
         if (e.getClickCount() == 2) {
@@ -300,7 +365,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
             zoomToCoordinates(xPos + (int)offsetX, yPos+ (int)offsetY, !zoomed);
         } else if (e.getClickCount() == 1) {
             int point = tree.getNode(xPos, yPos);
-            int offset = (int) Math.round(44.0 * scaleFactor);
+            int offset = (int) Math.round(48.0 * scaleFactor);
             Dimension d = tree.getNodeLocation(point);
             if (((d.width - offset) < xPos && xPos < (d.width + offset))
                   && ((d.height - offset) < yPos && yPos < (d.height + offset))

@@ -116,13 +116,11 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
-        
         updateConstants(getSize());
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         
         if (!zoomed) g.drawImage(map, xPos, yPos, scaledX, scaledY, null);
         else g.drawImage(map, null, x, y);
-        setBackground(UIManager.getColor("Panel.background"));
         drawCounters(g, locations);
         if (routeHint.size() > 0) drawRoute(g, routeHint);
         if (selectedNode > 0) drawSelectedNode(g, selectedNode);

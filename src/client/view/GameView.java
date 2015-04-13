@@ -168,16 +168,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
-     * Updates the current player.
-     *
-     * @param colour the color of the new current player.
-     */
-    public void setCurrentPlayer(Colour colour){
-        //players.setCurrentPlayer(colour);
-        //TO BE REMOVED
-    }
-    
-    /**
      * Updates the players tickets shown by the PlayersView.
      * 
      * @param colour the colour of the player to update.
@@ -202,25 +192,12 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
-     * Updates the list of Mr X's previous moves in the MovesView.
-     * If it is not Mr X's move, it does nothing.
-     * 
-     * @param move the move containing the information to update the view.
-     */
-    public void updateMoves(Move move) {
-        //moves.hideLocations();
-        //moves.update(move);
-        //TO BE REMOVED
-    }
-    
-    /**
      * Enlarges the map and centers the node in the view.
      *
      * @param location the node to be centered in the view.
      */
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
-        //Animation here
     }
     
     /**
@@ -228,17 +205,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomOut() {
         board.zoomOut();
-        //Animation here
-    }
-  
-    /**
-     * Shows the location on the specified Move in the MoveView.
-     *
-     * @param label the JLabel containing the Move in the Move View.
-     */
-    public void showLocation(JLabel label) {
-        //moves.showLocation(label);
-        //TO BE REMOVED
     }
     
     /**
@@ -249,8 +215,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void setActionListener(ActionListener listener) {
         board.setActionListener(listener);
-        //players.setActionListener(listener);
-        //moves.setActionListener(listener);
         timer.setActionListener(listener);
     }
     

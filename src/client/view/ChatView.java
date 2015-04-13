@@ -23,7 +23,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
      * Constructs a new ChatView object.
      */
     public ChatView() {
-        setPreferredSize(new Dimension(350, 75));
+        setPreferredSize(new Dimension(300, 40));
         setLayout(new GridBagLayout());
         text = getStyledTextField();
         add(text);
@@ -33,7 +33,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
     // @return a styled text field.
     private JTextField getStyledTextField() {
         JTextField textField = new JTextField(hint);
-        textField.setPreferredSize(new Dimension(300, 30));
+        textField.setPreferredSize(new Dimension(240, 20));
         textField.setBackground(Color.WHITE);
         textField.setForeground(Color.GRAY);
         textField.setBorder(new RoundedBorder());
@@ -153,7 +153,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
          */
         @Override
         public Insets getBorderInsets(Component c) {
-            return new Insets(4, 8, 4, 8);
+            return new Insets(2, 8, 2, 8);
         }
         
         /**
@@ -166,7 +166,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
         @Override
         public Insets getBorderInsets(Component c, Insets insets) {
             insets.left = insets.right = 8;
-            insets.top = insets.bottom = 4;
+            insets.top = insets.bottom = 2;
             return insets;
         }
         

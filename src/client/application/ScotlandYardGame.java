@@ -61,7 +61,7 @@ public class ScotlandYardGame implements Player, Runnable {
             saveGame.setDetectiveLocations(randDetectiveLocations);
             fileAccess = new FileAccess();
         } catch (Exception e) {
-            System.err.println("Error setting up new game :" + e);
+            System.err.println("Error setting up new game :" + e.getStackTrace());
             System.exit(1);
         }
     }
@@ -87,7 +87,7 @@ public class ScotlandYardGame implements Player, Runnable {
             players = initialiseGame(saveGame.getMrXLocation(), saveGame.getDetectiveLocations());
             replaying = true;
         } catch (Exception e) {
-            System.err.println("Error loading game :" + e);
+            System.err.println("Error loading game :" + e.getStackTrace());
             System.exit(1);
         }
     }
@@ -111,7 +111,7 @@ public class ScotlandYardGame implements Player, Runnable {
             wait(5000);
             threadCom.putUpdate("end_game", true);
         } catch (Exception e) {
-            System.err.println("Error playing game :" + e);
+            System.err.println("Error playing game :" + e.getStackTrace());
             System.exit(1);
         }
     }
@@ -352,7 +352,7 @@ public class ScotlandYardGame implements Player, Runnable {
         try {
             Thread.sleep(miliseconds);
         } catch (InterruptedException e) {
-            System.err.println(e);
+            System.err.println(e.getStackTrace());
         }
     }
     

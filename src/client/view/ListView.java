@@ -23,6 +23,7 @@ public class ListView extends JPanel implements MouseListener {
         cellHolder.setLayout(new GridBagLayout());
         add(cellHolder, BorderLayout.CENTER);
     }
+    
     //Function to set the cells that the ListView displays
     public void setCells(java.util.List<ListCellView> cells) {
         //Constraints

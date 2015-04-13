@@ -28,7 +28,7 @@ public class FileAccess {
     private Map<Ticket, BufferedImage> ticketsSmall;
     private Map<Colour, BufferedImage> counters;
     private Map<Colour, BufferedImage> players;
-    private Map<Integer, Dimension> mapPositions;
+    private Map<Integer, Point> mapPositions;
     private List<BufferedImage> startTickets;
     private BufferedImage setupImage;
     private BufferedImage warningIcon;
@@ -88,7 +88,7 @@ public class FileAccess {
             
             setupImage = ImageIO.read(this.getClass().getResource("/resources/setup_image.png"));
         } catch (Exception e) {
-            System.err.println("Error retrieving images :" + e);
+            System.err.println("Error retrieving images :" + e.getStackTrace());
             System.exit(1);
         }
         
@@ -237,13 +237,13 @@ public class FileAccess {
      *
      * @return the Map of locations
      */
-    public Map<Integer, Dimension> makePositions() {
-        Map<Integer, Dimension> positions = new HashMap<Integer, Dimension>();
+    public Map<Integer, Point> makePositions() {
+        Map<Integer, Point> positions = new HashMap<Integer, Point>();
         Scanner scanner = null;
         try {
             scanner = new Scanner(this.getClass().getResourceAsStream("/resources/pos.txt"));
         } catch (Exception e) {
-            System.err.println("Error getting graph position file - quitting...");
+            System.err.println("Error getting graph position file :" + e.getStackTrace());
             System.exit(1);
         }
         
@@ -255,7 +255,7 @@ public class FileAccess {
             int x = Integer.parseInt(parts[1]);
             int y = Integer.parseInt(parts[2]);
             int loc = Integer.parseInt(parts[0]);
-            positions.put(loc, new Dimension(x,y));
+            positions.put(loc, new Point(x,y));
         }
         return positions;
     }
@@ -265,7 +265,7 @@ public class FileAccess {
      *
      * @return the Map of locations
      */
-    public Map<Integer, Dimension> getPositions() {
+    public Map<Integer, Point> getPositions() {
         return mapPositions;
     }
     

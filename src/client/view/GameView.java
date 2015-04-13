@@ -37,7 +37,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public GameView(FileAccess fileAccess, ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
-        setPreferredSize(new Dimension(1272, 809));
+        setPreferredSize(new Dimension(1200, 800));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
         //
@@ -56,6 +56,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         board = new BoardView(fileAccess);
         notify = new NotifyView(fileAccess.getNotify());
         JPanel info = new JPanel(new BorderLayout());
+        info.setPreferredSize(new Dimension(1200, 40));
         info.setBackground(new Color(20, 155, 247));
         chat = new ChatView();
         chat.setBackground(new Color(20, 155, 247));
@@ -67,7 +68,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         timer = new TimerView();
         timer.setActionListener(this);
         info.add(timer, BorderLayout.EAST);
-        board.setPreferredSize(new Dimension(1000, 749));
         board.setLayout(new BorderLayout());
         board.add(listView, BorderLayout.EAST);
         board.setActionListener(this);
@@ -129,7 +129,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void initialise(List<GamePlayer> players) {
         board.update(players);
         // Needs updating.
-        ticket.initialise(players.get(1), this);
+        ticket.initialise(players.get(0), this);
         timer.stop();
     }
     
@@ -187,7 +187,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void updatePlayers(Colour colour, Ticket ticket, Integer ticketNo) {
         //players.update(colour, ticket, ticketNo);
         //TODO;
-        if (colour.equals(Colour.Blue)) {
+        if (colour.equals(Colour.Black)) {
             this.ticket.update(colour, ticket, ticketNo);
         }
     }

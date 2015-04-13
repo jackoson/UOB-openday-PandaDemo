@@ -44,7 +44,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void go() {
         fileAccess = new FileAccess();
         window = new JFrame();
-        window.setMinimumSize(new Dimension(1000, 835));
+        window.setMinimumSize(new Dimension(1200, 800));
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setOpaque(false);

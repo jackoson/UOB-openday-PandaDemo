@@ -1,97 +1,97 @@
 package client.algorithms;
 
+import client.scotlandyard.*;
+
+import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 
 /**
  * A class to calculate the information required to perform a linear animation.
  */
 
-public class Animator {
+public class Animator implements ActionListener {
     
-    private double t;
-    private double tInc;
-    private Point current, start, end;
-    private int destination;
+    private int count = 0;
+    private double t = 0.0;
+    private double increment;
+    private Point start, end;
+    private Map<Colour, Point> locations;
+    private Colour counter;
+    private JPanel panel;
+    private boolean animatingCounter;
+    
+    private Timer timer = new Timer(20, this);
     
     /**
-     * Constructs a new Animator object.
+     * Constructs a new Animator object for animating counters.
      *
      * @param start the start position of the animation.
      * @param end the end position of the animation.
-     * @param destination the destination location (for animating counters).
-     * @param tInc the amount to increment t by on each update.
      */     
-    public Animator(Dimension start, Dimension end, int destination, double tInc) {
-        this.start = new Point(start.width, start.height);
-        this.end = new Point(end.width, end.height);
-        this.destination = destination;
-        this.tInc = tInc;
-        current = new Point(this.start.x, this.start.y);
-        t = 0.0;
+    public Animator(Point start, Point end, Map<Colour, Point> locations, Colour counter, JPanel panel) {
+        this.start = start;
+        this.end = end;
+        this.locations = locations;
+        this.counter = counter;
+        this.panel = panel;
+        increment = 1.0 / 50.0;
+        animatingCounter = true;
     }
     
     /**
-     * Updates the current position and t.
+     * Constructs a new Animator object for animating the board.
+     *
+     * @param scaleFactor the current scaleFactor of the board.
+     * @param increment the amount to increment the scale factor by.
      */
-    public void update() {
-        t += tInc;
-        current = cubicBezier(start, start, end, end, t); 
+    public Animator(double scaleFactor, double increment) {
+        this.t = scaleFactor;
+        this.increment = increment;
+        animatingCounter = false;
     }
     
-    // Returns a Point containing the coordinates of the line 
-    // for a certain Bezier curve.
+    public void start() {
+        timer.start();
+    }
+    
+    private void updateCounter() {
+        count++;
+        t += increment;
+        locations.remove(counter);
+        locations.put(counter, linearBezier(start, end, t));
+        panel.repaint();
+    }
+    
+    private void updateBoard() {
+        //TODO:
+    }
+    
+    // Returns a Point containing the coordinates a certain 
+    // way through the line.
     // @param p0 the P0 Point defining the curve.
     // @param p1 the P1 Point defining the curve.
-    // @param p2 the P2 Point defining the curve.
-    // @param p3 the P3 Point defining the curve.
     // @param t the fraction of where the Point is in relation
     // to the start and end points.
-    // @return a Point containing the coordinates of the line
-    // for a certain Bezier curve.
-    private Point cubicBezier(Point p0, Point p1, Point p2, Point p3, double t) {
+    // @return a Point containing the coordinates a certain
+    // way through the line.
+    private Point linearBezier(Point p0, Point p1, double t) {
         double ti = (1 - t);
-        double x = (ti * ti * ti * p0.getX()) + (3 * ti * ti * t * p1.getX())
-                    + (3 * ti * t * t * p2.getX()) + (t * t * t * p3.getX());
-        double y = (ti * ti * ti * p0.getY()) + (3 * ti * ti * t * p1.getY())
-                    + (3 * ti * t * t * p2.getY()) + (t * t * t * p3.getY());
+        double x = (ti * p0.getX()) + (t * p1.getX());
+        double y = (ti * p0.getY()) + (t * p1.getY());
         return new Point((int) x, (int) y);
     }
     
-    /**
-     * Returns true if the animation has finished.
-     *
-     * @return true if the animation has finished.
-     */
-    public boolean isOver() {
-        if (t >= 1.0) return true;
-        else return false;
-    }
-    
-    /**
-     * Returns the destination (for animating counters).
-     *
-     * @return the destination (for animating counters).
-     */
-    public int getDestination() {
-        return destination;
-    }
-    
-    /**
-     * Returns the current x coordinate.
-     *
-     * @return the current x coordinate.
-     */
-    public int getX() {
-        return current.x;
-    }
-    
-    /**
-     * Returns the current y coordinate.
-     *
-     * @return the current y coordinate.
-     */
-    public int getY() {
-        return current.y;
+    public void actionPerformed(ActionEvent e) {
+        if (count == 50) {
+            timer.stop();
+        } else if(animatingCounter) {
+            updateCounter();
+        } else {
+            updateBoard();
+        }
     }
     
 }

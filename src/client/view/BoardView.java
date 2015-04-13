@@ -6,7 +6,6 @@ import client.algorithms.*;
 import client.model.*;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -17,13 +16,13 @@ import java.util.List;
  * A view to display the game map, the players counters and get which node the users click on.
  */
 
-public class BoardView extends JPanel implements MouseListener, MouseMotionListener, ActionListener {
+public class BoardView extends JPanel implements MouseListener, MouseMotionListener {
   
     private static final long serialVersionUID = -4785796174751700452L;
   
     private BufferedImage map;
     private Map<Colour, BufferedImage> counters;
-    private Map<Colour, Integer> locations;
+    private Map<Colour, Point> locations;
     private KDTree tree;
     private ActionListener aListener;
     private boolean zoomed = false;
@@ -33,9 +32,6 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     private FileAccess fileAccess;
     private List<Integer> routeHint = new ArrayList<Integer>();
     private Integer selectedNode = 0;
-    private Colour animatedCounter = null;
-    private Animator animator;
-    private Timer timer;
   
     /**
      * Constructs a new BoardView object.
@@ -51,7 +47,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         this.aListener = null;
         this.map = fileAccess.getMap();
         this.counters = fileAccess.getCounters();
-        locations = new HashMap<Colour, Integer>();
+        locations = new HashMap<Colour, Point>();
     }
     
     // Updates all constants to do with image scaling and keeping aspect ratio.
@@ -128,12 +124,6 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         else g.drawImage(map, null, x, y);
         setBackground(UIManager.getColor("Panel.background"));
         drawCounters(g, locations);
-        if (animatedCounter != null) {            
-            int size = (int) ((double) counters.get(Colour.Black).getWidth() * scaleFactor);
-            int offset = (int) ((double) size / 2.0);
-            Dimension d = transformPointForMap(new Dimension(animator.getX(), animator.getY()));
-            drawCounter(g, d.width - offset, d.height - offset, size, animatedCounter);
-        }
         if (routeHint.size() > 0) drawRoute(g, routeHint);
         if (selectedNode > 0) drawSelectedNode(g, selectedNode);
     }
@@ -141,18 +131,14 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     // Draws the player's counters.
     // @param g the Graphics object to draw to.
     // @param locations the Map containing the player's locations.
-    private void drawCounters(Graphics2D g, Map<Colour, Integer> locations) {
-        Map<Integer, Dimension> positions = fileAccess.getPositions();
+    private void drawCounters(Graphics2D g, Map<Colour, Point> locations) {
         int size = (int) ((double) counters.get(Colour.Black).getWidth() * scaleFactor);
         int offset = (int) ((double) size / 2.0);
-        for (Map.Entry<Colour, Integer> entry : locations.entrySet()) {
-            if (entry.getValue() != 0) {
-                Dimension d = positions.get(entry.getValue());
-                d = transformPointForMap(d);
-                int xPos = d.width - offset;
-                int yPos = d.height - offset;
-                drawCounter(g, xPos, yPos, size, entry.getKey());
-            }
+        for (Map.Entry<Colour, Point> entry : locations.entrySet()) {
+            Point d = transformPointForMap(entry.getValue());
+            int xPos = d.x - offset;
+            int yPos = d.y - offset;
+            drawCounter(g, xPos, yPos, size, entry.getKey());
         }
     }
     
@@ -174,22 +160,22 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
      */
     private void drawRoute(Graphics2D g, List<Integer> route){
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Map<Integer, Dimension> positions = fileAccess.getPositions();
+        Map<Integer, Point> positions = fileAccess.getPositions();
         g.setColor(Color.BLACK);
         g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
         int radius = (int)(58.0 * scaleFactor);
         for (int i = 0; i < route.size()-1; i++) {
-            Dimension startPos = transformPointForMap(positions.get(route.get(i)));
-            Dimension endPos = transformPointForMap(positions.get(route.get(i+1)));
-            double angle = Math.atan2(startPos.width - endPos.width, startPos.height - endPos.height);
+            Point startPos = transformPointForMap(positions.get(route.get(i)));
+            Point endPos = transformPointForMap(positions.get(route.get(i+1)));
+            double angle = Math.atan2(startPos.x - endPos.x, startPos.y - endPos.y);
             int circleOffsetX = (int)(Math.sin(angle)*radius/2);
             int circleOffsetY = (int)(Math.cos(angle)*radius/2);
             
-            g.drawLine(startPos.width - circleOffsetX, startPos.height - circleOffsetY, endPos.width  + circleOffsetX, endPos.height + circleOffsetY);
-            g.drawOval(startPos.width - radius/2, startPos.height - radius/2, radius, radius);
+            g.drawLine(startPos.x - circleOffsetX, startPos.y - circleOffsetY, endPos.x  + circleOffsetX, endPos.y + circleOffsetY);
+            g.drawOval(startPos.x - radius/2, startPos.y - radius/2, radius, radius);
         }
-        Dimension startPos = transformPointForMap(positions.get(route.get(route.size()-1)));
-        g.drawOval(startPos.width - radius/2, startPos.height - radius/2, radius, radius);
+        Point startPos = transformPointForMap(positions.get(route.get(route.size()-1)));
+        g.drawOval(startPos.x - radius/2, startPos.y - radius/2, radius, radius);
     }
     
     // Draws a circle around the currently selected node.
@@ -197,22 +183,22 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     // @param location the location of the node to be selected.
     private void drawSelectedNode(Graphics2D g, Integer location) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Map<Integer, Dimension> positions = fileAccess.getPositions();
-        Dimension d = positions.get(location);
-        d = transformPointForMap(d);
+        Map<Integer, Point> positions = fileAccess.getPositions();
+        Point p = positions.get(location);
+        p = transformPointForMap(p);
         
         int radius = (int)(50.0 * scaleFactor);;
         g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
         g.setColor(new Color(20, 155, 247));
-        g.drawOval(d.width - (radius/2), d.height - (radius/2), radius, radius);
+        g.drawOval(p.x - (radius/2), p.y - (radius/2), radius, radius);
     }
     
     // Transforms a point based on the map scale.
     // @param d the point to be transformed.
-    private Dimension transformPointForMap(Dimension d) {
-        int xPos = x + (int) Math.round((double) d.width * scaleFactor) + this.xPos;
-        int yPos = y + (int) Math.round((double) d.height * scaleFactor) + this.yPos;
-        return new Dimension(xPos, yPos);
+    private Point transformPointForMap(Point d) {
+        int xPos = x + (int) Math.round(d.getX() * scaleFactor) + this.xPos;
+        int yPos = y + (int) Math.round(d.getY() * scaleFactor) + this.yPos;
+        return new Point(xPos, yPos);
     }
     
     /**
@@ -233,8 +219,8 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
      * @param location the location of the node to zoom to.
      */
     public void zoomToNode(Integer location) {
-        Dimension loc = tree.getNodeLocation(location);
-        zoomToCoordinates(loc.width, loc.height, true);
+        Point loc = tree.getNodeLocation(location);
+        zoomToCoordinates(loc.x, loc.y, true);
     }
     
     /**
@@ -250,8 +236,13 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
      * @param players the List of locations of the player's.
      */
     public void update(List<GamePlayer> players) {
+        Map<Integer, Point> positions = fileAccess.getPositions();
         for (GamePlayer player : players) {
-            locations.put(player.colour(), player.location());
+            if (player.location() == 0) {
+                locations.put(player.colour(), new Point(-50, -50));
+            } else {
+                locations.put(player.colour(), positions.get(player.location()));
+            }
         }
         repaint();
     }
@@ -275,41 +266,15 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     // Animates the movement of a counter.
     // @param moveTicket the MoveTicket containing the Move to be animated.
     private void animate(MoveTicket moveTicket) {
-        Integer loc = locations.get(moveTicket.colour);
-        if (moveTicket.target == 0 || loc == null) {
-            locations.remove(moveTicket.colour);
-            locations.put(moveTicket.colour, moveTicket.target);
+        Point end = null;
+        Point start = locations.get(moveTicket.colour);
+        if (moveTicket.target == 0) {
+            end = new Point(-50, -50);
         } else {
-            Map<Integer, Dimension> positions = fileAccess.getPositions();
-            Dimension start = positions.get(loc);
-            Dimension end = positions.get(moveTicket.target);
-            locations.remove(moveTicket.colour);
-            int duration = 1500;
-            int framesPerSec = 120;
-            double t = 1000.0 / (double) (duration * framesPerSec);
-            int time = (int) ((double) duration / 100);
-            animator = new Animator(start, end, moveTicket.target, t);
-            animatedCounter = moveTicket.colour;
-            timer = new Timer(time, this);
-            timer.start();
+            end = fileAccess.getPositions().get(moveTicket.target);
         }
-    }
-    
-    /**
-     * Is called when the timer runs out. This method then notifies the
-     * ActionListener that has been set.
-     * 
-     * @param e the ActionEvent from the timer.
-     */
-    public void actionPerformed(ActionEvent e) {
-        if (animator.isOver()) {
-            locations.put(animatedCounter, animator.getDestination());
-            animatedCounter = null;
-            timer.stop();
-        } else {
-            animator.update();
-            repaint();
-        }
+        Animator animator = new Animator(start, end, locations, moveTicket.colour, this);
+        animator.start();
     }
     
     // Corrects the coordinates so the map can only be panned in a set area.
@@ -366,9 +331,9 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         } else if (e.getClickCount() == 1) {
             int point = tree.getNode(xPos, yPos);
             int offset = (int) Math.round(48.0 * scaleFactor);
-            Dimension d = tree.getNodeLocation(point);
-            if (((d.width - offset) < xPos && xPos < (d.width + offset))
-                  && ((d.height - offset) < yPos && yPos < (d.height + offset))
+            Point d = tree.getNodeLocation(point);
+            if (((d.x - offset) < xPos && xPos < (d.x + offset))
+                  && ((d.y - offset) < yPos && yPos < (d.y + offset))
                   && aListener != null) {
                 aListener.actionPerformed(new ActionEvent(new Integer(point), 0, "node"));
             }

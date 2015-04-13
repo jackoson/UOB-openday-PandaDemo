@@ -39,7 +39,7 @@ public class SetUpView extends JPanel {
         this.fileAccess = fileAccess;
         background = fileAccess.getSetupBackground();
         
-        setPreferredSize(new Dimension(1272, 809));
+        setPreferredSize(new Dimension(1200, 800));
         setBackground(new Color(51,135,253));
         setLayout(new GridBagLayout());
         
@@ -51,7 +51,7 @@ public class SetUpView extends JPanel {
         newPanel.setPreferredSize(new Dimension(400, 400));
         add(newPanel);
         
-        backgroundImage = fileAccess.getSetupImage(new Dimension(1272, 809));
+        backgroundImage = fileAccess.getSetupImage(new Dimension(1200, 800));
   
     }
     

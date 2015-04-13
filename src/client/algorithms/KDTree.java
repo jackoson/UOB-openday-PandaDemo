@@ -2,7 +2,7 @@ package client.algorithms;
 
 import client.scotlandyard.*;
 
-import java.awt.Dimension;
+import java.awt.Point;
 import java.io.*;
 import java.util.*;
 
@@ -83,9 +83,9 @@ public class KDTree {
      * returned.
      * @return the coordinates of the node.
      */
-    public Dimension getNodeLocation(int location) {
+    public Point getNodeLocation(int location) {
         for (TreeNode node : nodes) {
-            if (node.location == location) return new Dimension(node.x, node.y);
+            if (node.location == location) return new Point(node.x, node.y);
         }
         return null;
     }

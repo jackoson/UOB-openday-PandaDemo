@@ -91,8 +91,8 @@ public class PlayerTicketView extends JPanel {
          * @param player the player whose information is to be displayed.
          */
         public PlayerTile(GamePlayer player) {
-            setPreferredSize(new Dimension(255, 75));
-            setLayout(null);
+            setPreferredSize(new Dimension(400, 40));
+            setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
             setOpaque(false);
             this.player = player;
             this.ticketViews = new HashMap<Ticket, TicketView>();
@@ -133,25 +133,22 @@ public class PlayerTicketView extends JPanel {
         // Draws a detective's Tickets.
         // @param colour the colour of the detective to be drawn.
         private void drawDetective(Colour colour) {
-            Map<Ticket, BufferedImage> ticketImages = fileAccess.getTickets();
+            Map<Ticket, BufferedImage> ticketImages = fileAccess.getTicketsSmall();
             int taxiNo = player.tickets().get(Ticket.Taxi);
             int busNo = player.tickets().get(Ticket.Bus);
             int trainNo = player.tickets().get(Ticket.Underground);
             
             TicketView taxiTicket = new TicketView(ticketImages.get(Ticket.Taxi), Ticket.Taxi, colour);
-            taxiTicket.setBounds(16, 1, 75, 55);
             taxiTicket.setValue(taxiNo);
             add(taxiTicket);
             ticketViews.put(Ticket.Taxi, taxiTicket);
             
             TicketView busTicket = new TicketView(ticketImages.get(Ticket.Bus), Ticket.Bus, colour);
-            busTicket.setBounds(96, 1, 75, 55);
             busTicket.setValue(busNo);
             add(busTicket);
             ticketViews.put(Ticket.Bus, busTicket);
             
             TicketView trainTicket = new TicketView(ticketImages.get(Ticket.Underground), Ticket.Underground, colour);
-            trainTicket.setBounds(176, 1, 75, 55);
             trainTicket.setValue(trainNo);
             add(trainTicket);
             ticketViews.put(Ticket.Underground, trainTicket);
@@ -159,7 +156,7 @@ public class PlayerTicketView extends JPanel {
         
         // Draws Mr X's Tickets.
         private void drawMrX() {
-            Map<Ticket, BufferedImage> ticketImages = fileAccess.getTickets();
+            Map<Ticket, BufferedImage> ticketImages = fileAccess.getTicketsSmall();
             int taxiNo = player.tickets().get(Ticket.Taxi);
             int busNo = player.tickets().get(Ticket.Bus);
             int trainNo = player.tickets().get(Ticket.Underground);
@@ -167,31 +164,26 @@ public class PlayerTicketView extends JPanel {
             int doubleNo = player.tickets().get(Ticket.DoubleMove);
             
             TicketView taxiTicket = new TicketView(ticketImages.get(Ticket.Taxi), Ticket.Taxi, Colour.Black);
-            taxiTicket.setBounds(16, 1, 75, 55);
             taxiTicket.setValue(taxiNo);
             add(taxiTicket);
             ticketViews.put(Ticket.Taxi, taxiTicket);
             
             TicketView busTicket = new TicketView(ticketImages.get(Ticket.Bus), Ticket.Bus, Colour.Black);
-            busTicket.setBounds(56, 1, 75, 55);
             busTicket.setValue(busNo);
             add(busTicket);
             ticketViews.put(Ticket.Bus, busTicket);
             
             TicketView trainTicket = new TicketView(ticketImages.get(Ticket.Underground), Ticket.Underground, Colour.Black);
-            trainTicket.setBounds(96, 1, 75, 55);
             trainTicket.setValue(trainNo);
             add(trainTicket);
             ticketViews.put(Ticket.Underground, trainTicket);
             
             TicketView doubleTicket = new TicketView(ticketImages.get(Ticket.SecretMove), Ticket.SecretMove, Colour.Black);
-            doubleTicket.setBounds(136, 1, 75, 55);
             doubleTicket.setValue(secretNo);
             add(doubleTicket);
             ticketViews.put(Ticket.SecretMove, doubleTicket);
             
             TicketView secretTicket = new TicketView(ticketImages.get(Ticket.DoubleMove), Ticket.DoubleMove, Colour.Black);
-            secretTicket.setBounds(176, 1, 75, 55);
             secretTicket.setValue(doubleNo);
             add(secretTicket);
             ticketViews.put(Ticket.DoubleMove, secretTicket);
@@ -203,11 +195,11 @@ public class PlayerTicketView extends JPanel {
           
             private static final long serialVersionUID = 5796740871755932476L;
             
-            private BufferedImage image;
             private TicketBadge badge;
             protected ActionListener aListener = null;
             private Ticket ticket;
             private Colour colour;
+            private boolean highlighted = false;
             
             /**
              * Constructs a new TicketView object.
@@ -218,28 +210,29 @@ public class PlayerTicketView extends JPanel {
              * Ticket belongs.
              */
             public TicketView(BufferedImage image, Ticket ticket, Colour colour) {
-                this.image = image;
+                setPreferredSize(new Dimension(80, 40));
+                setLayout(new GridLayout(1, 2));
+                setOpaque(false);
                 this.addMouseListener(this);
                 this.ticket = ticket;
                 this.colour = colour;
                 
+                JLabel icon = new JLabel(new ImageIcon(image.getScaledInstance(22, 16, Image.SCALE_SMOOTH)));
+                add(icon);
                 badge = new TicketBadge();
-                badge.setBounds(45, 0, 30, 30);
                 add(badge);
             }
             
             /**
-             * Draws the view.
+             * Draws the view in the JLabel.
              *
              * @param g0 the Graphics object to draw to.
              */
             public void paintComponent(Graphics g0) {
                 super.paintComponent(g0);
                 Graphics2D g = (Graphics2D) g0;
-                g.setStroke(new BasicStroke(4));
-                g.drawImage(image, null, 0, 15);
-                
-                g.setColor(Color.BLACK);
+                g.setColor(new Color(255, 255, 255, 120));
+                if (highlighted) g.fillRect(0, 0, 80, 40);
             }
             
             /**
@@ -293,6 +286,26 @@ public class PlayerTicketView extends JPanel {
             }
             
             /**
+             * Draws a transparent white background when the cursor 
+             * enters the view.
+             * @param e the MouseEvent containing the cursor location.
+             */
+            public void mouseEntered(MouseEvent e) {
+                highlighted = true;
+                repaint();
+            }
+            
+            /**
+             * Draws a transparent background when the cursor 
+             * enters the view.
+             * @param e the MouseEvent containing the cursor location.
+             */
+            public void mouseExited(MouseEvent e) {
+                highlighted = false;
+                repaint();
+            }
+            
+            /**
              * Unused method from the MouseListener interface.
              * @param e the MouseEvent containing the cursor location.
              */
@@ -311,16 +324,6 @@ public class PlayerTicketView extends JPanel {
              * Unused method from the MouseListener interface.
              * @param e the MouseEvent containing the cursor location.
              */
-            public void mouseEntered(MouseEvent e) {}
-            /**
-             * Unused method from the MouseListener interface.
-             * @param e the MouseEvent containing the cursor location.
-             */
-            public void mouseExited(MouseEvent e) {}
-            /**
-             * Unused method from the MouseListener interface.
-             * @param e the MouseEvent containing the cursor location.
-             */
             public void mouseMoved(MouseEvent e) {}
 
             // Class for displaying the number of tickets in
@@ -328,19 +331,18 @@ public class PlayerTicketView extends JPanel {
             private class TicketBadge extends JLabel {
               
                 private static final long serialVersionUID = 6607860351406820475L;
-                
-                private BufferedImage badgeImage;
+
                 private JLabel label;
                 
                 /**
                  * Constructs a new TicketBadge object.
                  */
                 public TicketBadge() {
-                    badgeImage = fileAccess.getCircle();
+                    setPreferredSize(new Dimension(40, 40));
+                    setLayout(new GridBagLayout());
                     label = new JLabel("0", SwingConstants.CENTER);
                     label.setForeground(Color.white);
                     label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
-                    label.setBounds(0, 0, 30, 30);
                     add(label);
                 }
                 
@@ -351,18 +353,6 @@ public class PlayerTicketView extends JPanel {
                  */
                 public void setValue(int value) {
                     label.setText("" + value);
-                }
-                
-                /**
-                 * Draws the view.
-                 *
-                 * @param g0 the Graphics object to draw to.
-                 */
-                public void paintComponent(Graphics g0) {
-                    super.paintComponent(g0);
-                    Graphics2D g = (Graphics2D) g0;
-                    g.drawImage(badgeImage, null, 0, 0);
-                    
                 }
                 
             }

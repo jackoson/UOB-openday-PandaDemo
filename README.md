@@ -5,7 +5,7 @@ I also thought a chat/ event log might be good idea and have removed other playe
 
 TODO:
 - Menu button
-- AI GUI ![AIGUI.jpg](https://bitbucket.org/ashestoashes/panda-cwk6/downloads/IMG_20150414_224816.jpg =200x200)
+- AI GUI <img src="https://bitbucket.org/ashestoashes/panda-cwk6/downloads/IMG_20150414_224816.jpg" alt="AIGUI" style="width: 200px;"/>
 - Cheat codes
 - Meteor strike
 

@@ -1,6 +1,6 @@
 package client.algorithms;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.util.*;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class Dijkstra {
   
     private PageRank pageRank;
     private Graph<Integer, Route> graph;
-    private List<Node<Integer>> nodes;
+    private Set<Node<Integer>> nodes;
     
     /**
      * Constructs a new Dijkstra object.
@@ -46,7 +46,7 @@ public class Dijkstra {
      * @return the optimal route from start to destination.
      */
     public List<Integer> getRoute(int start, int destination, Map<Route, Integer> tickets) {
-        List<Node<Integer>> nodes = graph.getNodes();
+        Set<Node<Integer>> nodes = graph.getNodes();
         //Initialisation
         Map<Node<Integer>, Double> unvisitedNodes = new HashMap<Node<Integer>, Double>();
         Map<Node<Integer>, Double> distances = new HashMap<Node<Integer>, Double>();
@@ -101,7 +101,7 @@ public class Dijkstra {
                       Node<Integer> currentNode, 
                       Map<Node<Integer>, Node<Integer>> previousNodes, 
                       Map<Route, Integer> tickets) {
-        List<Edge<Integer, Route>> edges = graph.getEdges(currentNode.data());
+        Set<Edge<Integer, Route>> edges = graph.getEdges(currentNode.data());
         Double currentDistance = distances.get(currentNode);
         for (Edge<Integer, Route> e : edges) {
             //For all neighbours

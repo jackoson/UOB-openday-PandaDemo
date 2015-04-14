@@ -1,6 +1,6 @@
 package client.application;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.util.concurrent.*;
 

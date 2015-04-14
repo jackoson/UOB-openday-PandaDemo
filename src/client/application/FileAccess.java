@@ -1,6 +1,6 @@
 package client.application;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.algorithms.*;
 
 import java.awt.image.*;
@@ -72,19 +72,19 @@ public class FileAccess {
             tickets.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi.png")));
             tickets.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus.png")));
             tickets.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground.png")));
-            tickets.put(Ticket.SecretMove, ImageIO.read(this.getClass().getResource("/resources/tickets/secret.png")));
-            tickets.put(Ticket.DoubleMove, ImageIO.read(this.getClass().getResource("/resources/tickets/double.png")));
+            tickets.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret.png")));
+            tickets.put(Ticket.Double, ImageIO.read(this.getClass().getResource("/resources/tickets/double.png")));
             
             ticketsBlank.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi_blank.png")));
             ticketsBlank.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus_blank.png")));
             ticketsBlank.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground_blank.png")));
-            ticketsBlank.put(Ticket.SecretMove, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_blank.png")));
+            ticketsBlank.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_blank.png")));
             
             ticketsSmall.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi_small.png")));
             ticketsSmall.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus_small.png")));
             ticketsSmall.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground_small.png")));
-            ticketsSmall.put(Ticket.SecretMove, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_small.png")));
-            ticketsSmall.put(Ticket.DoubleMove, ImageIO.read(this.getClass().getResource("/resources/tickets/double_small.png")));
+            ticketsSmall.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_small.png")));
+            ticketsSmall.put(Ticket.Double, ImageIO.read(this.getClass().getResource("/resources/tickets/double_small.png")));
             
             startTickets.add(ImageIO.read(this.getClass().getResource("/resources/tickets/start.png")));
             startTickets.add(ImageIO.read(this.getClass().getResource("/resources/tickets/start_blank.png")));
@@ -111,16 +111,17 @@ public class FileAccess {
             doubleTaxiUnderground.add(Ticket.Underground);
             Set<Ticket> doubleTaxiSecret = new HashSet<Ticket>();
             doubleTaxiSecret.add(Ticket.Taxi);
-            doubleTaxiSecret.add(Ticket.SecretMove);
+            doubleTaxiSecret.add(Ticket.Secret);
+
             Set<Ticket> doubleBusUnderground = new HashSet<Ticket>();
             doubleBusUnderground.add(Ticket.Bus);
             doubleBusUnderground.add(Ticket.Underground);
             Set<Ticket> doubleBusSecret = new HashSet<Ticket>();
             doubleBusSecret.add(Ticket.Bus);
-            doubleBusSecret.add(Ticket.SecretMove);
+            doubleBusSecret.add(Ticket.Secret);
             Set<Ticket> doubleUndergroundSecret = new HashSet<Ticket>();
             doubleUndergroundSecret.add(Ticket.Underground);
-            doubleUndergroundSecret.add(Ticket.SecretMove);
+            doubleUndergroundSecret.add(Ticket.Secret);
             
             cursors.put(doubleTaxiBus, ImageIO.read(this.getClass().getResource("/resources/cursors/double_taxi_bus.png")));
             cursors.put(doubleTaxiUnderground, ImageIO.read(this.getClass().getResource("/resources/cursors/double_taxi_underground.png")));
@@ -136,15 +137,15 @@ public class FileAccess {
             Set<Ticket> tripleTaxiBusSecret = new HashSet<Ticket>();
             tripleTaxiBusSecret.add(Ticket.Taxi);
             tripleTaxiBusSecret.add(Ticket.Bus);
-            tripleTaxiBusSecret.add(Ticket.SecretMove);
+            tripleTaxiBusSecret.add(Ticket.Secret);
             Set<Ticket> tripleTaxiUndergroundSecret = new HashSet<Ticket>();
             tripleTaxiUndergroundSecret.add(Ticket.Taxi);
             tripleTaxiUndergroundSecret.add(Ticket.Underground);
-            tripleTaxiUndergroundSecret.add(Ticket.SecretMove);
+            tripleTaxiUndergroundSecret.add(Ticket.Secret);
             Set<Ticket> tripleBusUndergroundSecret = new HashSet<Ticket>();
             tripleBusUndergroundSecret.add(Ticket.Bus);
             tripleBusUndergroundSecret.add(Ticket.Underground);
-            tripleBusUndergroundSecret.add(Ticket.SecretMove);
+            tripleBusUndergroundSecret.add(Ticket.Secret);
             
             cursors.put(tripleTaxiBusUnderground, ImageIO.read(this.getClass().getResource("/resources/cursors/triple_taxi_bus_underground.png")));
             cursors.put(tripleTaxiBusSecret, ImageIO.read(this.getClass().getResource("/resources/cursors/triple_taxi_bus_secret.png")));
@@ -155,10 +156,9 @@ public class FileAccess {
             quadruple.add(Ticket.Taxi);
             quadruple.add(Ticket.Bus);
             quadruple.add(Ticket.Underground);
-            quadruple.add(Ticket.SecretMove);
+            quadruple.add(Ticket.Secret);
             
             cursors.put(quadruple, ImageIO.read(this.getClass().getResource("/resources/cursors/quadruple.png")));
-            
         } catch (Exception e) {
             System.err.println("Error retrieving images :" + e);
             e.printStackTrace();

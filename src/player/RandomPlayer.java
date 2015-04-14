@@ -34,4 +34,18 @@ public class RandomPlayer implements Player {
 
         return null;
     }
+    
+    /**
+     * Returns the current score of the board.
+     * Factors:
+     *     - Distance from detectives
+     *     - PageRank of current node
+     *     - Overall position (i.e. close to corner)
+     *     - PageRank of detectives nodes
+     *     - Maybe convex hull
+     */
+     private void score() {
+        //TODO: Implement the board score heuristic here.
+     }
+
 }

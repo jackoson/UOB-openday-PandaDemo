@@ -1,6 +1,6 @@
 package client.view;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.application.*;
 import client.model.*;
 
@@ -77,6 +77,9 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         if (e.getActionCommand().equals("node")) {
             //Player has clicked on a node in board view
             threadCom.putEvent("node_clicked", (Integer) e.getSource());
+        } else if (e.getActionCommand().equals("hover")) {
+            //Player has hovered over a node in board view
+            threadCom.putEvent("node_hovered", (Integer) e.getSource());
         } else if (e.getActionCommand().equals("timer")) {
             //Player has run out of time for their move
             threadCom.putEvent("timer_fired", true);
@@ -152,16 +155,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
-     * Updates the current player.
-     *
-     * @param colour the color of the new current player.
-     */
-    public void setCurrentPlayer(Colour colour){
-        //players.setCurrentPlayer(colour);
-        //TO BE REMOVED
-    }
-    
-    /**
      * Updates the players tickets shown by the PlayersView.
      * 
      * @param colour the colour of the player to update.
@@ -186,6 +179,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
+<<<<<<< HEAD
      * Updates the valid Moves shown by RouteView and the List in BoardView.
      *
      * @param moves the List of valid Moves.
@@ -207,11 +201,22 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * If it is not Mr X's move, it does nothing.
      * 
      * @param move the move containing the information to update the view.
+=======
+     * Updates the valid Moves shown by RouteView.
+     *
+     * @param moves the List of valid Moves.
+>>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
      */
-    public void updateMoves(Move move) {
-        //moves.hideLocations();
-        //moves.update(move);
-        //TO BE REMOVED
+    public void updateRoutes(Set<Move> moves) {
+        List<ListCellView> v = new ArrayList<ListCellView>();
+        Iterator<Move> it = moves.iterator();
+        for (int i = 0; i < Math.min(moves.size(), 6); i++) {
+            List<Move> m = new ArrayList<Move>();
+            m.add(it.next());
+            v.add(new RouteView(m, fileAccess));
+        }
+        listView.setCells(v);
+        listView.setPreferredSize(new Dimension(200, 1000));
     }
     
     /**
@@ -221,7 +226,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
-        //Animation here
     }
     
     /**
@@ -229,17 +233,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomOut() {
         board.zoomOut();
-        //Animation here
-    }
-  
-    /**
-     * Shows the location on the specified Move in the MoveView.
-     *
-     * @param label the JLabel containing the Move in the Move View.
-     */
-    public void showLocation(JLabel label) {
-        //moves.showLocation(label);
-        //TO BE REMOVED
     }
     
     /**
@@ -250,8 +243,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void setActionListener(ActionListener listener) {
         board.setActionListener(listener);
-        //players.setActionListener(listener);
-        //moves.setActionListener(listener);
         timer.setActionListener(listener);
     }
     

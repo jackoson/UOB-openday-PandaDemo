@@ -1,6 +1,6 @@
 package client.model;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +33,6 @@ public class ScotlandYardModel extends ScotlandYard {
      * @throws IOException throws when it can't read the graph file.
      */
     public ScotlandYardModel(int numberOfDetectives, List<Boolean> rounds, String graphFileName) throws IOException {
-        super(numberOfDetectives, rounds, graphFileName);
         ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
         this.graph = graphReader.readGraph(graphFileName);
         this.numberOfPlayers = numberOfDetectives + 1;
@@ -47,7 +46,7 @@ public class ScotlandYardModel extends ScotlandYard {
     //Create a list of valid moves for a player of colour colour
     @Override
     protected Move getPlayerMove(Colour colour) {
-        List<Move> moves = validMoves(colour);
+        Set<Move> moves = validMoves(colour);
         GamePlayer gamePlayer = getPlayer(colour);
         int playerLocation = gamePlayer.location();
         
@@ -76,7 +75,7 @@ public class ScotlandYardModel extends ScotlandYard {
         MoveTicket newMove = move;
         if (gamePlayer.colour().equals(Colour.Black)) {
             incCounter(gamePlayer);
-            newMove = new MoveTicket(move.colour, mrXLocation, move.ticket);
+            newMove = MoveTicket.instance(move.colour, move.ticket, mrXLocation);
         } else {
             GamePlayer mrX = getPlayer(Colour.Black);
             mrX.addTicket(move.ticket);
@@ -87,13 +86,11 @@ public class ScotlandYardModel extends ScotlandYard {
     //Play a MoveDouble
     @Override
     protected void play(MoveDouble move) {
-        List<Move> moves = move.moves;
         notifySpectators(move);
-        for (Move singleMove : moves) {
-            play(singleMove);
-        }
+        play(move.move1);
+        play(move.move2);
         GamePlayer gamePlayer = getPlayer(move.colour);
-        gamePlayer.removeTicket(Ticket.DoubleMove);
+        gamePlayer.removeTicket(Ticket.Double);
     }
 
     //Play a MovePass
@@ -112,40 +109,40 @@ public class ScotlandYardModel extends ScotlandYard {
 
     //Create a list of valid moves
     @Override
-    protected List<Move> validMoves(Colour player) {
+    protected Set<Move> validMoves(Colour player) {
         GamePlayer gamePlayer = getPlayer(player);
-        int secretMoveCount = getPlayerTickets(player, Ticket.SecretMove);
-        int doubleMoveCount = getPlayerTickets(player, Ticket.DoubleMove);
-        Node<Integer> currentPosition = getNode(gamePlayer.location());
-        List<Move> allMoves = new ArrayList<Move>();
-        List<MoveTicket> singleMoves = createSingleMoves(player, currentPosition.data());
+        int secretMoveCount = getPlayerTickets(player, Ticket.Secret);
+        int doubleMoveCount = getPlayerTickets(player, Ticket.Double);
+        Node<Integer> currentPosition = graph.getNode(gamePlayer.location());
+        Set<Move> allMoves = new HashSet<Move>();
+        Set<MoveTicket> singleMoves = createSingleMoves(player, currentPosition.data());
         allMoves.addAll(singleMoves);
         
         if (player.equals(Colour.Black)) {
-            List<MoveTicket> secretMoves = new ArrayList<MoveTicket>();
-            List<MoveDouble> doubleMoves = new ArrayList<MoveDouble>();
+            Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
+            Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
             if (secretMoveCount >= 1) secretMoves = createSingleSecretMoves(singleMoves);
             if (doubleMoveCount >= 1) doubleMoves = createDoubleMoves(singleMoves, secretMoveCount);
             
             allMoves.addAll(secretMoves);
             allMoves.addAll(doubleMoves);
         } else if (allMoves.size() == 0) {
-            allMoves.add(new MovePass(player));
+            allMoves.add(MovePass.instance(player));
         }
         return allMoves;
     }
     
     //Create a list of valid single moves
-    private List<MoveTicket> createSingleMoves(Colour player, Integer location) {
-        List<MoveTicket> moves = new ArrayList<MoveTicket>();
-        List<Edge<Integer, Route>> edges = graph.getEdges(location);
+    private Set<MoveTicket> createSingleMoves(Colour player, Integer location) {
+        Set<MoveTicket> moves = new HashSet<MoveTicket>();
+        Set<Edge<Integer, Route>> edges = graph.getEdges(location);
         
         for (Edge<Integer, Route> edge : edges) {
-            Node<Integer> node = getNode(edge.source());
-            if (node.data().equals(location)) node = getNode(edge.target());
+            Node<Integer> node = graph.getNode(edge.source());
+            if (node.data().equals(location)) node = graph.getNode(edge.target());
             
             Ticket ticket = Ticket.fromRoute(edge.data());
-            MoveTicket newMove = new MoveTicket(player, (int) node.data(), ticket);
+            MoveTicket newMove = MoveTicket.instance(player, ticket, (int) node.data());
             if (!nodeOccupied(node) && hasTickets(newMove, null)) {
                 moves.add(newMove);
             }
@@ -154,19 +151,19 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Create a list of valid double moves including secret moves
-    private List<MoveDouble> createDoubleMoves(List<MoveTicket> moves, int secretMoveCount) {
-        List<MoveDouble> doubleMoves = new ArrayList<MoveDouble>();
+    private Set<MoveDouble> createDoubleMoves(Set<MoveTicket> moves, int secretMoveCount) {
+        Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
         for (MoveTicket move : moves) {
-            List<MoveTicket> secondMoves = createSingleMoves (move.colour, move.target);
+            Set<MoveTicket> secondMoves = createSingleMoves (move.colour, move.target);
             
             for (MoveTicket secondMove : secondMoves) {
                 
-                if (hasTickets(move, secondMove)) doubleMoves.add(new MoveDouble(move.colour, move, secondMove));
+                if (hasTickets(move, secondMove)) doubleMoves.add(MoveDouble.instance(move.colour, move, secondMove));
                 if (secretMoveCount >= 1) {
-                    if (hasTickets(secondMove,null)) doubleMoves.add(new MoveDouble(move.colour, makeSecret(move), secondMove));
-                    if (hasTickets(move,null)) doubleMoves.add(new MoveDouble(move.colour, move, makeSecret(secondMove)));
+                    if (hasTickets(secondMove,null)) doubleMoves.add(MoveDouble.instance(move.colour, makeSecret(move), secondMove));
+                    if (hasTickets(move,null)) doubleMoves.add(MoveDouble.instance(move.colour, move, makeSecret(secondMove)));
                     
-                    if (secretMoveCount >= 2) doubleMoves.add(new MoveDouble(move.colour, makeSecret(move), makeSecret(secondMove)));
+                    if (secretMoveCount >= 2) doubleMoves.add(MoveDouble.instance(move.colour, makeSecret(move), makeSecret(secondMove)));
                 }
             }
         }
@@ -175,15 +172,15 @@ public class ScotlandYardModel extends ScotlandYard {
     }
     
     //Create a list of secret single moves
-    private List<MoveTicket> createSingleSecretMoves(List<MoveTicket> moves) {
-        List<MoveTicket> secretMoves = new ArrayList<MoveTicket>();
+    private Set<MoveTicket> createSingleSecretMoves(Set<MoveTicket> moves) {
+        Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
         for (MoveTicket move : moves) {
             secretMoves.add(makeSecret(move));
         }
         return secretMoves;
     }
     private MoveTicket makeSecret(MoveTicket move) {
-        return new MoveTicket(move.colour, move.target, Ticket.SecretMove);
+        return MoveTicket.instance(move.colour, Ticket.Secret, move.target);
     }
     
     //Check to see if player has required moves
@@ -314,8 +311,8 @@ public class ScotlandYardModel extends ScotlandYard {
         boolean noMoves = true;
         for (GamePlayer player : players) {
             if (!player.colour().equals(Colour.Black)) {
-                List<Move> moves = validMoves(player.colour());
-                if (!(moves.size() == 1 && moves.get(0) instanceof MovePass)) {
+                Set<Move> moves = validMoves(player.colour());
+                if (!(moves.size() == 1 && moves.iterator().next() instanceof MovePass)) {
                     noMoves = false;
                 }
             }
@@ -354,20 +351,6 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     public List<Boolean> getRounds() {
         return rounds;
-    }
-    
-    // Returns the node in the graph with the given location.
-    // Returns null if there is no node in the graph.
-    // Needed as supplied code is incorrect.
-    // @param id the location of the node to be found.
-    // @return the node in the graph with the given location.
-    private Node<Integer> getNode(Integer id) {
-        for (Node<Integer> node : graph.getNodes()) {
-            if (node.data().equals(id)) {
-                return node;
-            }
-        }
-        return null;
     }
     
 }

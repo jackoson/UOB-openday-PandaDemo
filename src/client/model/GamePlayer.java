@@ -1,6 +1,6 @@
 package client.model;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.util.Map;
 import java.io.Serializable;

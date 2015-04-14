@@ -1,6 +1,6 @@
 package client.algorithms;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.awt.*;
 import java.awt.image.*;

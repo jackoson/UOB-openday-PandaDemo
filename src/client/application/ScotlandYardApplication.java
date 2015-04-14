@@ -1,6 +1,6 @@
 package client.application;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.view.*;
 import client.model.*;
 
@@ -125,7 +125,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private void newGame() {
         int playerNo = setUpView.selectedPlayers();
         String gameName = setUpView.selectedGameName();        
-        game = new ScotlandYardGame(playerNo, gameName, "/resources/graph.txt", threadCom);
+        game = new ScotlandYardGame(playerNo, gameName, "resources/graph.txt", threadCom);
         new Thread(game).start();
     }
 
@@ -154,7 +154,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 Object updateObject = threadCom.takeUpdate();
                 decodeUpdate(updateId, updateObject);
             } catch (Exception e) {
-                System.err.println("Error taking items from the queue :" + e.getStackTrace());
+                System.err.println("Error taking items from the queue :" + e);
             }
         }
     }
@@ -173,9 +173,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_board")) {
             Move move = (Move) object;
             gameView.updateBoard(move);
-        } else if (id.equals("update_moves")) {
-            Move move = (Move) object;
-            gameView.updateMoves(move);
         } else if (id.equals("update_players")) {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) object;
@@ -183,13 +180,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             Ticket ticket = (Ticket) list.get(1);
             Integer ticketNo = (Integer) list.get(2);
             gameView.updatePlayers(colour, ticket, ticketNo);
-        } else if (id.equals("update_current_player")) {
-            Colour player = (Colour) object;
-            gameView.setCurrentPlayer(player);
         } else if (id.equals("send_notification")) {
             String message = (String) object;
             gameView.setNotification(message);
-        } else if (id.equals("show_location")) {
+        } else if (id.equals("show_location")) {//Might need to be removed, was a CONFLICT and i dont know if it was added or removed
             JLabel label = (JLabel) object;
             gameView.showLocation(label);
         } else if (id.equals("zoom_in")) {
@@ -218,7 +212,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             gameView.highlightNode(location);
         } else if (id.equals("valid_moves")) {
             @SuppressWarnings("unchecked")
-            List<Move> moves = (List<Move>) object;
+            Set<Move> moves = (Set<Move>) object;
             for (Move move : moves);
             gameView.updateRoutes(moves);
         }

@@ -1,6 +1,6 @@
 package client.algorithms;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.util.*;
 
@@ -109,7 +109,7 @@ public class InputPDA {
     public void transition(Ticket input) {
         switch(currentState) {
             case 1:
-                if (input.equals(Ticket.DoubleMove)) {
+                if (input.equals(Ticket.Double)) {
                     currentState = 4;
                 }
                 break;
@@ -171,17 +171,17 @@ public class InputPDA {
         if (stack.size() == 2) {
             Ticket ticket = popStackTicket();
             Integer node = popStackInteger();
-            return new MoveTicket(colour, node, ticket);
+            return MoveTicket.instance(colour, ticket, node);
         } else if (stack.size() == 4) {
             Ticket ticketTwo = popStackTicket();
             Integer nodeTwo = popStackInteger();
             Ticket ticketOne = popStackTicket();
             Integer nodeOne = popStackInteger();
-            MoveTicket moveOne = new MoveTicket(colour, nodeOne, ticketOne);
-            MoveTicket moveTwo = new MoveTicket(colour, nodeTwo, ticketTwo);
-            return new MoveDouble(colour, moveOne, moveTwo);
+            MoveTicket moveOne = MoveTicket.instance(colour, ticketOne, nodeOne);
+            MoveTicket moveTwo = MoveTicket.instance(colour, ticketTwo, nodeTwo);
+            return MoveDouble.instance(colour, moveOne, moveTwo);
         }
-        return new MovePass(colour);
+        return MovePass.instance(colour);
     }
     
 }

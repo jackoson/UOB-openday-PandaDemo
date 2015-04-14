@@ -1,6 +1,6 @@
 package client.view;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.application.*;
 import client.algorithms.*;
 import client.model.*;
@@ -16,7 +16,7 @@ import java.util.List;
  * A view to display the game map, the players counters and get which node the users click on.
  */
 
-public class BoardView extends JPanel implements MouseListener, MouseMotionListener {
+public class BoardView extends AnimatablePanel implements MouseListener, MouseMotionListener {
   
     private static final long serialVersionUID = -4785796174751700452L;
   
@@ -32,6 +32,8 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     private FileAccess fileAccess;
     private List<Integer> routeHint = new ArrayList<Integer>();
     private Integer selectedNode = 0;
+    
+    private List<CounterAnimator> animators;
   
     /**
      * Constructs a new BoardView object.
@@ -48,6 +50,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         this.map = fileAccess.getMap();
         this.counters = fileAccess.getCounters();
         locations = new HashMap<Colour, Point>();
+        animators = new ArrayList<CounterAnimator>();
     }
     
     // Updates all constants to do with image scaling and keeping aspect ratio.
@@ -117,6 +120,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         updateConstants(getSize());
+        updateAnimatedCounter();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         
         if (!zoomed) g.drawImage(map, xPos, yPos, scaledX, scaledY, null);
@@ -256,7 +260,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
             MoveTicket moveTicket = (MoveTicket) move;
             animate(moveTicket);
         } else if (move instanceof MoveDouble) {
-            MoveTicket moveTicket = (MoveTicket) ((MoveDouble) move).moves.get(1);
+            MoveTicket moveTicket = (MoveTicket) ((MoveDouble) move).move2;
             animate(moveTicket);
         }
     }
@@ -267,14 +271,34 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         Point end = null;
         Point start = locations.get(moveTicket.colour);
         if (moveTicket.target == 0) {
-            end = new Point(-50, -50);
+            end = new Point(-50, 350);
         } else {
             end = fileAccess.getPositions().get(moveTicket.target);
         }
-        Animator animator = new Animator(start, end, locations, moveTicket.colour, this);
-        animator.start();
+        AnimatablePanel.Animator xAnimator = createAnimator(start.getX(), end.getX(), 1.0);
+        xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        AnimatablePanel.Animator yAnimator = createAnimator(start.getY(), end.getY(), 1.0);
+        yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        animators.add(new CounterAnimator(moveTicket.colour, xAnimator, yAnimator));
     }
     
+    // Updates the position of a counter being animated.
+    private void updateAnimatedCounter() {
+        for (CounterAnimator animator : animators) {
+            locations.remove(animator.counter);
+            Point current = new Point(animator.xAnimator.value().intValue(), animator.yAnimator.value().intValue());
+            locations.put(animator.counter, current);
+        }
+    }
+    
+    /**
+     * Resets the list of AnimatablePanel.Animators.
+     */
+    @Override
+    public void animationCompleted() {
+        animators.clear();
+    }
+
     // Corrects the coordinates so the map can only be panned in a set area.
     private void correctCoordinates() {
         if (x < minX) x = minX;
@@ -317,24 +341,38 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
      * @param e the MouseEvent containing the location of the click.
      */
     public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            double clickX = e.getX() - this.xPos;
+            double clickY = e.getY() - this.yPos;
+            int xPos = (int) Math.round(clickX / scaleFactor) - x;
+            int yPos = (int) Math.round(clickY / scaleFactor) - y;
+            Dimension viewSize = getSize();
+            double offsetX = (viewSize.width / 2) - clickX;
+            double offsetY = (viewSize.height / 2) - clickY;
+            zoomToCoordinates(xPos + (int)offsetX, yPos + (int)offsetY, !zoomed);
+        } else if (e.getClickCount() == 1) {
+            sendEvent(e, "node");
+        }
+    }
+    
+    // Sends an ActionEvent to the registered listener if the
+    // MouseEvent is over a node.
+    // @param e the MouseEvent containing the location of the event.
+    // @param command the command to tell the model what operation to perform.
+    private void sendEvent(MouseEvent e, String command) {
         double clickX = e.getX() - this.xPos;
         double clickY = e.getY() - this.yPos;
         int xPos = (int) Math.round(clickX / scaleFactor) - x;
         int yPos = (int) Math.round(clickY / scaleFactor) - y;
-        if (e.getClickCount() == 2) {
-            Dimension viewSize = getSize();
-            double offsetX = (viewSize.width / 2) - clickX;
-            double offsetY = (viewSize.height / 2) - clickY;
-            zoomToCoordinates(xPos + (int)offsetX, yPos+ (int)offsetY, !zoomed);
-        } else if (e.getClickCount() == 1) {
-            int point = tree.getNode(xPos, yPos);
-            int offset = (int) Math.round(48.0 * scaleFactor);
-            Point d = tree.getNodeLocation(point);
-            if (((d.x - offset) < xPos && xPos < (d.x + offset))
-                  && ((d.y - offset) < yPos && yPos < (d.y + offset))
-                  && aListener != null) {
-                aListener.actionPerformed(new ActionEvent(new Integer(point), 0, "node"));
-            }
+        int point = tree.getNode(xPos, yPos);
+        int offset = (int) Math.round(48.0 * scaleFactor);
+        Point d = tree.getNodeLocation(point);
+        if (((d.x - offset) < xPos && xPos < (d.x + offset))
+              && ((d.y - offset) < yPos && yPos < (d.y + offset))
+              && aListener != null) {
+            aListener.actionPerformed(new ActionEvent(new Integer(point), 0, command));
+        } else if (command.equals("hover")) {
+            //setCursor(null);
         }
     }
     
@@ -402,11 +440,47 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     public void mouseMoved(MouseEvent e) {
         if (zoomed) setCursor(new Cursor(Cursor.MOVE_CURSOR));
         else setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        // Show the Tickets for a valid Move.
+        sendEvent(e, "hover");
     }
     
     /**
      * Unused method from the MouseListener interface.
      */
     public void mouseReleased(MouseEvent e) {}
+    
+    // A class to help animate counters.
+    private class CounterAnimator {
+        
+        /**
+         * The AnimatablePanel.Animator for the x coordinate.
+         */
+        public AnimatablePanel.Animator xAnimator;
+        
+        /**
+         * The AnimatablePanel.Animator for the y coordinate.
+         */
+        public AnimatablePanel.Animator yAnimator;
+        
+        /**
+         * The Colour of the counter to be animated.
+         */
+        public Colour counter;
+        
+        /**
+         * Constructs a new CounterAnimator object.
+         *
+         * @param counter the counter to be animated.
+         * @param xAnimator the AnimatablePanel.Animator for the x coordinate.
+         * @param yAnimator the AnimatablePanel.Animator for the y coordinate.
+         */
+        public CounterAnimator(Colour counter, AnimatablePanel.Animator xAnimator,
+                                AnimatablePanel.Animator yAnimator) {
+            this.counter = counter;
+            this.xAnimator = xAnimator;
+            this.yAnimator = yAnimator;
+        }
+        
+    }
     
 }

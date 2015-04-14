@@ -1,6 +1,6 @@
 package client.view;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.application.*;
 import client.model.*;
 
@@ -160,8 +160,8 @@ public class PlayerTicketView extends JPanel {
             int taxiNo = player.tickets().get(Ticket.Taxi);
             int busNo = player.tickets().get(Ticket.Bus);
             int trainNo = player.tickets().get(Ticket.Underground);
-            int secretNo = player.tickets().get(Ticket.SecretMove);
-            int doubleNo = player.tickets().get(Ticket.DoubleMove);
+            int secretNo = player.tickets().get(Ticket.Secret);
+            int doubleNo = player.tickets().get(Ticket.Double);
             
             TicketView taxiTicket = new TicketView(ticketImages.get(Ticket.Taxi), Ticket.Taxi, Colour.Black);
             taxiTicket.setValue(taxiNo);
@@ -178,15 +178,15 @@ public class PlayerTicketView extends JPanel {
             add(trainTicket);
             ticketViews.put(Ticket.Underground, trainTicket);
             
-            TicketView doubleTicket = new TicketView(ticketImages.get(Ticket.SecretMove), Ticket.SecretMove, Colour.Black);
+            TicketView doubleTicket = new TicketView(ticketImages.get(Ticket.Secret), Ticket.Secret, Colour.Black);
             doubleTicket.setValue(secretNo);
             add(doubleTicket);
-            ticketViews.put(Ticket.SecretMove, doubleTicket);
+            ticketViews.put(Ticket.Secret, doubleTicket);
             
-            TicketView secretTicket = new TicketView(ticketImages.get(Ticket.DoubleMove), Ticket.DoubleMove, Colour.Black);
+            TicketView secretTicket = new TicketView(ticketImages.get(Ticket.Double), Ticket.Double, Colour.Black);
             secretTicket.setValue(doubleNo);
             add(secretTicket);
-            ticketViews.put(Ticket.DoubleMove, secretTicket);
+            ticketViews.put(Ticket.Double, secretTicket);
 
         }
         

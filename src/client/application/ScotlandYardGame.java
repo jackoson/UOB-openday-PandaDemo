@@ -1,6 +1,6 @@
 package client.application;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.model.*;
 import client.algorithms.*;
 
@@ -61,7 +61,8 @@ public class ScotlandYardGame implements Player, Runnable {
             saveGame.setDetectiveLocations(randDetectiveLocations);
             fileAccess = new FileAccess();
         } catch (Exception e) {
-            System.err.println("Error setting up new game :" + e.getStackTrace());
+            System.err.println("Error setting up new game :" + e);
+            e.printStackTrace();
             System.exit(1);
         }
     }
@@ -102,7 +103,7 @@ public class ScotlandYardGame implements Player, Runnable {
             pda = new InputPDA();
             initialiseViews(players);
             fileAccess.saveGame(saveGame);
-            threadCom.putUpdate("update_moves", new MoveTicket(Colour.Black, model.getTruePlayerLocation(Colour.Black), null));
+            threadCom.putUpdate("update_moves", MoveTicket.instance(Colour.Black, null, model.getTruePlayerLocation(Colour.Black)));
             model.start();
             fileAccess.saveGame(saveGame);
             threadCom.putUpdate("stop_timer", true);
@@ -139,8 +140,8 @@ public class ScotlandYardGame implements Player, Runnable {
         mrXTickets.put(Ticket.Taxi, 10);
         mrXTickets.put(Ticket.Bus, 10);
         mrXTickets.put(Ticket.Underground, 10);
-        mrXTickets.put(Ticket.DoubleMove, 2);
-        mrXTickets.put(Ticket.SecretMove, 5);
+        mrXTickets.put(Ticket.Double, 2);
+        mrXTickets.put(Ticket.Secret, 5);
         model.join(this, colours[0], mrXLocation, mrXTickets);
         players.add(new GamePlayer(this, colours[0], 0, mrXTickets));
         
@@ -149,8 +150,8 @@ public class ScotlandYardGame implements Player, Runnable {
             detectiveTickets.put(Ticket.Taxi, 11);
             detectiveTickets.put(Ticket.Bus, 8);
             detectiveTickets.put(Ticket.Underground, 4);
-            detectiveTickets.put(Ticket.DoubleMove, 0);
-            detectiveTickets.put(Ticket.SecretMove, 0);
+            detectiveTickets.put(Ticket.Double, 0);
+            detectiveTickets.put(Ticket.Secret, 0);
             model.join(this, colours[i], detectiveLocations[i - 1], detectiveTickets);
             players.add(new GamePlayer(this, colours[i], detectiveLocations[i - 1], detectiveTickets));
         }
@@ -188,7 +189,8 @@ public class ScotlandYardGame implements Player, Runnable {
      * @param moves the List of valid Moves the player can take.
      * @return the Move chosen by the player.
      */
-    public Move notify(int location, List<Move> moves) {
+    public Move notify(int location, Set<Move> moves) {
+        threadCom.putUpdate("valid_moves", moves);
         updateUI(location, model.getCurrentPlayer());
         Move move = null;
         while (true) {
@@ -199,7 +201,7 @@ public class ScotlandYardGame implements Player, Runnable {
             } else {
                 if (replaying) {
                     threadCom.putUpdate("send_notification", getMessage(model.getCurrentPlayer()));
-                    threadCom.putUpdate("update_board", new MoveTicket(Colour.Black, model.getPlayerLocation(Colour.Black), null));
+                    threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
                 }
                 replaying = false;
             }
@@ -217,11 +219,11 @@ public class ScotlandYardGame implements Player, Runnable {
                     sendNotification("Invalid move, please try again.");
                 }
             } else if (outOfTime) {
-                move = moves.get(0);
+                move = moves.iterator().next();
                 sendNotification("Out of time, a move has been chosen for you.");
                 break;
-            } else if (moves.get(0) instanceof MovePass) {
-                move = moves.get(0);
+            } else if (moves.iterator().next() instanceof MovePass) {
+                move = moves.iterator().next();
                 sendNotification("You don't have any valid moves.");
                 break;
             }
@@ -290,7 +292,7 @@ public class ScotlandYardGame implements Player, Runnable {
     private void updateUI(Integer location, Colour player) {
         Integer loc = model.getPlayerLocation(Colour.Black);
         if (replaying) loc = model.getTruePlayerLocation(Colour.Black);
-        threadCom.putUpdate("update_board", new MoveTicket(Colour.Black, loc, null));
+        threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, loc));
         updateTickets();
         threadCom.putUpdate("update_current_player", player);
         if (!firstRound) wait(kMoveWait);
@@ -330,8 +332,8 @@ public class ScotlandYardGame implements Player, Runnable {
         updateTickets(player, Ticket.Taxi);
         updateTickets(player, Ticket.Bus);
         updateTickets(player, Ticket.Underground);
-        updateTickets(player, Ticket.SecretMove);
-        updateTickets(player, Ticket.DoubleMove);
+        updateTickets(player, Ticket.Secret);
+        updateTickets(player, Ticket.Double);
     }
     
     // Updates the number of Tickets of a certain type shown for a player in the PlayersView.
@@ -383,7 +385,7 @@ public class ScotlandYardGame implements Player, Runnable {
         tickets.put(Route.Taxi, model.getPlayerTickets(colour, Ticket.Taxi));
         tickets.put(Route.Bus, model.getPlayerTickets(colour, Ticket.Bus));
         tickets.put(Route.Underground, model.getPlayerTickets(colour, Ticket.Underground));
-        tickets.put(Route.Boat, model.getPlayerTickets(colour, Ticket.SecretMove));
+        tickets.put(Route.Boat, model.getPlayerTickets(colour, Ticket.Secret));
         return tickets;
     }
     

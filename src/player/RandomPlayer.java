@@ -47,4 +47,5 @@ public class RandomPlayer implements Player {
      private void score() {
         //TODO: Implement the board score heuristic here.
      }
+
 }

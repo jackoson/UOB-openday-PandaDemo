@@ -1,6 +1,6 @@
 package client.view;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.application.*;
 
 import java.awt.image.*;

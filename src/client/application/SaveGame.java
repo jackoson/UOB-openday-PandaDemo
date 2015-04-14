@@ -1,6 +1,6 @@
 package client.application;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.util.*;
 import java.io.Serializable;
@@ -219,7 +219,7 @@ public class SaveGame implements Serializable {
          */
         @Override
         public Move move() {
-            return new MovePass(Colour.valueOf(super.colour));
+            return MovePass.instance(Colour.valueOf(super.colour));
         }
         
     }
@@ -240,11 +240,10 @@ public class SaveGame implements Serializable {
             super(move.colour);
             
             moves = new ArrayList<SaveMoveTicket>();
-            for (Move m :move.moves) {
-                MoveTicket mt = (MoveTicket)m;
-                SaveMoveTicket newMove = new SaveMoveTicket(mt);
-                moves.add(newMove);
-            }
+            SaveMoveTicket newMove1 = new SaveMoveTicket(move.move1);
+            moves.add(newMove1);
+            SaveMoveTicket newMove2 = new SaveMoveTicket(move.move2);
+            moves.add(newMove2);
         }
 
         /**
@@ -257,7 +256,7 @@ public class SaveGame implements Serializable {
             if (moves.size() < 2) return null;
             SaveMoveTicket move1 = moves.get(0);
             SaveMoveTicket move2 = moves.get(1);
-            MoveDouble move = new MoveDouble(Colour.valueOf(super.colour), move1.move(), move2.move());
+            MoveDouble move = MoveDouble.instance(Colour.valueOf(super.colour), move1.move(), move2.move());
             return move;
         }
         
@@ -288,8 +287,8 @@ public class SaveGame implements Serializable {
          * @return the MoveTicket associated with this SaveMoveTicket.
          */
         @Override
-        public Move move() {
-            MoveTicket move = new MoveTicket(Colour.valueOf(super.colour), target, Ticket.valueOf(ticket));
+        public MoveTicket move() {
+            MoveTicket move = MoveTicket.instance(Colour.valueOf(super.colour), Ticket.valueOf(ticket), target);
             return move;
         }
         

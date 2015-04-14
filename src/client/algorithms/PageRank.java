@@ -1,6 +1,6 @@
 package client.algorithms;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 
 import java.util.*;
 import java.io.IOException;
@@ -13,7 +13,7 @@ public class PageRank {
     
     private Graph<Integer, Route> graph;
     private Map<Node<Integer>, Double> pageRanks;
-    private List<Node<Integer>> nodes;
+    private Set<Node<Integer>> nodes;
     private Double d;
     
     /**
@@ -55,7 +55,7 @@ public class PageRank {
         Map<Node<Integer>, Double> updatedPageRanks = new HashMap<Node<Integer>, Double>();
         for (Map.Entry<Node<Integer>, Double> entry : pageRanks.entrySet()) {
             Node<Integer> node = entry.getKey();
-            List<Edge<Integer, Route>> edges = graph.getEdges(node.data());
+            Set<Edge<Integer, Route>> edges = graph.getEdges(node.data());
             Double newPageRank = (1 - d) + (d * sumPageRanks(node.data(), edges));
             updatedPageRanks.put(node, newPageRank);
         }
@@ -64,9 +64,9 @@ public class PageRank {
     
     // Returns the sum of the PageRank's of the edges of a node.
     // @param currentLocation the current node's location.
-    // @param edges the List of edges a node has.
+    // @param edges the Set of edges a node has.
     // @return the sum of the PageRank's of the edges of a node.
-    private Double sumPageRanks(Integer currentLocation, List<Edge<Integer, Route>> edges) {
+    private Double sumPageRanks(Integer currentLocation, Set<Edge<Integer, Route>> edges) {
         Double sum = new Double(0.0);
         for (Edge<Integer, Route> edge : edges) {
             Integer location = edge.source();
@@ -74,7 +74,7 @@ public class PageRank {
                 location = edge.target();
             }
             Node<Integer> node = getNode(location);
-            List<Edge<Integer, Route>> nodeEdges = graph.getEdges(node.data());
+            Set<Edge<Integer, Route>> nodeEdges = graph.getEdges(node.data());
             sum += getPageRank(node.data()) / (double) nodeEdges.size();
         }
         return sum;

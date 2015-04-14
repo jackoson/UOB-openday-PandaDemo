@@ -1,6 +1,6 @@
 package client.view;
 
-import client.scotlandyard.*;
+import scotlandyard.*;
 import client.application.*;
 import client.model.*;
 
@@ -24,6 +24,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private TimerView timer;
     private PlayerTicketView ticket;
     private ChatView chat;
+    private ListView listView;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
     
@@ -40,19 +41,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         setPreferredSize(new Dimension(1200, 800));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
-        //
-        ListView listView = new ListView();
-        List<ListCellView> v = new ArrayList<ListCellView>();
-        for (int i = 0; i < 6; i++) {
-            List<Move> moves = new ArrayList<Move>();
-            moves.add(new MoveTicket(Colour.Blue, 56, Ticket.Taxi));
-            moves.add(new MoveTicket(Colour.Blue, 7, Ticket.Bus));
-            moves.add(new MoveTicket(Colour.Blue, 198, Ticket.Underground));
-            v.add(new RouteView(moves, fileAccess));
-        }
-        listView.setCells(v);
-        listView.setPreferredSize(new Dimension(200, 1000));
-        //
+        listView = new ListView();
         board = new BoardView(fileAccess);
         notify = new NotifyView(fileAccess.getNotify());
         JPanel info = new JPanel(new BorderLayout());
@@ -93,6 +82,9 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         if (e.getActionCommand().equals("node")) {
             //Player has clicked on a node in board view
             threadCom.putEvent("node_clicked", (Integer) e.getSource());
+        } else if (e.getActionCommand().equals("hover")) {
+            //Player has hovered over a node in board view
+            threadCom.putEvent("node_hovered", (Integer) e.getSource());
         } else if (e.getActionCommand().equals("timer")) {
             //Player has run out of time for their move
             threadCom.putEvent("timer_fired", true);
@@ -189,6 +181,23 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void updateBoard(Move move) {
         board.update(move);
+    }
+    
+    /**
+     * Updates the valid Moves shown by RouteView.
+     *
+     * @param moves the List of valid Moves.
+     */
+    public void updateRoutes(Set<Move> moves) {
+        List<ListCellView> v = new ArrayList<ListCellView>();
+        Iterator<Move> it = moves.iterator();
+        for (int i = 0; i < Math.min(moves.size(), 6); i++) {
+            List<Move> m = new ArrayList<Move>();
+            m.add(it.next());
+            v.add(new RouteView(m, fileAccess));
+        }
+        listView.setCells(v);
+        listView.setPreferredSize(new Dimension(200, 1000));
     }
     
     /**

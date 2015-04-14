@@ -15,7 +15,7 @@ import java.util.List;
  * A view to allow players to set up a new game or load an existing one.
  */
 
-public class SetUpView extends JPanel {
+public class SetUpView extends JPanel implements KeyListener {
   
     private static final long serialVersionUID = 6820494630590852362L;
     
@@ -29,6 +29,7 @@ public class SetUpView extends JPanel {
     private List<String> savedGames;
     private BufferedImage background;
     private BufferedImage backgroundImage;
+    private ActionListener listener;
     
     /**
      * Constructs a new SetUpView object.
@@ -47,12 +48,11 @@ public class SetUpView extends JPanel {
         loadPanel.setPreferredSize(new Dimension(400, 400));
         add(loadPanel);
         
-        NewPanel newPanel = new NewPanel();
+        NewPanel newPanel = new NewPanel(this);
         newPanel.setPreferredSize(new Dimension(400, 400));
         add(newPanel);
         
         backgroundImage = fileAccess.getSetupImage(new Dimension(1200, 800));
-  
     }
     
     // Returns a button with the correct text and styling.
@@ -123,6 +123,7 @@ public class SetUpView extends JPanel {
     public void setActionListener(ActionListener listener) {
         load.addActionListener(listener);
         start.addActionListener(listener);
+        this.listener = listener;
     }
     
     /**
@@ -135,6 +136,36 @@ public class SetUpView extends JPanel {
         savedGames = fileAccess.savedGames();
         loadList.setListData(savedGames.toArray(new String[savedGames.size()]));
     }
+    
+    /**
+     * Called when a key is pressed. Starts a new game if
+     * the key pressed is ENTER and the JTextField is empty.
+     *
+     * @param e the KeyEvent containing the key that has been
+     * pressed.
+     */
+    public void keyPressed(KeyEvent e) {
+        if (listener != null && e.getKeyCode() == KeyEvent.VK_ENTER
+              && !gameNameField.getText().isEmpty()) {
+            listener.actionPerformed(new ActionEvent(this, 0, "startGame"));
+        }
+    }
+    
+    /**
+     * Unused method for the KeyListener interface.
+     *
+     * @param e the KeyEvent containing which key has
+     * been released.
+     */
+    public void keyReleased(KeyEvent e) {}
+    
+    /**
+     * Unused method for the KeyListener interface.
+     *
+     * @param e the KeyEvent containing which key has
+     * been typed.
+     */
+    public void keyTyped(KeyEvent e) {}
     
     // A view to draw the load list and button.
     private class LoadPanel extends JPanel {
@@ -153,8 +184,8 @@ public class SetUpView extends JPanel {
             loadList = new JList<String>(savedGames.toArray(new String[savedGames.size()]));
             loadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             loadList.setPrototypeCellValue("PROTOTYPE");
-            ListRenderer renderer = new ListRenderer();
-            loadList.setCellRenderer(renderer);
+            loadList.setFont(new Font("Helvetica Neue", 0, 18));
+            loadList.setCellRenderer(new CustomCellRenderer());
             JScrollPane scrollPane = new JScrollPane(loadList);
             scrollPane.setPreferredSize(new Dimension(320, 260));
             scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220, 255), 1));
@@ -178,7 +209,7 @@ public class SetUpView extends JPanel {
         /**
          * Constructs a new NewPanel object.
          */
-        public NewPanel() {
+        public NewPanel(KeyListener listener) {
             setLayout(new BorderLayout());
             setBorder(new EmptyBorder(35, 40, 40, 40));
             setOpaque(false);
@@ -192,8 +223,11 @@ public class SetUpView extends JPanel {
             box.add(nameLabel);
             
             gameNameField = new JTextField(10);
-            gameNameField = (JTextField)styleComponent(gameNameField);
-            gameNameField.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220, 255), 1));
+            gameNameField = (JTextField) styleComponent(gameNameField);
+            gameNameField.addKeyListener(listener);
+            Border outside = BorderFactory.createLineBorder(new Color(220, 220, 220, 255), 1);
+            Border inside = BorderFactory.createEmptyBorder(0, 5, 0, 5);
+            gameNameField.setBorder(BorderFactory.createCompoundBorder(outside, inside));
             box.add(gameNameField);
             
             Component spacer = Box.createRigidArea(new Dimension(0, 10));
@@ -225,16 +259,16 @@ public class SetUpView extends JPanel {
             component.setFont(new Font("Helvetica Neue", 0, 18));
             component.setMaximumSize(new Dimension(200,30));
             component.setAlignmentX(Component.LEFT_ALIGNMENT);
-            component.setBorder(new EmptyBorder(0, 0, 10, 0));
+            component.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             return component;
         }
         
     }
-
-    // Adds styling to the list and its elements.
-    private class ListRenderer extends DefaultListCellRenderer {
-      
-        private static final long serialVersionUID = -6196703589588299558L;
+    
+    // Adds styling to the list elements.
+    private class CustomCellRenderer extends JLabel implements ListCellRenderer<Object> {
+        
+        private static final long serialVersionUID = -8212787301551146954L;
         
         /**
          * Returns the styled component.
@@ -246,24 +280,27 @@ public class SetUpView extends JPanel {
          * @param cellHasFocus the flag to tell whether the item has focus.
          * @return the Styled component.
          */
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            String stringValue = (String) value;
-            stringValue = stringValue.split("#")[0];
-            Component component = super.getListCellRendererComponent(list, stringValue, index, isSelected, cellHasFocus);
-            
-            Border mainBorder = BorderFactory.createEmptyBorder();
-            list.setBorder(mainBorder);
-            list.setFont(new Font("Helvetica Neue", 0, 18));
-            
-            
-            if(isSelected) {
-                component.setBackground(new Color(25, 219, 182, 255));
-                ((JComponent)component).setBorder(BorderFactory.createEmptyBorder());
-                list.setSelectionForeground(Color.WHITE);
-                component.setFont(new Font("Helvetica Neue", 1, 18));
+        public Component getListCellRendererComponent(
+          JList<?> list,
+          Object value,
+          int index,
+          boolean isSelected,
+          boolean cellHasFocus)
+        {
+            String s = value.toString();
+            setText(s.split("#")[0]);
+            if (isSelected) {
+                setBackground(new Color(25, 219, 182, 255));
+                setForeground(Color.WHITE);
+            } else {
+                setBackground(Color.WHITE);
+                setForeground(Color.BLACK);
             }
-            return component;
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+            setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
+            setOpaque(true);
+            return this;
         }
         
     }

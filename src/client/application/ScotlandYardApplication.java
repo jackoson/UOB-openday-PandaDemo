@@ -183,9 +183,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("send_notification")) {
             String message = (String) object;
             gameView.setNotification(message);
-        } else if (id.equals("show_location")) {//Might need to be removed, was a CONFLICT and i dont know if it was added or removed
-            JLabel label = (JLabel) object;
-            gameView.showLocation(label);
         } else if (id.equals("zoom_in")) {
             Integer location = (Integer) object;
             gameView.zoomToNode(location);

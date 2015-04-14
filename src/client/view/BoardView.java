@@ -32,17 +32,12 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     private FileAccess fileAccess;
     private List<Integer> routeHint = new ArrayList<Integer>();
     private Integer selectedNode = 0;
-<<<<<<< HEAD
     private List<CounterAnimator> animators;
     private BoardAnimator boardAnimator = null;
     
     private List<Move> validMoves;
     private BufferedImage cursorImage;
     private Point cursorPos;
-=======
-    
-    private List<CounterAnimator> animators;
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
   
     /**
      * Constructs a new BoardView object.
@@ -61,55 +56,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         this.counters = fileAccess.getCounters();
         locations = new HashMap<Colour, Point>();
         animators = new ArrayList<CounterAnimator>();
-<<<<<<< HEAD
         validMoves = new ArrayList<Move>();
-=======
-    }
-    
-    // Updates all constants to do with image scaling and keeping aspect ratio.
-    // @param size the size of the window.
-    private void updateConstants(Dimension size) {
-        minX = size.width - map.getWidth();
-        minY = size.height - map.getHeight();
-        double imgRatio = (double) map.getWidth() / (double) map.getHeight();
-        double windowRatio = (double) size.width / (double) size.height;
-        if (windowRatio < imgRatio) {
-            scaledX = size.width;
-            scaledY = scaleY(size.width);
-            xPos = 0;
-            yPos = (int) ((size.height - scaledY) / 2.0);
-        } else {
-            scaledX = scaleX(size.height);
-            scaledY = size.height;
-            xPos = (int) ((size.width - scaledX) / 2.0);
-            yPos = 0;
-        }
-        if (zoomed) {
-            scaleFactor = 1.0;
-            xPos = 0;
-            yPos = 0;
-        } else {
-            scaleFactor = (double) scaledX / (double) map.getWidth();
-        }
-        correctCoordinates();
-        
-    }
-    
-    // Returns the scaled height of the image.
-    // @param scaleX the width of the image.
-    // @return the scaled height of the image.
-    private int scaleY(int scaleX) {
-        double ratio = ((double) map.getHeight() / (double) map.getWidth());
-        return (int) (scaleX * ratio);
-    }
-    
-    // Returns the scaled width of the image.
-    // @param scaleX the height of the image.
-    // @return the scaled width of the image.
-    private int scaleX(int scaleY) {
-        double ratio = ((double) map.getWidth() / (double) map.getHeight());
-        return (int) (scaleY * ratio);
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
     }
     
     /**
@@ -133,11 +80,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
-<<<<<<< HEAD
-=======
-        updateConstants(getSize());
-        updateAnimatedCounter();
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
+        
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         updateAnimatedCounter();
         updateAnimatedBoard();
@@ -145,11 +88,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         adjustForBounds();//?
         g.drawImage(map, -viewPos.x, -viewPos.y, (int)(mapSize.getWidth() * scaleFactor), (int)(mapSize.getHeight() * scaleFactor), null);
         
-<<<<<<< HEAD
-=======
-        if (!zoomed) g.drawImage(map, xPos, yPos, scaledX, scaledY, null);
-        else g.drawImage(map, null, x, y);
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
         drawCounters(g, locations);
         if (routeHint.size() > 0) drawRoute(g, routeHint);
         if (selectedNode > 0) drawSelectedNode(g, selectedNode);
@@ -307,7 +245,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         AnimatablePanel.Animator yAnimator = createAnimator(start.getY(), end.getY(), 1.0);
         yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         animators.add(new CounterAnimator(moveTicket.colour, xAnimator, yAnimator));
-<<<<<<< HEAD
     }
     
     // Updates the position of a counter being animated.
@@ -317,33 +254,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
             Point current = new Point(animator.xAnimator.value().intValue(), animator.yAnimator.value().intValue());
             locations.put(animator.counter, current);
         }
-=======
-    }
-    
-    // Updates the position of a counter being animated.
-    private void updateAnimatedCounter() {
-        for (CounterAnimator animator : animators) {
-            locations.remove(animator.counter);
-            Point current = new Point(animator.xAnimator.value().intValue(), animator.yAnimator.value().intValue());
-            locations.put(animator.counter, current);
-        }
-    }
-    
-    /**
-     * Resets the list of AnimatablePanel.Animators.
-     */
-    @Override
-    public void animationCompleted() {
-        animators.clear();
-    }
-
-    // Corrects the coordinates so the map can only be panned in a set area.
-    private void correctCoordinates() {
-        if (x < minX) x = minX;
-        else if (x > maxX) x = maxX;
-        if (y < minY) y = minY;
-        else if (y > maxY) y = maxY;
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
     }
     
     /**
@@ -443,7 +353,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * @param e the MouseEvent containing the location of the click.
      */
     public void mouseClicked(MouseEvent e) {
-<<<<<<< HEAD
         int xPos = scalePoint(e.getX() + viewPos.x);
         int yPos = scalePoint(e.getY() + viewPos.y);
         if (e.getClickCount() == 2) {
@@ -458,41 +367,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
                   && aListener != null) {
                 aListener.actionPerformed(new ActionEvent(new Integer(point), 0, "node"));
             }
-            
-=======
-        if (e.getClickCount() == 2) {
-            double clickX = e.getX() - this.xPos;
-            double clickY = e.getY() - this.yPos;
-            int xPos = (int) Math.round(clickX / scaleFactor) - x;
-            int yPos = (int) Math.round(clickY / scaleFactor) - y;
-            Dimension viewSize = getSize();
-            double offsetX = (viewSize.width / 2) - clickX;
-            double offsetY = (viewSize.height / 2) - clickY;
-            zoomToCoordinates(xPos + (int)offsetX, yPos + (int)offsetY, !zoomed);
-        } else if (e.getClickCount() == 1) {
-            sendEvent(e, "node");
-        }
-    }
-    
-    // Sends an ActionEvent to the registered listener if the
-    // MouseEvent is over a node.
-    // @param e the MouseEvent containing the location of the event.
-    // @param command the command to tell the model what operation to perform.
-    private void sendEvent(MouseEvent e, String command) {
-        double clickX = e.getX() - this.xPos;
-        double clickY = e.getY() - this.yPos;
-        int xPos = (int) Math.round(clickX / scaleFactor) - x;
-        int yPos = (int) Math.round(clickY / scaleFactor) - y;
-        int point = tree.getNode(xPos, yPos);
-        int offset = (int) Math.round(48.0 * scaleFactor);
-        Point d = tree.getNodeLocation(point);
-        if (((d.x - offset) < xPos && xPos < (d.x + offset))
-              && ((d.y - offset) < yPos && yPos < (d.y + offset))
-              && aListener != null) {
-            aListener.actionPerformed(new ActionEvent(new Integer(point), 0, command));
-        } else if (command.equals("hover")) {
-            //setCursor(null);
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
         }
     }
     
@@ -562,7 +436,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     public void mouseMoved(MouseEvent e) {
         if (scaleFactor == 1.0) setCursor(new Cursor(Cursor.MOVE_CURSOR));
         else setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-<<<<<<< HEAD
         
         int xPos = scalePoint(e.getX() + viewPos.x);
         int yPos = scalePoint(e.getY() + viewPos.y);
@@ -603,10 +476,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      */
     public void updateValidMoves(List<Move> validMoves) {
         this.validMoves = validMoves;
-=======
-        // Show the Tickets for a valid Move.
-        sendEvent(e, "hover");
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
     }
     
     /**
@@ -639,12 +508,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
          * @param xAnimator the AnimatablePanel.Animator for the x coordinate.
          * @param yAnimator the AnimatablePanel.Animator for the y coordinate.
          */
-        public CounterAnimator(Colour counter, AnimatablePanel.Animator xAnimator,
-<<<<<<< HEAD
-                               AnimatablePanel.Animator yAnimator) {
-=======
-                                AnimatablePanel.Animator yAnimator) {
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
+        public CounterAnimator(Colour counter, AnimatablePanel.Animator xAnimator, AnimatablePanel.Animator yAnimator) {
             this.counter = counter;
             this.xAnimator = xAnimator;
             this.yAnimator = yAnimator;
@@ -652,7 +516,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         
     }
     
-<<<<<<< HEAD
     // A class to help animate counters.
     private class BoardAnimator {
         
@@ -687,7 +550,4 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         }
         
     }
-    
-=======
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
 }

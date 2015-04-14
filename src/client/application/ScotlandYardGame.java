@@ -189,6 +189,7 @@ public class ScotlandYardGame implements Player, Runnable {
      * @return the Move chosen by the player.
      */
     public Move notify(int location, List<Move> moves) {
+        threadCom.putUpdate("valid_moves", moves);
         updateUI(location, model.getCurrentPlayer());
         Move move = null;
         while (true) {

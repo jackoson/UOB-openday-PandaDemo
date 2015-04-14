@@ -26,6 +26,7 @@ public class ListView extends JPanel implements MouseListener {
     
     //Function to set the cells that the ListView displays
     public void setCells(java.util.List<ListCellView> cells) {
+        cellHolder.removeAll();
         //Constraints
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTH;

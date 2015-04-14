@@ -18,6 +18,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
     private boolean showHint = true;
     private JTextField text;
     private ActionListener listener;
+    private MenuBar menu = null;
     
     /**
      * Constructs a new ChatView object.
@@ -33,7 +34,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
     // @return a styled text field.
     private JTextField getStyledTextField() {
         JTextField textField = new JTextField(hint);
-        textField.setPreferredSize(new Dimension(240, 20));
+        textField.setPreferredSize(new Dimension(260, 20));
         textField.setBackground(Color.WHITE);
         textField.setForeground(Color.GRAY);
         textField.setBorder(new RoundedBorder());
@@ -41,6 +42,10 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
         textField.addKeyListener(this);
         textField.addFocusListener(this);
         return textField;
+    }
+    
+    public void setMenu(MenuBar menu) {
+        this.menu = menu;
     }
     
     /**
@@ -82,6 +87,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
             text.setText("");
             showHint = false;
         }
+        if (menu != null) menu.showChat();
     }
 
     /**
@@ -96,6 +102,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
             text.setText(hint);
             showHint = true;
         }
+        if (menu != null) menu.hideChat();
     }
     
     /**

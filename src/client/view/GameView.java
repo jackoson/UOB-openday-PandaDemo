@@ -24,6 +24,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private TimerView timer;
     private PlayerTicketView ticket;
     private ChatView chat;
+    private ListView listView;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
     
@@ -40,34 +41,16 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         setPreferredSize(new Dimension(1200, 800));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
-        //
-        ListView listView = new ListView();
-        List<ListCellView> v = new ArrayList<ListCellView>();
-        for (int i = 0; i < 6; i++) {
-            List<Move> moves = new ArrayList<Move>();
-            moves.add(new MoveTicket(Colour.Blue, 56, Ticket.Taxi));
-            moves.add(new MoveTicket(Colour.Blue, 7, Ticket.Bus));
-            moves.add(new MoveTicket(Colour.Blue, 198, Ticket.Underground));
-            v.add(new RouteView(moves, fileAccess));
-        }
-        listView.setCells(v);
-        listView.setPreferredSize(new Dimension(200, 1000));
-        //
+        listView = new ListView();
         board = new BoardView(fileAccess);
         notify = new NotifyView(fileAccess.getNotify());
-        JPanel info = new JPanel(new BorderLayout());
-        info.setPreferredSize(new Dimension(1200, 40));
-        info.setBackground(new Color(20, 155, 247));
         chat = new ChatView();
         chat.setBackground(new Color(20, 155, 247));
         chat.setActionListener(this);
-        info.add(chat, BorderLayout.WEST);
         ticket = new PlayerTicketView(fileAccess);
         ticket.setActionListener(this);
-        info.add(ticket, BorderLayout.CENTER);
         timer = new TimerView();
         timer.setActionListener(this);
-        info.add(timer, BorderLayout.EAST);
         board.setLayout(new BorderLayout());
         board.add(listView, BorderLayout.EAST);
         board.setActionListener(this);
@@ -79,7 +62,8 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         jpanel.add(centerPanel, BorderLayout.NORTH);
         board.add(jpanel, BorderLayout.CENTER);
         add(board, BorderLayout.CENTER);
-        add(info, BorderLayout.SOUTH);
+        MenuBar bar = new MenuBar(chat, ticket, timer);
+        board.add(bar, BorderLayout.SOUTH);
     }
     
     /**
@@ -199,6 +183,23 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void updateBoard(Move move) {
         board.update(move);
+    }
+    
+    /**
+     * Updates the valid Moves shown by RouteView and the List in BoardView.
+     *
+     * @param moves the List of valid Moves.
+     */
+    public void updateRoutes(List<Move> moves) {
+        board.updateValidMoves(moves);
+        List<ListCellView> v = new ArrayList<ListCellView>();
+        for (int i = 0; i < Math.min(moves.size(), 6); i++) {
+            List<Move> m = new ArrayList<Move>();
+            m.add(moves.get(i));
+            v.add(new RouteView(m, fileAccess));
+        }
+        listView.setCells(v);
+        listView.setPreferredSize(new Dimension(200, 1000));
     }
     
     /**

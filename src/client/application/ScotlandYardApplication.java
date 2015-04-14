@@ -192,7 +192,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("show_location")) {
             JLabel label = (JLabel) object;
             gameView.showLocation(label);
-        }  else if (id.equals("zoom_in")) {
+        } else if (id.equals("zoom_in")) {
             Integer location = (Integer) object;
             gameView.zoomToNode(location);
         } else if (id.equals("zoom_out")) {
@@ -216,6 +216,11 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("highlight_node")) {
             Integer location = (Integer) object;
             gameView.highlightNode(location);
+        } else if (id.equals("valid_moves")) {
+            @SuppressWarnings("unchecked")
+            List<Move> moves = (List<Move>) object;
+            for (Move move : moves);
+            gameView.updateRoutes(moves);
         }
         
     }

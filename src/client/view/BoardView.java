@@ -323,14 +323,18 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         int xDiff = (int)((mapSize.getWidth() * scaleFactor) - size.getWidth());
         int yDiff = (int)((mapSize.getHeight() * scaleFactor) - (size.getHeight() - 40));
         
+        int boundBorder = halfBorder - 100;
+        
         if (xDiff < 0) point.x = xDiff/2;
-        else if (point.x < (halfBorder - 100) && scaleFactor == 1.0) point.x = (halfBorder - 100);
+        else if (point.x < boundBorder && scaleFactor == 1.0) point.x = boundBorder;
         else if (point.x < 0) point.x = 0;
+        else if (point.x > (xDiff - boundBorder) && scaleFactor == 1.0) point.x = (xDiff - boundBorder);
         else if (point.x > xDiff) point.x = xDiff;
         
         if (yDiff < 0) point.y = yDiff/2;
         else if (point.y < (halfBorder - 100) && scaleFactor == 1.0) point.y = (halfBorder - 100);
         else if (point.y < 0) point.y = 0;
+        else if (point.y > (yDiff - boundBorder) && scaleFactor == 1.0) point.y = (yDiff - boundBorder);
         else if (point.y > yDiff) point.y = yDiff;
         
         return point;

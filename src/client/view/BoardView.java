@@ -19,6 +19,9 @@ import java.util.List;
 public class BoardView extends AnimatablePanel implements MouseListener, MouseMotionListener {
   
     private static final long serialVersionUID = -4785796174751700452L;
+    
+    private final static int border = 1800;
+    private final static int halfBorder = 1000;
   
     private BufferedImage map;
     private Map<Colour, BufferedImage> counters;
@@ -206,7 +209,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         Map<Integer, Point> positions = fileAccess.getPositions();
         for (GamePlayer player : players) {
             if (player.location() == 0) {
-                locations.put(player.colour(), new Point(-50, -50));
+                locations.put(player.colour(), new Point(-550, 1463));
             } else {
                 locations.put(player.colour(), positions.get(player.location()));
             }
@@ -236,7 +239,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         Point end = null;
         Point start = locations.get(moveTicket.colour);
         if (moveTicket.target == 0) {
-            end = new Point(-50, 350);
+            end = new Point(-100, 100);
         } else {
             end = fileAccess.getPositions().get(moveTicket.target);
         }
@@ -261,7 +264,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      */
     @Override
     public void animationCompleted() {
-        if (Math.round(scaleFactor*1000)/1000 == 1.0) scaleFactor = 1.0;
+        if (Math.round(scaleFactor * 1000) / 1000 == 1.0) scaleFactor = 1.0;
         boardAnimator = null;
         animators.clear();
     }
@@ -308,8 +311,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         double mapRatio = mapSize.getWidth() / mapSize.getHeight();
         double viewRatio = size.getWidth() / (size.getHeight() - 40);
         
-        if (viewRatio > mapRatio) return (size.getHeight() - 40) / mapSize.getHeight();
-        else return size.getWidth() / mapSize.getWidth();
+        if (viewRatio > mapRatio) return (size.getHeight() - 40) / (mapSize.getHeight() - border);//
+        else return size.getWidth() / (mapSize.getWidth() - border);//
     }
     
     //?
@@ -319,22 +322,24 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         int yDiff = (int)((mapSize.getHeight() * scaleFactor) - (size.getHeight() - 40));
         
         if (xDiff < 0) viewPos.x = xDiff/2;
+        else if (viewPos.x < (halfBorder - 100) && scaleFactor == 1.0)) viewPos.x = (halfBorder - 100);
         else if (viewPos.x < 0) viewPos.x = 0;
         else if (viewPos.x > xDiff) viewPos.x = xDiff;
         
         if (yDiff < 0) viewPos.y = yDiff/2;
+        else if (viewPos.y < (halfBorder - 100) && scaleFactor == 1.0) viewPos.y = (halfBorder - 100);
         else if (viewPos.y < 0) viewPos.y = 0;
         else if (viewPos.y > yDiff) viewPos.y = yDiff;
     }
     
     //?
     private int scalePoint(int pos) {
-        return (int)((double)pos / scaleFactor);
+        return (int)((double)pos / scaleFactor) - halfBorder;//
     }
     
     //?
     private int unscalePoint(int pos) {
-        return (int)((double)pos * scaleFactor);
+        return (int)((double)(pos + halfBorder) * scaleFactor);//
     }
     
     /**

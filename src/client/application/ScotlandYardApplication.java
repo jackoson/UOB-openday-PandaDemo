@@ -16,6 +16,7 @@ import java.util.concurrent.*;
  */
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
+  
     public boolean DEBUG = true;
     private ScotlandYardGame game;
     private GameView gameView;
@@ -45,9 +46,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         fileAccess = new FileAccess();
         window = new JFrame();
         window.setMinimumSize(new Dimension(1200, 800));
+        window.setPreferredSize(new Dimension(1200, 800));
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setOpaque(false);
         setUpView = new SetUpView(fileAccess);
         setUpView.setActionListener(this);
         window.addComponentListener(gameView);

@@ -39,8 +39,6 @@ public class SetUpView extends JPanel implements KeyListener {
     public SetUpView(FileAccess fileAccess) {
         this.fileAccess = fileAccess;
         background = fileAccess.getSetupBackground();
-        
-        setPreferredSize(new Dimension(1200, 800));
         setBackground(new Color(51,135,253));
         setLayout(new GridBagLayout());
         
@@ -79,8 +77,8 @@ public class SetUpView extends JPanel implements KeyListener {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.drawImage(backgroundImage, 0, 0, null);
         Dimension panelSize = getSize();
+        g.drawImage(backgroundImage, (panelSize.width / 2) - 600, 0, null);
         g.drawImage(background, (panelSize.width / 2) - 415, (panelSize.height / 2) - 215, null);
     }
     

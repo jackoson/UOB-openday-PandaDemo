@@ -8,13 +8,15 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class RouteView extends ListCellView {
-    MainIndicator indicator;
-    java.util.List<MoveIndicator> moveIndicators;
-    java.util.List<ArrowHolder> arrows;
-    DotsHolder dots = null;
-    Move firstMove = null;
+    
+    private MainIndicator indicator;
+    private List<MoveIndicator> moveIndicators;
+    private List<ArrowHolder> arrows;
+    private DotsHolder dots = null;
+    private Move firstMove = null;
     
     public RouteView(java.util.List<Move> moves, FileAccess fileAccess) {
         firstMove = moves.get(0);
@@ -64,11 +66,13 @@ public class RouteView extends ListCellView {
         if (arrow != null) {remove(arrow); arrows.remove(arrow);}
         if (count > 3) {dots = new DotsHolder(); add(dots, constraints);}
     }
+    
     //Return the first move as the ListCell object
     @Override
     public Object object() {
         return firstMove;
     }
+    
     //Update the UI as the expand animation begins
     @Override
     public void animationBegun() {
@@ -80,6 +84,7 @@ public class RouteView extends ListCellView {
             indicator.setHighlighted(true);
         }
     }
+    
     //Update the UI as the expand animation finishes
     @Override
     public void animationCompleted() {
@@ -91,6 +96,7 @@ public class RouteView extends ListCellView {
             indicator.setHighlighted(false);
         }
     }
+    
     //Update the Ui as the cell is seleced or deselected
     @Override
     public void setSelected(boolean selected) {
@@ -104,6 +110,7 @@ public class RouteView extends ListCellView {
         if (dots != null) dots.setSelected(selected);
         indicator.setSelected(selected);
     }
+    
     //Draw background and shadow
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
@@ -119,11 +126,13 @@ public class RouteView extends ListCellView {
         else g.setColor(new Color(255, 255, 255, 250));
         g.fillRoundRect(1, 3, size.width-2, size.height - 6, 10, 10);
     }
+    
     //The leftmost indicator, holding an image and a divider
     private class MainIndicator extends JPanel {
+      
         private JPanel divider;
-        boolean selected = false;
-        boolean highlighted = false;
+        private boolean selected = false;
+        private boolean highlighted = false;
         
         public MainIndicator(TicketIndicator ticket) {
             setOpaque(false);
@@ -164,13 +173,16 @@ public class RouteView extends ListCellView {
                 else divider.setBackground(new Color(180, 180, 180));
             } else divider.setBackground(new Color(255, 255, 255, 0));
         }
+        
     }
+    
     //Panel to hold a TicketIndicator and LocationIndicator, representing a move
     private class MoveIndicator extends JPanel {
-        GridBagConstraints constraints;
-        TicketIndicator ticket;
-        JPanel spacer;
-        LocationIndicator location;
+      
+        private GridBagConstraints constraints;
+        private TicketIndicator ticket;
+        private JPanel spacer;
+        private LocationIndicator location;
         
         public MoveIndicator(BufferedImage image, Integer loc) {
             setOpaque(false);
@@ -188,6 +200,7 @@ public class RouteView extends ListCellView {
             location = new LocationIndicator(loc);
             add(location, constraints);
         }
+        
         //Function for re-add panels depending on the highlight state
         public void setHighlighted(boolean highlighted) {
             removeAll();
@@ -204,16 +217,20 @@ public class RouteView extends ListCellView {
         public void setSelected(boolean selected) {
             location.setSelected(selected);
         }
+        
     }
+    
     //Panel to display a ticket image
     private class TicketIndicator extends AnimatablePanel {
-        BufferedImage image;
+      
+        private BufferedImage image;
         
         public TicketIndicator(BufferedImage image) {
             setOpaque(false);
             setPreferredSize(new Dimension(20, 14));
             this.image = image;
         }
+        
         //Draw ticket image
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
@@ -224,10 +241,14 @@ public class RouteView extends ListCellView {
             Dimension size = getSize();
             if (image != null) g.drawImage(image, null, 0, 0);
         }
+        
     }
+    
     //Panel to display number that represents a location
     private class LocationIndicator extends JPanel {
-        JLabel label;
+      
+        private JLabel label;
+        
         public LocationIndicator(int number) {
             setPreferredSize(new Dimension(28, 14));
             setOpaque(false);
@@ -244,11 +265,14 @@ public class RouteView extends ListCellView {
             if (selected) label.setForeground(new Color(255, 255, 255));
             else label.setForeground(new Color(100, 100, 100));
         }
+        
     }
+    
     //Holder for an indicator that sits between moves
     private class ArrowHolder extends JPanel {
-        Polygon triangle;
-        boolean selected = false;
+      
+        private Polygon triangle;
+        private boolean selected = false;
         
         public ArrowHolder() {
             setOpaque(false);
@@ -275,10 +299,13 @@ public class RouteView extends ListCellView {
             g.fillPolygon(triangle);
             
         }
+        
     }
+    
     //Holder for an indicator if there are extra items that cannot be displayed
     private class DotsHolder extends JPanel {
-        boolean selected = false;
+      
+        private boolean selected = false;
         
         public DotsHolder() {
             setOpaque(false);
@@ -302,5 +329,7 @@ public class RouteView extends ListCellView {
             g.fillOval(8, 4, 2, 2);
             
         }
+        
     }
+    
 }

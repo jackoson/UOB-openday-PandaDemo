@@ -21,18 +21,12 @@ public class FileAccess {
     
     private BufferedImage map;
     private BufferedImage notify;
-    private BufferedImage circle;
     private BufferedImage setupBackground;
-    private Map<Ticket, BufferedImage> tickets;
-    private Map<Ticket, BufferedImage> ticketsBlank;
     private Map<Ticket, BufferedImage> ticketsSmall;
     private Map<Colour, BufferedImage> counters;
-    private Map<Colour, BufferedImage> players;
     private Map<Integer, Point> mapPositions;
-    private List<BufferedImage> startTickets;
     private BufferedImage setupImage;
     private BufferedImage warningIcon;
-    
     private Map<Set<Ticket>, BufferedImage> cursors;
     
     /**
@@ -40,18 +34,13 @@ public class FileAccess {
      * This loads all images to memory so they can be quickly accessed later.
      */
     public FileAccess() {
-        tickets = new HashMap<Ticket, BufferedImage>();
-        ticketsBlank = new HashMap<Ticket, BufferedImage>();
         ticketsSmall = new HashMap<Ticket, BufferedImage>();
         counters = new HashMap<Colour, BufferedImage>();
-        players = new HashMap<Colour, BufferedImage>();
         mapPositions = makePositions();
-        startTickets = new ArrayList<BufferedImage>();
         cursors = new HashMap<Set<Ticket>, BufferedImage>();
         try {
-            map = ImageIO.read(this.getClass().getResource("/resources/map.jpg"));
+            map = ImageIO.read(this.getClass().getResource("/resources/map_large.jpg"));
             notify = ImageIO.read(this.getClass().getResource("/resources/notify.png"));
-            circle = ImageIO.read(this.getClass().getResource("/resources/badge.png"));
             setupBackground = ImageIO.read(this.getClass().getResource("/resources/setupBackground.png"));
             warningIcon = ImageIO.read(this.getClass().getResource("/resources/warningIcon.jpg"));
             
@@ -62,35 +51,13 @@ public class FileAccess {
             counters.put(Colour.Green, ImageIO.read(this.getClass().getResource("/resources/counters/green_counter.png")));
             counters.put(Colour.White, ImageIO.read(this.getClass().getResource("/resources/counters/white_counter.png")));
             
-            players.put(Colour.Black, ImageIO.read(this.getClass().getResource("/resources/players/black_player.png")));
-            players.put(Colour.Blue, ImageIO.read(this.getClass().getResource("/resources/players/blue_player.png")));
-            players.put(Colour.Yellow, ImageIO.read(this.getClass().getResource("/resources/players/yellow_player.png")));
-            players.put(Colour.Red, ImageIO.read(this.getClass().getResource("/resources/players/red_player.png")));
-            players.put(Colour.Green, ImageIO.read(this.getClass().getResource("/resources/players/green_player.png")));
-            players.put(Colour.White, ImageIO.read(this.getClass().getResource("/resources/players/white_player.png")));
-            
-            tickets.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi.png")));
-            tickets.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus.png")));
-            tickets.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground.png")));
-            tickets.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret.png")));
-            tickets.put(Ticket.Double, ImageIO.read(this.getClass().getResource("/resources/tickets/double.png")));
-            
-            ticketsBlank.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi_blank.png")));
-            ticketsBlank.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus_blank.png")));
-            ticketsBlank.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground_blank.png")));
-            ticketsBlank.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_blank.png")));
-            
             ticketsSmall.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi_small.png")));
             ticketsSmall.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus_small.png")));
             ticketsSmall.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground_small.png")));
             ticketsSmall.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret_small.png")));
             ticketsSmall.put(Ticket.Double, ImageIO.read(this.getClass().getResource("/resources/tickets/double_small.png")));
             
-            startTickets.add(ImageIO.read(this.getClass().getResource("/resources/tickets/start.png")));
-            startTickets.add(ImageIO.read(this.getClass().getResource("/resources/tickets/start_blank.png")));
-            
             setupImage = ImageIO.read(this.getClass().getResource("/resources/setup_image.png"));
-            
             
             Set<Ticket> singleTaxi = new HashSet<Ticket>();
             singleTaxi.add(Ticket.Taxi);
@@ -98,10 +65,13 @@ public class FileAccess {
             singleBus.add(Ticket.Bus);
             Set<Ticket> singleUnderground = new HashSet<Ticket>();
             singleUnderground.add(Ticket.Underground);
+            Set<Ticket> singleSecret = new HashSet<Ticket>();
+            singleSecret.add(Ticket.Secret);
             
             cursors.put(singleTaxi, ImageIO.read(this.getClass().getResource("/resources/cursors/single_taxi.png")));
             cursors.put(singleBus, ImageIO.read(this.getClass().getResource("/resources/cursors/single_bus.png")));
             cursors.put(singleUnderground, ImageIO.read(this.getClass().getResource("/resources/cursors/single_underground.png")));
+            cursors.put(singleSecret, ImageIO.read(this.getClass().getResource("/resources/cursors/single_secret.png")));
             
             Set<Ticket> doubleTaxiBus = new HashSet<Ticket>();
             doubleTaxiBus.add(Ticket.Taxi);
@@ -208,15 +178,6 @@ public class FileAccess {
     }
     
     /**
-     * Returns the PlayersView background circle image.
-     *
-     * @return the background circle image.
-     */
-    public BufferedImage getCircle() {
-        return circle;
-    }
-    
-    /**
      * Returns the SetUpView background image.
      *
      * @return the background image.
@@ -232,33 +193,6 @@ public class FileAccess {
      */
     public ImageIcon getWarningIcon() {
         return new ImageIcon(warningIcon);
-    }
-    
-    /**
-     * Returns a List the start Ticket images.
-     *
-     * @return a List the start Ticket images.
-     */
-    public List<BufferedImage> getStartTickets() {
-        return startTickets;
-    }
-    
-    /**
-     * Returns a Map of the Ticket images.
-     *
-     * @return the Map of Ticket images.
-     */
-    public Map<Ticket, BufferedImage> getTickets() {
-        return tickets;
-    }
-    
-    /**
-     * Returns a Map of the back of the Ticket images.
-     *
-     * @return the Map of the back of the Ticket images.
-     */
-    public Map<Ticket, BufferedImage> getTicketsBlank() {
-        return ticketsBlank;
     }
     
     /**
@@ -286,15 +220,6 @@ public class FileAccess {
      */
     public Map<Set<Ticket>, BufferedImage> getCursors() {
         return cursors;
-    }
-    
-    /**
-     * Returns a Map of the PlayerView background images.
-     *
-     * @return the Map of background images.
-     */
-    public Map<Colour, BufferedImage> getPlayers() {
-        return players;
     }
     
     /**

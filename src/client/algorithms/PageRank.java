@@ -15,6 +15,7 @@ public class PageRank {
     private Map<Node<Integer>, Double> pageRanks;
     private Set<Node<Integer>> nodes;
     private Double d;
+    private Map<Integer, Set<Edge<Integer, Route>>> edgeMap;
     
     /**
      * Constructs a new PageRank object.
@@ -25,6 +26,7 @@ public class PageRank {
         this.graph = graph;
         pageRanks = new HashMap<Node<Integer>, Double>();
         d = new Double(0.85);
+        edgeMap = mapEdges();
         initialiseMap();
     }
     
@@ -55,7 +57,8 @@ public class PageRank {
         Map<Node<Integer>, Double> updatedPageRanks = new HashMap<Node<Integer>, Double>();
         for (Map.Entry<Node<Integer>, Double> entry : pageRanks.entrySet()) {
             Node<Integer> node = entry.getKey();
-            Set<Edge<Integer, Route>> edges = graph.getEdges(node.data());
+            //Set<Edge<Integer, Route>> edges = graph.getEdges(node.data());
+            Set<Edge<Integer, Route>> edges = edgeMap.get(node.data());
             Double newPageRank = (1 - d) + (d * sumPageRanks(node.data(), edges));
             updatedPageRanks.put(node, newPageRank);
         }
@@ -74,10 +77,32 @@ public class PageRank {
                 location = edge.target();
             }
             Node<Integer> node = getNode(location);
-            Set<Edge<Integer, Route>> nodeEdges = graph.getEdges(node.data());
+            //Set<Edge<Integer, Route>> nodeEdges = graph.getEdges(node.data());
+            Set<Edge<Integer, Route>> nodeEdges = edgeMap.get(node.data());
             sum += getPageRank(node.data()) / (double) nodeEdges.size();
         }
         return sum;
+    }
+    
+    private Map<Integer, Set<Edge<Integer, Route>>> mapEdges() {
+        Map<Integer, Set<Edge<Integer, Route>>> map = new HashMap<Integer, Set<Edge<Integer, Route>>>();
+        Set<Edge<Integer, Route>> edges = graph.getEdges();
+        
+        for (Edge<Integer, Route> edge : edges) {
+            Integer target = edge.target();
+            Integer source = edge.source();
+            
+            Set<Edge<Integer, Route>> targetSet = map.get(target);
+            if (targetSet == null) targetSet = new HashSet<Edge<Integer, Route>>();
+            targetSet.add(edge);
+            map.put(target, targetSet);
+            
+            Set<Edge<Integer, Route>> sourceSet = map.get(source);
+            if (sourceSet == null) sourceSet = new HashSet<Edge<Integer, Route>>();
+            sourceSet.add(edge);
+            map.put(source, sourceSet);
+        }
+        return map;
     }
     
     /**

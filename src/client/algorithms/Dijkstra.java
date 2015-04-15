@@ -27,7 +27,6 @@ public class Dijkstra {
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
             this.graph = graphReader.readGraph(graphFilename);
             nodes = graph.getNodes();
-            
             pageRank = new PageRank(graph);
             pageRank.iterate(100);
         } catch (IOException e) {

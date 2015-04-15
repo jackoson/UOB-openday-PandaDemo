@@ -462,8 +462,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         for (Move move : validMoves) {
             if (move instanceof MoveTicket && ((MoveTicket) move).target == point) {
                 tickets.add(((MoveTicket) move).ticket);
-            } else if (move instanceof MoveDouble && ((MoveTicket) ((MoveDouble)move).moves.get(1)).target == point) {
-                //tickets.add(move.moves.get(1).ticket);?
             }
         }
         return tickets;

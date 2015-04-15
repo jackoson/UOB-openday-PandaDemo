@@ -16,7 +16,7 @@ import java.util.concurrent.*;
  */
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
-    
+    public boolean DEBUG = true;
     private ScotlandYardGame game;
     private GameView gameView;
     private SetUpView setUpView;
@@ -58,6 +58,12 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setLocationByPlatform(true);
         window.addWindowListener(this);
         window.setVisible(true);
+        
+        if (DEBUG){//?
+            setUpView.setVisible(false);
+            beginGame();
+            newGame();
+        }
     }
     
     /**

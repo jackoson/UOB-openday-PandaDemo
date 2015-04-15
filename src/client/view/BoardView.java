@@ -196,7 +196,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * Zooms out so the map fits in the view.
      */
     public void zoomOut() {
-        zoomToCoordinates(0, 0, false);
+        zoomToCoordinates((int) (mapSize.getWidth() / 2.0) - halfBorder, (int) (mapSize.getHeight() / 2.0) - halfBorder, false);
     }
     
     /**
@@ -283,7 +283,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         double startX = viewPos.getX();
         double startY = viewPos.getY();
         double finalX = unscalePoint(xPos) - ((double) size.width / 2.0);
-        double finalY = unscalePoint(yPos) - ((double) size.height / 2.0);
+        double finalY = unscalePoint(yPos) - ((double) size.height / 2.0) + 20;
         Point p = adjustForBounds(new Point((int)finalX, (int)finalY));
         finalX = p.getX();
         finalY = p.getY();
@@ -370,7 +370,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         int yPos = scalePoint(e.getY() + viewPos.y);
         if (e.getClickCount() == 2) {
             boolean zOut = scaleFactor == 1.0;
-            zoomToCoordinates(xPos, yPos, !zOut);
+            if (zOut) zoomOut();
+            else zoomToCoordinates(xPos, yPos, !zOut);
         } else if (e.getClickCount() == 1) {
             int point = tree.getNode(xPos, yPos);
             int offset = (int) Math.round(48.0 * scaleFactor);

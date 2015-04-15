@@ -17,7 +17,7 @@ public class ChatEventView extends JPanel implements MouseListener {
         messageCount = 0;
         setOpaque(false);
         addMouseListener(this);
-        setBorder(BorderFactory.createEmptyBorder(0, 40, 0, 20));
+        setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 20));
         
         scrollContainer = new JPanel();
         scrollContainer.setLayout(new GridBagLayout());
@@ -55,14 +55,19 @@ public class ChatEventView extends JPanel implements MouseListener {
         
         Dimension size = getSize();
         
+        g.setColor(new Color(0, 0, 0, 50));
+        g.fillRoundRect(19, 2, size.width-38, size.height+10, 10, 10);
+        
         g.setColor(new Color(255, 255, 255, 250));
         g.fillRoundRect(20, 0, size.width-40, size.height+10, 10, 10);
     }
     
     public void addMessage() {
+        System.err.println("BEGIN:" + scrollContainer.getSize());
         constraints.gridy = messageCount + 1;
         remove(spacer);
-        scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 24) , constraints);
+        System.err.println(scrollContainer.getSize().width);
+        scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 36) , constraints);
         messageCount++;
         constraints.gridy = messageCount + 1;
         constraints.fill = GridBagConstraints.BOTH;
@@ -71,9 +76,12 @@ public class ChatEventView extends JPanel implements MouseListener {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weighty = 0;
         
-        scrollPane.revalidate();
+        scrollContainer.revalidate();
         Dimension containerSize = scrollContainer.getSize();
-        scrollPane.getVerticalScrollBar().setValue(containerSize.height);
+        
+        JScrollBar vBar = scrollPane.getVerticalScrollBar();
+        vBar.setValue(vBar.getMaximum());
+        System.err.println("END:" + scrollContainer.getSize() + vBar.getMaximum() + ":" + vBar.getValue());
     }
     
     /**
@@ -120,9 +128,9 @@ public class ChatEventView extends JPanel implements MouseListener {
     private class MessageView extends AnimatablePanel {
         
         public MessageView(String message, String player, int width) {
-            setBackground(Color.GREEN);
+            setBackground(new Color(240, 240, 240));
             setLayout(new BorderLayout());
-            setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+            setBorder(BorderFactory.createEmptyBorder(2, 16, 6, 4));
             setOpaque(false);
             
             String text = String.format("<html><div WIDTH=%d>%s</div><html>", width, player + ": " + message);
@@ -142,6 +150,18 @@ public class ChatEventView extends JPanel implements MouseListener {
             label.setForeground(Color.RED);
             add(label);
         }
+        
+        public void paintComponent(Graphics g0) {
+            super.paintComponent(g0);
+            Graphics2D g = (Graphics2D) g0;
+            
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                               RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            
+            g.setColor(new Color(25, 25, 255, 250));
+            g.fillOval(2, 8, 8, 8);
+        }
     }
     
     public class ScrollBarUI extends BasicScrollBarUI {
@@ -158,7 +178,7 @@ public class ChatEventView extends JPanel implements MouseListener {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                RenderingHints.VALUE_ANTIALIAS_ON);
             g.setColor(new Color(0, 0, 0, 30));
-            int width = 6;
+            int width = 8;
             g.fillRoundRect(thumbBounds.x + thumbBounds.width/2 - width, thumbBounds.y + width, width, thumbBounds.height - width*2, width, width);
         }
         

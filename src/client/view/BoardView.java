@@ -88,7 +88,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         updateAnimatedCounter();
         updateAnimatedBoard();
         
-        adjustForBounds();//?
         g.drawImage(map, -viewPos.x, -viewPos.y, (int)(mapSize.getWidth() * scaleFactor), (int)(mapSize.getHeight() * scaleFactor), null);
         
         drawCounters(g, locations);
@@ -285,11 +284,13 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         double startY = viewPos.getY();
         double finalX = unscalePoint(xPos) - ((double) size.width / 2.0);
         double finalY = unscalePoint(yPos) - ((double) size.height / 2.0);
-        
+        Point p = adjustForBounds(new Point((int)finalX, (int)finalY));
+        finalX = p.getX();
+        finalY = p.getY();
         scaleFactor = oldSF;
         
         AnimatablePanel.AnimationEase ease = AnimatablePanel.AnimationEase.EASE_IN_OUT;
-        double duration = 0.8;
+        double duration = 0.6;
         AnimatablePanel.Animator scaleAnimator = createAnimator(scaleFactor, newScaleFactor, duration);
         scaleAnimator.setEase(ease);
         AnimatablePanel.Animator xAnimator = createAnimator(startX, finalX, duration);
@@ -316,7 +317,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     }
     
     //?
-    private void adjustForBounds() {
+    private Point adjustForBounds(Point point) {
+        
         Dimension size = getSize();
         int xDiff = (int)((mapSize.getWidth() * scaleFactor) - size.getWidth());
         int yDiff = (int)((mapSize.getHeight() * scaleFactor) - (size.getHeight() - 40));
@@ -391,6 +393,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * @param e the MouseEvent containing the location of the click.
      */
     public void mousePressed(MouseEvent e) {
+        BoardView.this.grabFocus();
         mouseDownPos.x = e.getX();
         mouseDownPos.y = e.getY();
         mouseDownViewPos.x = viewPos.x;
@@ -409,6 +412,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
             int offsetY = e.getY() - mouseDownPos.y;
             viewPos.x = mouseDownViewPos.x - offsetX;//might want to scale viewpos as well
             viewPos.y = mouseDownViewPos.y - offsetY;
+            viewPos = adjustForBounds(viewPos);//?
             repaint();
         }
     }

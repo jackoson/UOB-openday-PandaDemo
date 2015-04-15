@@ -77,9 +77,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         if (e.getActionCommand().equals("node")) {
             //Player has clicked on a node in board view
             threadCom.putEvent("node_clicked", (Integer) e.getSource());
-        } else if (e.getActionCommand().equals("hover")) {
-            //Player has hovered over a node in board view
-            threadCom.putEvent("node_hovered", (Integer) e.getSource());
         } else if (e.getActionCommand().equals("timer")) {
             //Player has run out of time for their move
             threadCom.putEvent("timer_fired", true);
@@ -179,35 +176,12 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
-<<<<<<< HEAD
      * Updates the valid Moves shown by RouteView and the List in BoardView.
      *
      * @param moves the List of valid Moves.
      */
-    public void updateRoutes(List<Move> moves) {
-        board.updateValidMoves(moves);
-        List<ListCellView> v = new ArrayList<ListCellView>();
-        for (int i = 0; i < Math.min(moves.size(), 6); i++) {
-            List<Move> m = new ArrayList<Move>();
-            m.add(moves.get(i));
-            v.add(new RouteView(m, fileAccess));
-        }
-        listView.setCells(v);
-        listView.setPreferredSize(new Dimension(200, 1000));
-    }
-    
-    /**
-     * Updates the list of Mr X's previous moves in the MovesView.
-     * If it is not Mr X's move, it does nothing.
-     * 
-     * @param move the move containing the information to update the view.
-=======
-     * Updates the valid Moves shown by RouteView.
-     *
-     * @param moves the List of valid Moves.
->>>>>>> 71506f49466d1b3cbd160afeea882f3784f913ee
-     */
     public void updateRoutes(Set<Move> moves) {
+        board.updateValidMoves(moves);
         List<ListCellView> v = new ArrayList<ListCellView>();
         Iterator<Move> it = moves.iterator();
         for (int i = 0; i < Math.min(moves.size(), 6); i++) {

@@ -35,7 +35,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     private List<CounterAnimator> animators;
     private BoardAnimator boardAnimator = null;
     
-    private List<Move> validMoves;
+    private Set<Move> validMoves;
     private BufferedImage cursorImage;
     private Point cursorPos;
   
@@ -56,7 +56,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         this.counters = fileAccess.getCounters();
         locations = new HashMap<Colour, Point>();
         animators = new ArrayList<CounterAnimator>();
-        validMoves = new ArrayList<Move>();
+        validMoves = new HashSet<Move>();
     }
     
     /**
@@ -462,6 +462,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         for (Move move : validMoves) {
             if (move instanceof MoveTicket && ((MoveTicket) move).target == point) {
                 tickets.add(((MoveTicket) move).ticket);
+            } else if (move instanceof MoveDouble && ((MoveTicket) ((MoveDouble)move).move2).target == point) {
+                //tickets.add(move.moves.get(1).ticket);?
             }
         }
         return tickets;
@@ -472,7 +474,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      *
      * @param validMoves the new List of valid Moves.
      */
-    public void updateValidMoves(List<Move> validMoves) {
+    public void updateValidMoves(Set<Move> validMoves) {
         this.validMoves = validMoves;
     }
     

@@ -184,9 +184,12 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         board.updateValidMoves(moves);
         List<ListCellView> v = new ArrayList<ListCellView>();
         Iterator<Move> it = moves.iterator();
-        for (int i = 0; i < Math.min(moves.size(), 6); i++) {
+        for (int i = 0; i < moves.size(); i++) {
+            if(v.size() > 14) break;
+            Move move = it.next();
+            if (move instanceof MoveDouble) continue;
             List<Move> m = new ArrayList<Move>();
-            m.add(it.next());
+            m.add(move);
             v.add(new RouteView(m, fileAccess));
         }
         listView.setCells(v);

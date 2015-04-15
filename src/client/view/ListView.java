@@ -42,6 +42,7 @@ public class ListView extends JPanel implements MouseListener {
             gridy++;
             
             cell.setPreferredSize(new Dimension(20, 32));
+            
             cell.addMouseListener(this);
             cellHolder.add(cell, constraints);
         }

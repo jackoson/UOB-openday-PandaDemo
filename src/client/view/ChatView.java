@@ -71,7 +71,6 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
               listener.actionPerformed(new ActionEvent(message, 0, "message"));
             }
             text.setText("");
-            this.requestFocusInWindow();
         }
     }
     

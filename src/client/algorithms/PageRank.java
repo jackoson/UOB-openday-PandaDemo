@@ -16,7 +16,6 @@ public class PageRank {
     private Set<Node<Integer>> nodes;
     private Double d;
     private Map<Integer, Set<Edge<Integer, Route>>> edgeMap;
-    
     /**
      * Constructs a new PageRank object.
      *
@@ -87,7 +86,6 @@ public class PageRank {
     private Map<Integer, Set<Edge<Integer, Route>>> mapEdges() {
         Map<Integer, Set<Edge<Integer, Route>>> map = new HashMap<Integer, Set<Edge<Integer, Route>>>();
         Set<Edge<Integer, Route>> edges = graph.getEdges();
-        
         for (Edge<Integer, Route> edge : edges) {
             Integer target = edge.target();
             Integer source = edge.source();

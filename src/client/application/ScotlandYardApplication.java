@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
   
-    public boolean DEBUG = true;
+    public boolean DEBUG = false;
     private ScotlandYardGame game;
     private GameView gameView;
     private SetUpView setUpView;
@@ -50,8 +50,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setUpView = new SetUpView(fileAccess);
         setUpView.setActionListener(this);
-        window.addComponentListener(gameView);
         window.add(setUpView);
+        window.addComponentListener(gameView);
         setUpView.setVisible(true);
         window.pack();
         window.setTitle("Scotland Yard");
@@ -87,7 +87,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("startGame")) {
             if(validGameName(setUpView.selectedGameName())) {
-                setUpView.setVisible(false);
+                window.remove(setUpView);
                 beginGame();
                 newGame();
             } else {
@@ -97,7 +97,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
         } else if (e.getActionCommand().equals("loadGame")) {
             if (setUpView.selectedFilePath() != null) {
-                setUpView.setVisible(false);
+                window.remove(setUpView);
                 beginGame();
                 loadGame();
             }
@@ -121,6 +121,14 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         threadCom = new ThreadCommunicator();
         
         gameView = new GameView(fileAccess, threadCom);
+        Action menu = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                game.saveGame();
+                endGame();
+            }
+        };
+        gameView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F10"), "menu");
+        gameView.getActionMap().put("menu", menu);
         window.addComponentListener(gameView);
         window.add(gameView);
         window.pack();
@@ -144,7 +152,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     // Removes the gameview and shows the setup view
     private void endGame() {
         window.remove(gameView);
-        setUpView.setVisible(true);
+        window.add(setUpView);
+        window.pack();
+        window.repaint();
         setUpView.refreshSaves();
         threadCom.clearEvents();
         threadCom.clearUpdates();

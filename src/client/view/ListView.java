@@ -1,10 +1,12 @@
 package client.view;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.*;
 import java.util.List;
 import javax.imageio.*;
 
@@ -13,6 +15,7 @@ public class ListView extends JPanel implements MouseListener {
     private ListCellView highlightedCell= null;
     private JPanel cellHolder;
     private Timer timer;
+    private ActionListener listener = null;
     
     public ListView() {
         setOpaque(false);
@@ -54,9 +57,18 @@ public class ListView extends JPanel implements MouseListener {
         spacer.setOpaque(false);
         cellHolder.add(spacer, constraints);
     }
+    //Set the listener object
+    public void setListener(ActionListener listener) {
+        this.listener = listener;
+    }
     //Get an object from the selected cell
     public Object selectedObject() {
         if (selectedCell != null) return selectedCell.object();
+        return null;
+    }
+    //Get an route from the highlighted cell
+    public Collection highlightedRoute() {
+        if (highlightedCell != null) return highlightedCell.collection();
         return null;
     }
     //Highlighting and selecting cells
@@ -64,12 +76,16 @@ public class ListView extends JPanel implements MouseListener {
         cell.setHighlighted(true);
         cell.setPreferredSize(new Dimension(20, 58), 0.2, AnimatablePanel.AnimationEase.EASE_IN_OUT);
         highlightedCell = cell;
+        //
+        if (listener != null) listener.actionPerformed(new ActionEvent(this, 0, "list_cell_highlighted"));
     }
     
     private void unhighlightCell(ListCellView cell) {
         cell.setHighlighted(false);
         cell.setPreferredSize(new Dimension(20, 32), 0.2, AnimatablePanel.AnimationEase.EASE_IN_OUT);
         highlightedCell = null;
+        //
+        if (listener != null) listener.actionPerformed(new ActionEvent(this, 0, "list_cell_unhighlighted"));
     }
     //Mouse events
     public void mouseClicked(MouseEvent e) {

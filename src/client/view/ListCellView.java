@@ -1,5 +1,7 @@
 package client.view;
 
+import java.util.*;
+
 abstract class ListCellView extends AnimatablePanel {
     private boolean selected = false;
     private boolean highlighted = false;
@@ -26,6 +28,10 @@ abstract class ListCellView extends AnimatablePanel {
     }
     
     public Object object() {
+        return null;
+    }
+    
+    public Collection collection() {
         return null;
     }
 

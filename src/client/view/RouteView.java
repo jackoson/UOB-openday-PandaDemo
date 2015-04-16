@@ -17,9 +17,11 @@ public class RouteView extends ListCellView {
     private List<ArrowHolder> arrows;
     private DotsHolder dots = null;
     private Move firstMove = null;
+    private List<Integer> locations;
     
-    public RouteView(java.util.List<Move> moves, FileAccess fileAccess) {
+    public RouteView(List<Move> moves, FileAccess fileAccess) {
         firstMove = moves.get(0);
+        locations = new ArrayList<Integer>();
         Map<Ticket, BufferedImage> images = fileAccess.getTicketsSmall();
         moveIndicators = new ArrayList<MoveIndicator>();
         arrows = new ArrayList<ArrowHolder>();
@@ -56,6 +58,8 @@ public class RouteView extends ListCellView {
             MoveIndicator m = new MoveIndicator(image, mTicket.target);
             moveIndicators.add(m);
             add(m, constraints);
+            //
+            locations.add(mTicket.target);
             //Add arrow separator
             constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = count * 2;
@@ -71,6 +75,12 @@ public class RouteView extends ListCellView {
     @Override
     public Object object() {
         return firstMove;
+    }
+    
+    //Return the first move as the ListCell object
+    @Override
+    public Collection collection() {
+        return locations;
     }
     
     //Update the UI as the expand animation begins

@@ -42,6 +42,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
         listView = new ListView();
+        listView.setListener(this);
         board = new BoardView(fileAccess);
         notify = new NotifyView(fileAccess.getNotify());
         chat = new ChatView();
@@ -92,6 +93,13 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         } else if (e.getActionCommand().equals("hint")) {
             //Player has clicked on a ticket in the players view
             threadCom.putEvent("hint_clicked", (Boolean) e.getSource());
+        } else if (e.getActionCommand().equals("list_cell_highlighted")) {
+            ListView listView = (ListView)e.getSource();
+            List<Integer> route = (List<Integer>)listView.highlightedRoute();
+            setRouteHint(route);
+        } else if (e.getActionCommand().equals("list_cell_unhighlighted")) {
+            List<Integer> route = new ArrayList<Integer>();
+            setRouteHint(route);
         }
     }
     

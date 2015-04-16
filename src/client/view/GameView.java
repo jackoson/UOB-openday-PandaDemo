@@ -49,6 +49,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         chat = new ChatView();
         chat.setBackground(new Color(20, 155, 247));
         chat.setActionListener(this);
+        ChatEventView eventView = new ChatEventView(fileAccess);
         ticket = new PlayerTicketView(fileAccess);
         ticket.setActionListener(this);
         timer = new TimerView();
@@ -64,7 +65,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         jpanel.add(centerPanel, BorderLayout.NORTH);
         board.add(jpanel, BorderLayout.CENTER);
         add(board, BorderLayout.CENTER);
-        bar = new MenuBar(chat, ticket, timer);
+        bar = new MenuBar(chat, eventView, ticket, timer);
         board.add(bar, BorderLayout.SOUTH);
     }
     

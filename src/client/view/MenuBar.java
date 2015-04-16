@@ -6,12 +6,12 @@ import java.awt.*;
 public class MenuBar extends JPanel {
     ChatEventView eventView;
     
-    public MenuBar(ChatView chat, PlayerTicketView ticket, TimerView timer) {
+    public MenuBar(ChatView chat, ChatEventView eventView, PlayerTicketView ticket, TimerView timer) {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(1200, 200));
         setOpaque(false);
         
-        eventView = new ChatEventView();
+        this.eventView = eventView;
         eventView.setPreferredSize(new Dimension(360, 100));
         add(eventView, BorderLayout.WEST);
         eventView.setVisible(false);

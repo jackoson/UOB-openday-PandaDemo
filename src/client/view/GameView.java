@@ -25,6 +25,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private PlayerTicketView ticket;
     private ChatView chat;
     private ListView listView;
+    private MenuBar bar;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
     
@@ -63,7 +64,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         jpanel.add(centerPanel, BorderLayout.NORTH);
         board.add(jpanel, BorderLayout.CENTER);
         add(board, BorderLayout.CENTER);
-        MenuBar bar = new MenuBar(chat, ticket, timer);
+        bar = new MenuBar(chat, ticket, timer);
         board.add(bar, BorderLayout.SOUTH);
     }
     
@@ -93,6 +94,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         } else if (e.getActionCommand().equals("hint")) {
             //Player has clicked on a ticket in the players view
             threadCom.putEvent("hint_clicked", (Boolean) e.getSource());
+        } else if (e.getActionCommand().equals("show_chat")) {
+            bar.showChat();
+        } else if (e.getActionCommand().equals("hide_chat")) {
+            bar.hideChat();
         } else if (e.getActionCommand().equals("list_cell_highlighted")) {
             ListView listView = (ListView)e.getSource();
             List<Integer> route = (List<Integer>)listView.highlightedRoute();

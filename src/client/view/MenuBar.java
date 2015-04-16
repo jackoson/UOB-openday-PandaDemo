@@ -12,14 +12,15 @@ public class MenuBar extends JPanel {
         setOpaque(false);
         
         eventView = new ChatEventView();
-        eventView.setPreferredSize(new Dimension(300, 100));
+        eventView.setPreferredSize(new Dimension(360, 100));
+        add(eventView, BorderLayout.WEST);
+        eventView.setVisible(false);
         
         JPanel bar = new JPanel(new BorderLayout());
         bar.setPreferredSize(new Dimension(1200, 40));
         bar.setBackground(new Color(20, 155, 247));
         
         bar.add(chat, BorderLayout.WEST);
-        chat.setMenu(this);
         bar.add(ticket, BorderLayout.CENTER);
         bar.add(timer, BorderLayout.EAST);
         add(bar, BorderLayout.SOUTH);
@@ -27,10 +28,10 @@ public class MenuBar extends JPanel {
     }
     
     public void showChat() {
-        add(eventView, BorderLayout.WEST);
+        eventView.setVisible(true);
     }
     
     public void hideChat() {
-        remove(eventView);
+        eventView.setVisible(false);
     }
 }

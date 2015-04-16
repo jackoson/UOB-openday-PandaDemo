@@ -231,7 +231,7 @@ public class PlayerTicketView extends JPanel {
             public void paintComponent(Graphics g0) {
                 super.paintComponent(g0);
                 Graphics2D g = (Graphics2D) g0;
-                g.setColor(new Color(255, 255, 255, 120));
+                g.setColor(new Color(255, 255, 255, 60));
                 if (highlighted) g.fillRect(0, 0, 80, 40);
             }
             

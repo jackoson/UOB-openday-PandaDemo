@@ -18,13 +18,12 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
     private boolean showHint = true;
     private JTextField text;
     private ActionListener listener;
-    private MenuBar menu = null;
     
     /**
      * Constructs a new ChatView object.
      */
     public ChatView() {
-        setPreferredSize(new Dimension(300, 40));
+        setPreferredSize(new Dimension(360, 40));
         setLayout(new GridBagLayout());
         text = getStyledTextField();
         add(text);
@@ -33,19 +32,15 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
     // Returns a styled text field.
     // @return a styled text field.
     private JTextField getStyledTextField() {
-        JTextField textField = new JTextField(hint);
-        textField.setPreferredSize(new Dimension(260, 20));
+        RoundTextField textField = new RoundTextField(hint);
+        textField.setPreferredSize(new Dimension(320, 20));
         textField.setBackground(Color.WHITE);
         textField.setForeground(Color.GRAY);
-        textField.setBorder(new RoundedBorder());
+        textField.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         textField.addKeyListener(this);
         textField.addFocusListener(this);
         return textField;
-    }
-    
-    public void setMenu(MenuBar menu) {
-        this.menu = menu;
     }
     
     /**
@@ -86,7 +81,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
             text.setText("");
             showHint = false;
         }
-        if (menu != null) menu.showChat();
+        if (listener != null) listener.actionPerformed(new ActionEvent(this, 0, "show_chat"));
     }
 
     /**
@@ -101,7 +96,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
             text.setText(hint);
             showHint = true;
         }
-        if (menu != null) menu.hideChat();
+        if (listener != null) listener.actionPerformed(new ActionEvent(this, 0, "hide_chat"));
     }
     
     /**
@@ -120,62 +115,28 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
      */
     public void keyTyped(KeyEvent e) {}
     
-    // A class to give the JTextField rounded ends.
-    // Copied from: http://java-swing-tips.blogspot.com.ar/2012/03/rounded-border-for-jtextfield.html
-    private class RoundedBorder extends AbstractBorder {
+    private class RoundTextField extends JTextField {
         
-        /**
-         * Draws the border on the JTextField.
-         *
-         * @param c the component to draw the Border on.
-         * @param g0 the Graphics object to draw to.
-         * @param x the x coordinate of the Border.
-         * @param y the y coordinate of the Border.
-         * @param width the width of the Border.
-         * @param height the height of the Border.
-         */
+        public RoundTextField(String text) {
+            super(text);
+            setOpaque(false);
+        }
+        
         @Override
-        public void paintBorder(Component c, Graphics g0, int x, int y, int width, int height) {
+        public void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0;
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                                RenderingHints.VALUE_ANTIALIAS_ON);
-            RoundRectangle2D rect = new RoundRectangle2D.Double(x, y, width - 1, height - 1, height - 1, height - 1);
-            Container parent = c.getParent();
-            if (parent != null) {
-                g.setColor(parent.getBackground());
-                Area corner = new Area(new Rectangle2D.Double(x, y, width, height));
-                corner.subtract(new Area(rect));
-                g.fill(corner);
-            }
-            g.setColor(Color.WHITE);
-            g.draw(rect);
+                               RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            
+            Dimension size = getSize();
+            g.setColor(new Color(0, 0, 0, 50));
+            g.fillRoundRect(0, 0, size.width, size.height, size.height, size.height);
+            
+            g.setColor(new Color(255, 255, 255, 250));
+            g.fillRoundRect(1, 1, size.width-2, size.height - 2, size.height - 2, size.height - 2);
+            g.translate(10,0);
+            super.paintComponent(g0);
         }
-        
-        /**
-         * Returns the Insets of the Border.
-         *
-         * @param c the component to get the Insets for.
-         * @return the Insets of the Border.
-         */
-        @Override
-        public Insets getBorderInsets(Component c) {
-            return new Insets(2, 8, 2, 8);
-        }
-        
-        /**
-         * Returns the Insets of the Border.
-         *
-         * @param c the component to get the Insets for.
-         * @param insets the Insets to be changed.
-         * @return the Insets of the Border.
-         */
-        @Override
-        public Insets getBorderInsets(Component c, Insets insets) {
-            insets.left = insets.right = 8;
-            insets.top = insets.bottom = 2;
-            return insets;
-        }
-        
     }
-    
 }

@@ -1,5 +1,7 @@
 package client.view;
 
+import scotlandyard.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -43,7 +45,6 @@ public class ChatEventView extends JPanel implements MouseListener {
         
         spacer = new JPanel();
         spacer.setOpaque(false);
-        
     }
     
     public void paintComponent(Graphics g0) {
@@ -63,11 +64,11 @@ public class ChatEventView extends JPanel implements MouseListener {
     }
     
     public void addMessage() {
-        System.err.println("BEGIN:" + scrollContainer.getSize());
         constraints.gridy = messageCount + 1;
         remove(spacer);
         System.err.println(scrollContainer.getSize().width);
-        scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 36) , constraints);
+        //scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 36) , constraints);
+        scrollContainer.add(new MessageView(MoveTicket.instance(Colour.Green, Ticket.Bus, 67)) , constraints);
         messageCount++;
         constraints.gridy = messageCount + 1;
         constraints.fill = GridBagConstraints.BOTH;
@@ -81,7 +82,6 @@ public class ChatEventView extends JPanel implements MouseListener {
         
         JScrollBar vBar = scrollPane.getVerticalScrollBar();
         vBar.setValue(vBar.getMaximum());
-        System.err.println("END:" + scrollContainer.getSize() + vBar.getMaximum() + ":" + vBar.getValue());
     }
     
     /**
@@ -128,10 +128,7 @@ public class ChatEventView extends JPanel implements MouseListener {
     private class MessageView extends AnimatablePanel {
         
         public MessageView(String message, String player, int width) {
-            setBackground(new Color(240, 240, 240));
-            setLayout(new BorderLayout());
-            setBorder(BorderFactory.createEmptyBorder(2, 16, 6, 4));
-            setOpaque(false);
+            setup();
             
             String text = String.format("<html><div WIDTH=%d>%s</div><html>", width, player + ": " + message);
             JLabel label = new JLabel(text);
@@ -140,15 +137,23 @@ public class ChatEventView extends JPanel implements MouseListener {
             add(label, BorderLayout.WEST);
         }
         
-        public MessageView(int move) {
-            //setBackground(Color.GREEN);
-            setOpaque(false);
-            setPreferredSize(new Dimension(100, 30));
+        public MessageView(MoveTicket move) {
+            Integer target = move.target;
+            Ticket ticket = move.ticket;
+            Colour colour = move.colour;
+            setup();
             
-            JLabel label = new JLabel("Message");
-            label.setFont(Formatter.defaultFontOfSize(12));
-            label.setForeground(Color.RED);
-            add(label);
+            JLabel label = new JLabel(colour + " moved to " + target);
+            label.setFont(Formatter.defaultFontOfSize(14));
+            label.setForeground(Formatter.greyColor());
+            add(label, BorderLayout.WEST);
+        }
+        
+        private void setup() {
+            setBackground(new Color(240, 240, 240));
+            setLayout(new BorderLayout());
+            setBorder(BorderFactory.createEmptyBorder(2, 16, 6, 4));
+            setOpaque(false);
         }
         
         public void paintComponent(Graphics g0) {

@@ -134,8 +134,8 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
             g.fillRoundRect(0, 0, size.width, size.height, size.height, size.height);
             
             g.setColor(new Color(255, 255, 255, 250));
-            g.fillRoundRect(1, 1, size.width-2, size.height - 2, size.height - 2, size.height - 2);
-            g.translate(10,0);
+            g.fillRoundRect(1, 1, size.width - 2, size.height - 2, size.height - 2, size.height - 2);
+            g.translate(10, 0);
             super.paintComponent(g0);
         }
     }

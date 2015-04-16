@@ -72,6 +72,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         //?
         Dimension size = getSize();
         if (scaleFactor != 1.0) scaleFactor = fitScaleFactor(size);
+        viewPos = adjustForBounds(viewPos);
         repaint();
     }
  
@@ -318,24 +319,23 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     
     //?
     private Point adjustForBounds(Point point) {
-        
         Dimension size = getSize();
         int xDiff = (int)((mapSize.getWidth() * scaleFactor) - size.getWidth());
         int yDiff = (int)((mapSize.getHeight() * scaleFactor) - (size.getHeight() - 40));
         
         int boundBorder = halfBorder - 100;
+        int halfXDiff = (int) (xDiff / 2.0);
+        int halfYDiff = (int) (yDiff / 2.0);
         
         if (xDiff < 0) point.x = xDiff/2;
         else if (point.x < boundBorder && scaleFactor == 1.0) point.x = boundBorder;
-        else if (point.x < 0) point.x = 0;
+        else if ((point.x < halfXDiff || point.x > halfXDiff) && scaleFactor != 1.0) point.x = halfXDiff;
         else if (point.x > (xDiff - boundBorder) && scaleFactor == 1.0) point.x = (xDiff - boundBorder);
-        else if (point.x > xDiff) point.x = xDiff;
         
         if (yDiff < 0) point.y = yDiff/2;
         else if (point.y < (halfBorder - 100) && scaleFactor == 1.0) point.y = (halfBorder - 100);
-        else if (point.y < 0) point.y = 0;
+        else if ((point.y < halfYDiff || point.y > halfYDiff) && scaleFactor != 1.0) point.y = halfYDiff;
         else if (point.y > (yDiff - boundBorder) && scaleFactor == 1.0) point.y = (yDiff - boundBorder);
-        else if (point.y > yDiff) point.y = yDiff;
         
         return point;
     }

@@ -27,7 +27,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private ListView listView;
     private MenuBar bar;
     private FileAccess fileAccess;
-    private ThreadCommunicator threadCom;
+    private ThreadCommunicator threadCom = null;
     
     /**
      * Constructs a new GameView object.
@@ -37,8 +37,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param threadCom the ThreadCommunicator object to communicate
      * between Threads.
      */
-    public GameView(FileAccess fileAccess, ThreadCommunicator threadCom) {
-        this.threadCom = threadCom;
+    public GameView(FileAccess fileAccess) {
         setPreferredSize(new Dimension(1200, 800));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
@@ -75,36 +74,38 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param e the ActionEvent from the views.
      */
     public void actionPerformed(ActionEvent e) {
-        //Handle actions from views and put items onto event queue as appropriate
-        if (e.getActionCommand().equals("node")) {
-            //Player has clicked on a node in board view
-            threadCom.putEvent("node_clicked", (Integer) e.getSource());
-        } else if (e.getActionCommand().equals("timer")) {
-            //Player has run out of time for their move
-            threadCom.putEvent("timer_fired", true);
-        } else if (e.getActionCommand().equals("timer_warning")) {
-            //Player has run out of time for their move
-            threadCom.putEvent("timer_warning", true);
-        } else if (e.getActionCommand().equals("message")) {
-            //Player has pressed enter in the text field.
-             threadCom.putEvent("message_entered", (String) e.getSource());
-        } else if (e.getActionCommand().equals("ticket")) {
-            //Player has clicked on a ticket in the players view
-            threadCom.putEvent("ticket_clicked", (Ticket) e.getSource());
-        } else if (e.getActionCommand().equals("hint")) {
-            //Player has clicked on a ticket in the players view
-            threadCom.putEvent("hint_clicked", (Boolean) e.getSource());
-        } else if (e.getActionCommand().equals("show_chat")) {
-            bar.showChat();
-        } else if (e.getActionCommand().equals("hide_chat")) {
-            bar.hideChat();
-        } else if (e.getActionCommand().equals("list_cell_highlighted")) {
-            ListView listView = (ListView)e.getSource();
-            List<Integer> route = (List<Integer>)listView.highlightedRoute();
-            setRouteHint(route);
-        } else if (e.getActionCommand().equals("list_cell_unhighlighted")) {
-            List<Integer> route = new ArrayList<Integer>();
-            setRouteHint(route);
+        if (threadCom != null) {
+            //Handle actions from views and put items onto event queue as appropriate
+            if (e.getActionCommand().equals("node")) {
+                //Player has clicked on a node in board view
+                threadCom.putEvent("node_clicked", (Integer) e.getSource());
+            } else if (e.getActionCommand().equals("timer")) {
+                //Player has run out of time for their move
+                threadCom.putEvent("timer_fired", true);
+            } else if (e.getActionCommand().equals("timer_warning")) {
+                //Player has run out of time for their move
+                threadCom.putEvent("timer_warning", true);
+            } else if (e.getActionCommand().equals("message")) {
+                //Player has pressed enter in the text field.
+                 threadCom.putEvent("message_entered", (String) e.getSource());
+            } else if (e.getActionCommand().equals("ticket")) {
+                //Player has clicked on a ticket in the players view
+                threadCom.putEvent("ticket_clicked", (Ticket) e.getSource());
+            } else if (e.getActionCommand().equals("hint")) {
+                //Player has clicked on a ticket in the players view
+                threadCom.putEvent("hint_clicked", (Boolean) e.getSource());
+            } else if (e.getActionCommand().equals("show_chat")) {
+                bar.showChat();
+            } else if (e.getActionCommand().equals("hide_chat")) {
+                bar.hideChat();
+            } else if (e.getActionCommand().equals("list_cell_highlighted")) {
+                ListView listView = (ListView)e.getSource();
+                List<Integer> route = (List<Integer>)listView.highlightedRoute();
+                setRouteHint(route);
+            } else if (e.getActionCommand().equals("list_cell_unhighlighted")) {
+                List<Integer> route = new ArrayList<Integer>();
+                setRouteHint(route);
+            }
         }
     }
     
@@ -116,6 +117,15 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void componentResized(ComponentEvent e) {
         board.updateDisplay(e);
+    }
+    
+    /**
+     * Sets the ThreadCommunicator that the view should use.
+     *
+     * @param threadCom the ThreadCommunicator to use.
+     */
+    public void setThreadCom(ThreadCommunicator threadCom) {
+        this.threadCom = threadCom;
     }
     
     /**

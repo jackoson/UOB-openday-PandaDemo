@@ -82,8 +82,8 @@ class AnimatablePanel extends JPanel implements ActionListener {
             finished &= f;
         }
         for (Animator a : finishedAnimators) {
-            a = null;
             activeAnimators.remove(a);
+            a = null;
         }
         
         if(preferredSizeX != null && preferredSizeY != null) setPreferredSize(new Dimension(preferredSizeX.value().intValue(), preferredSizeY.value().intValue()));

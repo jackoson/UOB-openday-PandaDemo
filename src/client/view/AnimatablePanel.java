@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 class AnimatablePanel extends JPanel implements ActionListener {
     private Timer timer;
@@ -21,7 +22,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
     
     public AnimatablePanel() {
         timer = new Timer((int)(1000.0*kTimeInterval), this);
-        activeAnimators = new ArrayList<Animator>();
+        activeAnimators = new CopyOnWriteArrayList<Animator>();
     }
     //Functions for animating the preferred size
     public void setPreferredSize(Dimension size, Double duration) {

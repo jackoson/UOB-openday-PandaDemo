@@ -112,7 +112,8 @@ public class ScotlandYardGame implements Player, Runnable {
             wait(5000);
             threadCom.putUpdate("end_game", true);
         } catch (Exception e) {
-            System.err.println("Error playing game :" + e.getStackTrace());
+            System.err.println("Error playing game :" + e);
+            e.printStackTrace();
             System.exit(1);
         }
     }
@@ -316,7 +317,16 @@ public class ScotlandYardGame implements Player, Runnable {
         if (!move.colour.equals(Colour.Black)) {
             threadCom.putUpdate("update_board", move);
         }
+        wait(500);
+        Integer target = getTarget(move);
+        if (target != null) threadCom.putUpdate("zoom_in", target);
         threadCom.putUpdate("update_moves", move);
+    }
+    
+    private Integer getTarget(Move move) {
+        if (move instanceof MoveTicket) return ((MoveTicket) move).target;
+        else if (move instanceof MoveDouble) return ((MoveTicket) ((MoveDouble) move).move2).target;
+        else return null;
     }
     
     // Updates the tickets shown in the PlayersView for all players.

@@ -5,7 +5,6 @@ I also thought a chat/ event log might be good idea and have removed other playe
 
 ## TODO: ##
 
-+ Menu button
 + AI GUI 
 + Cheat codes
 + Meteor strike

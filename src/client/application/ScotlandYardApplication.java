@@ -17,13 +17,13 @@ import java.util.concurrent.*;
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
   
-    public boolean DEBUG = true;
+    public boolean DEBUG = false;
     private ScotlandYardGame game;
     private GameView gameView;
     private SetUpView setUpView;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
-    private JFrame window;
+    private JPanel container;
     
     /**
      * Is the entry point for the game.
@@ -44,15 +44,28 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
      */
     public void go() {
         fileAccess = new FileAccess();
-        window = new JFrame();
+        JFrame window = new JFrame();
         window.setMinimumSize(new Dimension(1200, 800));
         window.setPreferredSize(new Dimension(1200, 800));
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        container = new JPanel(new CardLayout());
         setUpView = new SetUpView(fileAccess);
         setUpView.setActionListener(this);
-        window.add(setUpView);
+        container.add(setUpView);
+        gameView = new GameView(fileAccess);
+        Action menu = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                if (game != null) {
+                    game.saveGame();
+                    endGame();
+                }
+            }
+        };
+        gameView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F10"), "menu");
+        gameView.getActionMap().put("menu", menu);
         window.addComponentListener(gameView);
-        setUpView.setVisible(true);
+        container.add(gameView);
+        window.add(container);
         window.pack();
         window.setTitle("Scotland Yard");
         window.setLocationByPlatform(true);
@@ -60,7 +73,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setVisible(true);
         
         if (DEBUG){//?
-            setUpView.setVisible(false);
             beginGame();
             newGame();
         }
@@ -73,7 +85,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
      * @param e the WindowEvent sent when the window closes.
      */
     public void windowClosing(WindowEvent e) {
-        if (gameView != null) {
+        if (game != null) {
             game.saveGame();
         }
     }
@@ -87,7 +99,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("startGame")) {
             if(validGameName(setUpView.selectedGameName())) {
-                window.remove(setUpView);
                 beginGame();
                 newGame();
             } else {
@@ -97,7 +108,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
         } else if (e.getActionCommand().equals("loadGame")) {
             if (setUpView.selectedFilePath() != null) {
-                window.remove(setUpView);
                 beginGame();
                 loadGame();
             }
@@ -119,19 +129,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     // Starts the game and the views in new threads.
     private void beginGame() {
         threadCom = new ThreadCommunicator();
-        
-        gameView = new GameView(fileAccess, threadCom);
-        Action menu = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                game.saveGame();
-                endGame();
-            }
-        };
-        gameView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F10"), "menu");
-        gameView.getActionMap().put("menu", menu);
-        window.addComponentListener(gameView);
-        window.add(gameView);
-        window.pack();
+        gameView.setThreadCom(threadCom);
+        CardLayout cl = (CardLayout) container.getLayout();
+        cl.next(container);
         new Thread(this).start();
     }
     
@@ -151,10 +151,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     
     // Removes the gameview and shows the setup view
     private void endGame() {
-        window.remove(gameView);
-        window.add(setUpView);
-        window.pack();
-        window.repaint();
+        gameView.setThreadCom(null);
+        game = null;
+        CardLayout cl = (CardLayout) container.getLayout();
+        cl.next(container);
         setUpView.refreshSaves();
         threadCom.clearEvents();
         threadCom.clearUpdates();
@@ -171,6 +171,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 decodeUpdate(updateId, updateObject);
             } catch (Exception e) {
                 System.err.println("Error taking items from the queue :" + e);
+                e.printStackTrace();
             }
         }
     }

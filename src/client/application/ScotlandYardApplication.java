@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
   
-    public boolean DEBUG = true;
+    public boolean DEBUG = false;
     private ScotlandYardGame game;
     private GameView gameView;
     private SetUpView setUpView;
@@ -190,13 +190,12 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_board")) {
             Move move = (Move) object;
             gameView.updateBoard(move);
-        } else if (id.equals("update_players")) {
+        } else if (id.equals("update_tickets")) {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) object;
             Colour colour = (Colour) list.get(0);
-            Ticket ticket = (Ticket) list.get(1);
-            Integer ticketNo = (Integer) list.get(2);
-            gameView.updatePlayers(colour, ticket, ticketNo);
+            Map<Ticket, Integer> tickets = (Map<Ticket, Integer>) list.get(1);
+            gameView.updateTickets(colour, tickets);
         } else if (id.equals("send_notification")) {
             String message = (String) object;
             gameView.setNotification(message);

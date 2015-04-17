@@ -207,6 +207,7 @@ public class ChatEventView extends JPanel implements MouseListener {
                                RenderingHints.VALUE_ANTIALIAS_ON);
             g.setColor(new Color(0, 0, 0, 30));
             int width = 8;
+            
             g.fillRoundRect(thumbBounds.x + thumbBounds.width/2 - width, thumbBounds.y + width, width, thumbBounds.height - width*2, width, width);
         }
         

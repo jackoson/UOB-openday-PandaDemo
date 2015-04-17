@@ -191,8 +191,7 @@ public class ScotlandYardGame implements Player, Runnable {
      * @return the Move chosen by the player.
      */
     public Move notify(int location, Set<Move> moves) {
-        threadCom.putUpdate("valid_moves", moves);
-        updateUI(location, model.getCurrentPlayer());
+        updateUI(location, model.getCurrentPlayer(), moves);
         Move move = null;
         while (true) {
             if (saveGame.hasSavedMove()) {
@@ -290,37 +289,32 @@ public class ScotlandYardGame implements Player, Runnable {
     // Updates the UI at the start of a turn.
     // @param location the actual locaton of the player.
     // @param player the colour of the player whose turn it is.
-    private void updateUI(Integer location, Colour player) {
+    private void updateUI(Integer location, Colour player, Set<Move> moves) {
         Integer loc = model.getPlayerLocation(Colour.Black);
         if (replaying) loc = model.getTruePlayerLocation(Colour.Black);
         threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, loc));
-        updateTickets();
-        threadCom.putUpdate("update_current_player", player);
-        if (!firstRound) wait(kMoveWait);
-        threadCom.putUpdate("show_route", new ArrayList<Integer>());
-        threadCom.putUpdate("zoom_out", true);
-        if (!firstRound) wait(kMoveWait);
-        firstRound = false;
+        updateTickets(player);
         if (player.equals(Colour.Black) && !replaying) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
         }
+        threadCom.putUpdate("valid_moves", moves);
         threadCom.putUpdate("zoom_in", location);
-        if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
         threadCom.putUpdate("reset_timer", true);
+        if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
     }
     
     // Updates the UI at the end of a turn.
     // @param move the Move that has been chosen by the player.
     private void updateUI(Move move) {
-        int roundNo = model.getRound();
-        if (!move.colour.equals(Colour.Black)) {
-            threadCom.putUpdate("update_board", move);
-        }
+        threadCom.putUpdate("update_board", move);
+        updateTickets(move.colour);
         wait(500);
         Integer target = getTarget(move);
         if (target != null) threadCom.putUpdate("zoom_in", target);
-        threadCom.putUpdate("update_moves", move);
+        wait(kMoveWait);
+        threadCom.putUpdate("zoom_out", true);
+        wait(kMoveWait);
     }
     
     private Integer getTarget(Move move) {
@@ -329,33 +323,21 @@ public class ScotlandYardGame implements Player, Runnable {
         else return null;
     }
     
-    // Updates the tickets shown in the PlayersView for all players.
-    private void updateTickets() {
-        for (Colour player : model.getPlayers()) {
-            updateTickets(player);
-        }
-    }
-    
-    // Updates the tickets shown in the PlayersView for a selected player.
-    // @param player the player whose Tickets should be updated.
-    private void updateTickets(Colour player) {
-        updateTickets(player, Ticket.Taxi);
-        updateTickets(player, Ticket.Bus);
-        updateTickets(player, Ticket.Underground);
-        updateTickets(player, Ticket.Secret);
-        updateTickets(player, Ticket.Double);
-    }
     
     // Updates the number of Tickets of a certain type shown for a player in the PlayersView.
     // @param player the player whose Tickets should be updated.
     // @param ticket the type of Ticket to be updated.
-    private void updateTickets(Colour player, Ticket ticket) {
+    private void updateTickets(Colour player) {
         List<Object> newTickets = new ArrayList<Object>();
-        Integer ticketCount = model.getPlayerTickets(player, ticket);
         newTickets.add(player);
-        newTickets.add(ticket);
-        newTickets.add(ticketCount);
-        threadCom.putUpdate("update_players", newTickets);
+        Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
+        tickets.put(Ticket.Taxi, model.getPlayerTickets(player, Ticket.Taxi));
+        tickets.put(Ticket.Bus, model.getPlayerTickets(player, Ticket.Bus));
+        tickets.put(Ticket.Underground, model.getPlayerTickets(player, Ticket.Underground));
+        tickets.put(Ticket.Secret, model.getPlayerTickets(player, Ticket.Secret));
+        tickets.put(Ticket.Double, model.getPlayerTickets(player, Ticket.Double));
+        newTickets.add(tickets);
+        threadCom.putUpdate("update_tickets", newTickets);
     }
     
     // Pauses the game thread for the specified time in miliseconds.

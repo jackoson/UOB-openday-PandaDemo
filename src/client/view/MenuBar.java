@@ -4,7 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MenuBar extends JPanel {
-    ChatEventView eventView;
+  
+    private static final long serialVersionUID = -8366257729974330405L;
+  
+    private ChatEventView eventView;
     
     public MenuBar(ChatView chat, ChatEventView eventView, PlayerTicketView ticket, TimerView timer) {
         setLayout(new BorderLayout());
@@ -34,4 +37,5 @@ public class MenuBar extends JPanel {
     public void hideChat() {
         eventView.setVisible(false);
     }
+    
 }

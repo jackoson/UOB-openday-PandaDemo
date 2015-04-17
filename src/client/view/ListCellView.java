@@ -3,6 +3,9 @@ package client.view;
 import java.util.*;
 
 abstract class ListCellView extends AnimatablePanel {
+  
+    private static final long serialVersionUID = 3762472219882857921L;
+  
     private boolean selected = false;
     private boolean highlighted = false;
     

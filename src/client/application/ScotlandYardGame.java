@@ -403,7 +403,7 @@ public class ScotlandYardGame implements Player, Runnable {
      * Saves the game.
      */
     public void saveGame() {
-        fileAccess.saveGame(saveGame);
+        if (!replaying) fileAccess.saveGame(saveGame);
     }
     
 }

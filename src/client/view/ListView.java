@@ -11,6 +11,9 @@ import java.util.List;
 import javax.imageio.*;
 
 public class ListView extends JPanel implements MouseListener {
+    
+    private static final long serialVersionUID = 2221775046541743370L;
+  
     private ListCellView selectedCell = null;
     private ListCellView highlightedCell= null;
     private JPanel cellHolder;
@@ -57,20 +60,24 @@ public class ListView extends JPanel implements MouseListener {
         spacer.setOpaque(false);
         cellHolder.add(spacer, constraints);
     }
+    
     //Set the listener object
     public void setListener(ActionListener listener) {
         this.listener = listener;
     }
+    
     //Get an object from the selected cell
     public Object selectedObject() {
         if (selectedCell != null) return selectedCell.object();
         return null;
     }
+    
     //Get an route from the highlighted cell
     public Collection highlightedRoute() {
         if (highlightedCell != null) return highlightedCell.collection();
         return null;
     }
+    
     //Highlighting and selecting cells
     private void highlightCell(ListCellView cell) {
         cell.setHighlighted(true);
@@ -106,25 +113,28 @@ public class ListView extends JPanel implements MouseListener {
         if (cell == highlightedCell) unhighlightCell(cell);
     }
     
-    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseReleased(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mousePressed(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseDragged(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseMoved(MouseEvent e) {}
+    
 }

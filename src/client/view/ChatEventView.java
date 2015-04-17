@@ -11,6 +11,9 @@ import java.awt.event.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 public class ChatEventView extends JPanel implements MouseListener {
+  
+    private static final long serialVersionUID = 6051734428889451747L;
+  
     private GridBagConstraints constraints;
     private JScrollPane scrollPane;
     private JPanel scrollContainer;
@@ -106,26 +109,31 @@ public class ChatEventView extends JPanel implements MouseListener {
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseReleased(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mousePressed(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseDragged(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseEntered(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseExited(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
      * @param e the MouseEvent containing the cursor location.

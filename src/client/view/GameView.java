@@ -100,8 +100,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
             } else if (e.getActionCommand().equals("hide_chat")) {
                 bar.hideChat();
             } else if (e.getActionCommand().equals("list_cell_highlighted")) {
-                ListView listView = (ListView)e.getSource();
-                List<Integer> route = (List<Integer>)listView.highlightedRoute();
+                ListView listView = (ListView) e.getSource();
+                @SuppressWarnings("unchecked")
+                List<Integer> route = (List<Integer>) listView.highlightedRoute();
+                for (Integer i : route);
                 setRouteHint(route);
             } else if (e.getActionCommand().equals("list_cell_unhighlighted")) {
                 List<Integer> route = new ArrayList<Integer>();

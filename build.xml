@@ -29,6 +29,7 @@
 		<mkdir dir="${classes.dir}" />
     <mkdir dir="${jar.dir}"/>
 		<javac srcdir="${src.dir}" includeantruntime="false" destdir="${classes.dir}">
+      <compilerarg value="-Xlint:unchecked"/>
       <classpath>
         <pathelement location="${classes.dir}" />
         <path location="${lib.dir}/${ant.project.name}.jar" />

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 class AnimatablePanel extends JPanel implements ActionListener {
+  
+    private static final long serialVersionUID = -3670406422771531891L;
+  
     private Timer timer;
     private Double kTimeInterval = 1/50.0;
     private List<Animator> activeAnimators;
@@ -24,6 +27,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         timer = new Timer((int)(1000.0*kTimeInterval), this);
         activeAnimators = new CopyOnWriteArrayList<Animator>();
     }
+    
     //Functions for animating the preferred size
     public void setPreferredSize(Dimension size, Double duration) {
         setPreferredSize(size, duration, AnimationEase.LINEAR);
@@ -40,6 +44,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         if (! timer.isRunning()) timer.start();
         animationBegun();
     }
+    
     //Functions for animating the background color
     public void setBackground(Color color, Double duration) {
         setBackground(color, duration, AnimationEase.LINEAR);
@@ -73,6 +78,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         if (! timer.isRunning()) timer.start();
         animationBegun();
     }
+    
     //Function to update animation properties
     public void actionPerformed(ActionEvent e) {
         boolean finished = true;
@@ -97,18 +103,22 @@ class AnimatablePanel extends JPanel implements ActionListener {
         revalidate();
         repaint();
     }
+    
     //Function for aborting all animations
     public void cancelAllAnimations() {
         if (timer != null) timer.stop();
     }
+    
     //Function for subclasses to override
     public void animationBegun() {
         
     }
+    
     //Function for subclasses to override
     public void animationCompleted() {
         
     }
+    
     //Function to create Animator from outside of class
     public Animator createAnimator(Double value, Double target, Double duration) {
         Animator animator = new Animator(value, duration, target);
@@ -117,12 +127,15 @@ class AnimatablePanel extends JPanel implements ActionListener {
         animationBegun();
         return animator;
     }
+    
     //Enumeration for ease types
     public enum AnimationEase {
         LINEAR, EASE_IN, EASE_OUT, EASE_IN_OUT
     }
+    
     //Helper class to iterate values
     public class Animator {
+      
         private AnimationEase ease = AnimationEase.LINEAR;
         private Double time;
         private Double initial;
@@ -161,5 +174,7 @@ class AnimatablePanel extends JPanel implements ActionListener {
         public void setEase(AnimationEase ease) {
             this.ease = ease;
         }
+        
     }
+    
 }

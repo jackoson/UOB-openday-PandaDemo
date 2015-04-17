@@ -39,7 +39,7 @@ public class SetUpView extends JPanel implements KeyListener {
     public SetUpView(FileAccess fileAccess) {
         this.fileAccess = fileAccess;
         background = fileAccess.getSetupBackground();
-        setBackground(new Color(51,135,253));
+        setBackground(Formatter.primaryColor());
         setLayout(new GridBagLayout());
         
         LoadPanel loadPanel = new LoadPanel();
@@ -51,21 +51,6 @@ public class SetUpView extends JPanel implements KeyListener {
         add(newPanel);
         
         backgroundImage = fileAccess.getSetupImage(new Dimension(1200, 800));
-    }
-    
-    // Returns a button with the correct text and styling.
-    // @param label the text to be shown by the button.
-    // @return a button with the correct text and styling.
-    private JButton button(String label) {
-        JButton button = new JButton(label);
-        button.setBackground(new Color(251, 68, 60, 255));
-        button.setContentAreaFilled(false);
-        button.setOpaque(true);
-        button.setBorderPainted(false);
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
-        button.setPreferredSize(new Dimension(320, 40));
-        return button;
     }
     
     /**
@@ -179,11 +164,7 @@ public class SetUpView extends JPanel implements KeyListener {
             
             savedGames = fileAccess.savedGames();
             
-            loadList = new JList<String>(savedGames.toArray(new String[savedGames.size()]));
-            loadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            loadList.setPrototypeCellValue("PROTOTYPE");
-            loadList.setFont(new Font("Helvetica Neue", 0, 18));
-            loadList.setCellRenderer(new CustomCellRenderer());
+            loadList = Formatter.list(savedGames);
             JScrollPane scrollPane = new JScrollPane(loadList);
             scrollPane.setPreferredSize(new Dimension(320, 260));
             scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220, 255), 1));
@@ -192,7 +173,7 @@ public class SetUpView extends JPanel implements KeyListener {
             Component spacer = Box.createRigidArea(new Dimension(400,10));
             add(spacer);
             
-            load = button("Load");
+            load = Formatter.button("Load");
             load.setActionCommand("loadGame");
             add(load);
         }
@@ -244,7 +225,7 @@ public class SetUpView extends JPanel implements KeyListener {
             
             add(box, BorderLayout.CENTER);
             
-            start = button("Start");
+            start = Formatter.button("Start");
             start.setActionCommand("startGame");
             start.setAlignmentX(Component.LEFT_ALIGNMENT);
             add(start, BorderLayout.SOUTH);
@@ -254,51 +235,11 @@ public class SetUpView extends JPanel implements KeyListener {
         // @param component the element to be styled.
         // @return the styled version of the element.
         private JComponent styleComponent(JComponent component) {
-            component.setFont(new Font("Helvetica Neue", 0, 18));
+            component.setFont(Formatter.defaultFontOfSize(18));
             component.setMaximumSize(new Dimension(200,30));
             component.setAlignmentX(Component.LEFT_ALIGNMENT);
             component.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             return component;
-        }
-        
-    }
-    
-    // Adds styling to the list elements.
-    private class CustomCellRenderer extends JLabel implements ListCellRenderer<Object> {
-        
-        private static final long serialVersionUID = -8212787301551146954L;
-        
-        /**
-         * Returns the styled component.
-         *
-         * @param list the list that contains the elements.
-         * @param value the value of the list item.
-         * @param index the position of the item in the list.
-         * @param isSelected the flag to tell whether the item is selected.
-         * @param cellHasFocus the flag to tell whether the item has focus.
-         * @return the Styled component.
-         */
-        public Component getListCellRendererComponent(
-          JList<?> list,
-          Object value,
-          int index,
-          boolean isSelected,
-          boolean cellHasFocus)
-        {
-            String s = value.toString();
-            setText(s.split("#")[0]);
-            if (isSelected) {
-                setBackground(new Color(25, 219, 182, 255));
-                setForeground(Color.WHITE);
-            } else {
-                setBackground(Color.WHITE);
-                setForeground(Color.BLACK);
-            }
-            setEnabled(list.isEnabled());
-            setFont(list.getFont());
-            setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
-            setOpaque(true);
-            return this;
         }
         
     }

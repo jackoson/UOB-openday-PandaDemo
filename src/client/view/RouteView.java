@@ -132,7 +132,7 @@ public class RouteView extends ListCellView {
         g.setColor(new Color(0, 0, 0, 50));
         g.fillRoundRect(0, 6, size.width, size.height - 6, 10, 10);
         
-        if (selected()) g.setColor(new Color(20, 155, 247, 250));
+        if (selected()) g.setColor(Formatter.primaryColor());
         else g.setColor(new Color(255, 255, 255, 250));
         g.fillRoundRect(1, 3, size.width-2, size.height - 6, 10, 10);
     }
@@ -166,7 +166,7 @@ public class RouteView extends ListCellView {
         }
         
         public void setDividerVisible(boolean visible) {
-            if (visible) divider.setBackground(new Color(160, 160, 160));
+            if (visible) divider.setBackground(Formatter.greyColor());
             else divider.setBackground(new Color(255, 255, 255, 0));
         }
         
@@ -179,8 +179,8 @@ public class RouteView extends ListCellView {
             this.highlighted = highlighted;
             
             if (highlighted) {
-                if (selected) divider.setBackground(new Color(255, 255, 255));
-                else divider.setBackground(new Color(180, 180, 180));
+                if (selected) divider.setBackground(Color.WHITE);
+                else divider.setBackground(Formatter.greyColor());
             } else divider.setBackground(new Color(255, 255, 255, 0));
         }
         
@@ -266,13 +266,13 @@ public class RouteView extends ListCellView {
             
             label = new JLabel(Integer.toString(number), SwingConstants.CENTER);
             label.setOpaque(false);
-            label.setForeground(new Color(100, 100, 100));
-            label.setFont(new Font("Helvetica Neue", 0, 12));
+            label.setForeground(Formatter.greyColor());
+            label.setFont(Formatter.defaultFontOfSize(12));
             add(label, BorderLayout.NORTH);
         }
         
         public void setSelected(boolean selected) {
-            if (selected) label.setForeground(new Color(255, 255, 255));
+            if (selected) label.setForeground(Color.WHITE);
             else label.setForeground(new Color(100, 100, 100));
         }
         
@@ -304,8 +304,8 @@ public class RouteView extends ListCellView {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                RenderingHints.VALUE_ANTIALIAS_ON);
             
-            if (selected) g.setColor(new Color(255, 255, 255));
-            else g.setColor(new Color(180, 180, 180));
+            if (selected) g.setColor(Color.WHITE);
+            else g.setColor(Formatter.greyColor());
             g.fillPolygon(triangle);
             
         }
@@ -332,8 +332,8 @@ public class RouteView extends ListCellView {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                RenderingHints.VALUE_ANTIALIAS_ON);
             
-            if (selected) g.setColor(new Color(255, 255, 255));
-            else g.setColor(new Color(180, 180, 180));
+            if (selected) g.setColor(Color.WHITE);
+            else g.setColor(Formatter.greyColor());
             g.fillOval(0, 4, 2, 2);
             g.fillOval(4, 4, 2, 2);
             g.fillOval(8, 4, 2, 2);

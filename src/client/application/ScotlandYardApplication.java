@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
   
-    public boolean DEBUG = false;
+    public boolean DEBUG = true;
     private ScotlandYardGame game;
     private GameView gameView;
     private SetUpView setUpView;

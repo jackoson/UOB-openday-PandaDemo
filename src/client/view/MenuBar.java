@@ -21,13 +21,12 @@ public class MenuBar extends JPanel {
         
         JPanel bar = new JPanel(new BorderLayout());
         bar.setPreferredSize(new Dimension(1200, 40));
-        bar.setBackground(new Color(20, 155, 247));
+        bar.setBackground(new Color(20, 155, 247));//
         
         bar.add(chat, BorderLayout.WEST);
         bar.add(ticket, BorderLayout.CENTER);
         bar.add(timer, BorderLayout.EAST);
         add(bar, BorderLayout.SOUTH);
-        
     }
     
     public void showChat() {

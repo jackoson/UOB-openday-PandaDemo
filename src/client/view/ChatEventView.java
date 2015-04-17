@@ -76,7 +76,7 @@ public class ChatEventView extends JPanel implements MouseListener {
         constraints.gridy = messageCount + 1;
         remove(spacer);
         System.err.println(scrollContainer.getSize().width);
-        if (b) scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 46) , constraints);
+        if (b) scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 48) , constraints);
         else scrollContainer.add(new MessageView(MoveTicket.instance(Colour.Green, Ticket.Bus, 67)) , constraints);
         messageCount++;
         constraints.gridy = messageCount + 1;

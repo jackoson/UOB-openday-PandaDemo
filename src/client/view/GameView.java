@@ -137,8 +137,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void initialise(List<GamePlayer> players) {
         board.update(players);
-        // Needs updating.
-        ticket.initialise(players.get(0), this);
+        bar.setBackgroundColor(Formatter.colorForPlayer(Colour.Black));
         timer.stop();
     }
     
@@ -176,19 +175,9 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         notify.notify(message);
     }
     
-    /**
-     * Updates the players tickets shown by the PlayersView.
-     * 
-     * @param colour the colour of the player to update.
-     * @param ticket the Ticket whose number has changed.
-     * @param ticketNo the new number of tickets for the player.
-     */
-    public void updatePlayers(Colour colour, Ticket ticket, Integer ticketNo) {
-        //players.update(colour, ticket, ticketNo);
-        //TODO;
-        if (colour.equals(Colour.Black)) {
-            this.ticket.update(colour, ticket, ticketNo);
-        }
+    public void updateTickets(Colour colour, Map<Ticket, Integer> tickets) {
+        bar.setBackgroundColor(Formatter.colorForPlayer(colour));
+        ticket.update(tickets);
     }
     
     /**

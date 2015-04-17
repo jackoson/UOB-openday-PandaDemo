@@ -6,8 +6,9 @@ import java.awt.*;
 public class MenuBar extends JPanel {
   
     private static final long serialVersionUID = -8366257729974330405L;
-  
+    
     private ChatEventView eventView;
+    private JPanel bar;
     
     public MenuBar(ChatView chat, ChatEventView eventView, PlayerTicketView ticket, TimerView timer) {
         setLayout(new BorderLayout());
@@ -19,14 +20,17 @@ public class MenuBar extends JPanel {
         add(eventView, BorderLayout.WEST);
         eventView.setVisible(false);
         
-        JPanel bar = new JPanel(new BorderLayout());
+        bar = new JPanel(new BorderLayout());
         bar.setPreferredSize(new Dimension(1200, 40));
-        bar.setBackground(new Color(20, 155, 247));//
         
         bar.add(chat, BorderLayout.WEST);
         bar.add(ticket, BorderLayout.CENTER);
         bar.add(timer, BorderLayout.EAST);
         add(bar, BorderLayout.SOUTH);
+    }
+    
+    public void setBackgroundColor(Color color) {
+        bar.setBackground(color);
     }
     
     public void showChat() {

@@ -23,6 +23,7 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
      * Constructs a new ChatView object.
      */
     public ChatView() {
+        setOpaque(false);
         setPreferredSize(new Dimension(360, 40));
         setLayout(new GridBagLayout());
         text = getStyledTextField();

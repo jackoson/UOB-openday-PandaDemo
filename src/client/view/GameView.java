@@ -46,7 +46,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         board = new BoardView(fileAccess);
         notify = new NotifyView(fileAccess.getNotify());
         chat = new ChatView();
-        chat.setBackground(new Color(20, 155, 247));
         chat.setActionListener(this);
         ChatEventView eventView = new ChatEventView(fileAccess);
         ticket = new PlayerTicketView(fileAccess);

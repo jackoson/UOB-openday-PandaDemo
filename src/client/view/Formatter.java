@@ -54,8 +54,8 @@ public class Formatter {
         return button;
     }
     
-    static public JList list(List<String> items) {
-        JList list = new JList<String>(items.toArray(new String[items.size()]));
+    static public JList<String> list(List<String> items) {
+        JList<String> list = new JList<String>(items.toArray(new String[items.size()]));
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setPrototypeCellValue("PROTOTYPE");
         list.setFont(defaultFontOfSize(18));

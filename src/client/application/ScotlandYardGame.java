@@ -292,7 +292,7 @@ public class ScotlandYardGame implements Player, Runnable {
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
         if (replaying) threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getTruePlayerLocation(Colour.Black)));
         else threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
-        updateTickets(player);
+        updateTickets(player, null);
         if (player.equals(Colour.Black) && !replaying) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
@@ -307,7 +307,7 @@ public class ScotlandYardGame implements Player, Runnable {
     // @param move the Move that has been chosen by the player.
     private void updateUI(Move move) {
         threadCom.putUpdate("update_board", move);
-        updateTickets(move);
+        updateTickets(move.colour, move);
         wait(500);
         Integer target = getTarget(move);
         if (target != null) threadCom.putUpdate("zoom_in", target);
@@ -322,19 +322,16 @@ public class ScotlandYardGame implements Player, Runnable {
         else return null;
     }
     
-    // Updates the number of Tickets of a certain type shown for a player in the PlayersView.
-    // @param player the player whose Tickets should be updated.
-    private void updateTickets(Colour player) {
+    private void updateTickets(Colour player, Move move) {
         List<Object> newTickets = new ArrayList<Object>();
         newTickets.add(player);
-        newTickets.add(getPlayerTickets(player));
+        Map<Ticket, Integer> tickets = getPlayerTickets(player);
+        if (move != null) tickets = adjustTickets(tickets, move);
+        newTickets.add(tickets);
         threadCom.putUpdate("update_tickets", newTickets);
     }
     
-    private void updateTickets(Move move) {
-        List<Object> newTickets = new ArrayList<Object>();
-        newTickets.add(move.colour);
-        Map<Ticket, Integer> tickets = getPlayerTickets(move.colour);
+    private Map<Ticket, Integer> adjustTickets(Map<Ticket, Integer> tickets, Move move) {
         if (move instanceof MoveTicket) {
             MoveTicket moveTicket = (MoveTicket) move;
             Integer ticketNo = tickets.get(moveTicket.ticket);
@@ -354,8 +351,7 @@ public class ScotlandYardGame implements Player, Runnable {
             tickets.remove(move2.ticket);
             tickets.put(move2.ticket, --move2No);
         }
-        newTickets.add(tickets);
-        threadCom.putUpdate("update_tickets", newTickets);
+        return tickets;
     }
     
     private Map<Ticket, Integer> getPlayerTickets(Colour player) {

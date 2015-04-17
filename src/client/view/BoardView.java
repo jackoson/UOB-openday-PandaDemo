@@ -475,17 +475,21 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     // @return the Set of Tickets for which you can use to get the specified node.
     private Set<Ticket> getValidTickets(int point) {
         Set<Ticket> tickets = new HashSet<Ticket>();
-        Set<Move> movesUsed = new HashSet<Move>();
+        Set<Move> singleMoves = new HashSet<Move>();
         for (Move move : validMoves) {
             if (move instanceof MoveTicket && ((MoveTicket) move).target == point) {
                 tickets.add(((MoveTicket) move).ticket);
-                movesUsed.add(move);
-            } else if (move instanceof MoveDouble) {
-                MoveTicket move1 = (MoveTicket) ((MoveDouble) move).move1;
-                MoveTicket move2 = (MoveTicket) ((MoveDouble) move).move2;
-                if (!movesUsed.contains(move1) && move2.target == point) {
-                    tickets.add(move2.ticket);
-                    tickets.add(Ticket.Double);
+                singleMoves.add(move);
+            }
+        }
+        if (singleMoves.size() == 0) {
+            for (Move move : validMoves) {
+                if (move instanceof MoveDouble) {
+                    MoveTicket move2 = (MoveTicket) ((MoveDouble) move).move2;
+                    if (move2.target == point) {
+                        tickets.add(move2.ticket);
+                        tickets.add(Ticket.Double);
+                    }
                 }
             }
         }

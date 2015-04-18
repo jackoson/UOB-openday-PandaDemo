@@ -98,7 +98,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
      */
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("startGame")) {
-            if(validGameName(setUpView.selectedGameName())) {
+            if(validGameName(setUpView.newGameName())) {
                 beginGame();
                 newGame();
             } else {
@@ -107,7 +107,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                         "Invalid Name", JOptionPane.WARNING_MESSAGE, fileAccess.getWarningIcon());
             }
         } else if (e.getActionCommand().equals("loadGame")) {
-            if (setUpView.selectedFilePath() != null) {
+            if (setUpView.loadFilePath() != null) {
                 beginGame();
                 loadGame();
             }
@@ -137,15 +137,15 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     
     // Starts a new game in a new Thread.
     private void newGame() {
-        int playerNo = setUpView.selectedPlayers();
-        String gameName = setUpView.selectedGameName();        
+        int playerNo = setUpView.newPlayers();
+        String gameName = setUpView.newGameName();
         game = new ScotlandYardGame(playerNo, gameName, "resources/graph.txt", threadCom);
         new Thread(game).start();
     }
 
     // Loads a previously played game in a new Thread.
     private void loadGame() {
-        game = new ScotlandYardGame(setUpView.selectedFilePath(), threadCom);
+        game = new ScotlandYardGame(setUpView.loadFilePath(), threadCom);
         new Thread(game).start();
     }
     

@@ -41,6 +41,7 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
     private BufferedImage background;
     private BufferedImage backgroundImage;
     private ActionListener listener;
+    private JButton multiplayerButton;
     
     /**
      * Constructs a new SetUpView object.
@@ -73,7 +74,13 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         add(title, constraints);
         constraints.fill = GridBagConstraints.NONE;
         
-        JButton multiplayerButton = new JButton();
+        multiplayerButton = new JButton();
+        multiplayerButton.setContentAreaFilled(false);
+        multiplayerButton.setOpaque(false);
+        multiplayerButton.setBorderPainted(false);
+        multiplayerButton.setIcon(new ImageIcon(fileAccess.getSingleplayerIcon()));
+
+        multiplayerButton.setPreferredSize(new Dimension(80, 60));
         multiplayerButton.setActionCommand("multiplayer");
         multiplayerButton.addActionListener(this);
         title.add(multiplayerButton, BorderLayout.EAST);
@@ -129,10 +136,12 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
             remove(singlePanel);
             add(multiPanel, constraints);
             title.setText("LAN Game");
+            multiplayerButton.setIcon(new ImageIcon(fileAccess.getMultiplayerIcon()));
         } else {
             remove(multiPanel);
             add(singlePanel, constraints);
             title.setText("Local Game");
+            multiplayerButton.setIcon(new ImageIcon(fileAccess.getSingleplayerIcon()));
         }
         repaint();
         revalidate();

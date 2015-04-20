@@ -27,6 +27,8 @@ public class FileAccess {
     private Map<Integer, Point> mapPositions;
     private BufferedImage setupImage;
     private BufferedImage warningIcon;
+    private BufferedImage multiplayerIcon;
+    private BufferedImage singleplayerIcon;
     private Map<Set<Ticket>, BufferedImage> cursors;
     
     /**
@@ -43,6 +45,8 @@ public class FileAccess {
             notify = ImageIO.read(this.getClass().getResource("/resources/notify.png"));
             setupBackground = ImageIO.read(this.getClass().getResource("/resources/setupBackground.png"));
             warningIcon = ImageIO.read(this.getClass().getResource("/resources/warningIcon.jpg"));
+            multiplayerIcon = ImageIO.read(this.getClass().getResource("/resources/multiplayerIcon.png"));
+            singleplayerIcon = ImageIO.read(this.getClass().getResource("/resources/singleplayerIcon.png"));
             
             counters.put(Colour.Black, ImageIO.read(this.getClass().getResource("/resources/counters/black_counter.png")));
             counters.put(Colour.Blue, ImageIO.read(this.getClass().getResource("/resources/counters/blue_counter.png")));
@@ -231,6 +235,24 @@ public class FileAccess {
                 System.err.println(e);
             }
         }
+    }
+    
+    /**
+     * Returns the singleplayer icon image.
+     *
+     * @return the singleplayer icon image.
+     */
+    public BufferedImage getSingleplayerIcon() {
+        return singleplayerIcon;
+    }
+    
+    /**
+     * Returns the multiplayer icon image.
+     *
+     * @return the multiplayer icon image.
+     */
+    public BufferedImage getMultiplayerIcon() {
+        return multiplayerIcon;
     }
     
     /**

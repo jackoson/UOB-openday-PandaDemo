@@ -2,7 +2,7 @@ package client.model;
 
 import scotlandyard.*;
 
-import java.util.Map;
+import java.util.*;
 import java.io.Serializable;
 
 /**

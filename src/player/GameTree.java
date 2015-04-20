@@ -26,7 +26,7 @@ public class GameTree {
         public TreeNode(List<GamePlayer> players) {
             this.players = new ArrayList<GamePlayer>();
             for (GamePlayer player : players) {
-                this.players.add(player.clone());
+                this.players.add(new GamePlayer(player));
             }
         }
         
@@ -56,6 +56,9 @@ public class GameTree {
             routeMap.put(Route.Bus, tickets.get(Ticket.Bus));
             routeMap.put(Route.Underground, tickets.get(Ticket.Underground));
             routeMap.put(Route.Boat, tickets.get(Ticket.Secret));
+            return routeMap;
         }
+        
     }
+    
 }

@@ -60,6 +60,11 @@ public class ScotlandYardGame implements Player, Runnable {
             saveGame.setMrXLocation(randMrXLocation);
             saveGame.setDetectiveLocations(randDetectiveLocations);
             fileAccess = new FileAccess();
+            
+            long startTime = System.nanoTime();
+            routeFinder.getRoute(1, 171, getPlayerTicketsRoute(Colour.Black));
+            long endTime = System.nanoTime();
+            System.err.println("TIME:" + (endTime - startTime));
         } catch (Exception e) {
             System.err.println("Error setting up new game :" + e);
             e.printStackTrace();

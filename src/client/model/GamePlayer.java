@@ -31,6 +31,16 @@ public class GamePlayer {
         this.tickets = tickets;
     }
     
+    public GamePlayer(GamePlayer player) {
+        this.player = player.player();
+        this.colour = player.colour();
+        this.location = new Integer(player.location());
+        Map<Ticket, Integer> ticketMap = new HashMap<Ticket, Integer>();
+        for (Map.Entry<Ticket, Integer> entry : player.tickets().entrySet()) {
+            ticketMap.put(entry.getKey(), new Integer(entry.getValue()));
+        }
+    }
+    
     /**
      * Returns the Player object associated with the player.
      *

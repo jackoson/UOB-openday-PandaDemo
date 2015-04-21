@@ -12,18 +12,54 @@ public class GameTree {
     private PageRank pageRank;
     private Dijkstra routeFinder;
     
-    public GameTree(Graph graph, PageRank pageRank, Dijkstra routeFinder) {
+    public GameTree(Graph graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players) {
         this.graph = graph;
         this.pageRank = pageRank;
         this.routeFinder = routeFinder;
+        
+        //
+        TreeNode root = new TreeNode(null, players);
+        
+    }
+    
+    private void addLayer(TreeNode parent, List<GamePlayer> players) {
+        GamePlayer mrX = players.get(0);
+        List<Move> validMoves = MoveHandler.validMoves(mrX, players, graph);
+        
+        for (Move move : validMoves) {
+            List<GamePlayer> newPLayers = //players after this move has been played
+            TreeNode node = new TreeNode(parent, newPlayers);
+            
+        }
+    }
+    
+    private List<GamePlayer> players playMove(List<GamePlayer> players, MoveTicket move) {
+        GamePlayer player = getPlayer(players, move.player);
+    }
+    
+    private List<GamePlayer> players playMove(List<GamePlayer> players, MoveDouble move) {
+        
+    }
+    
+    private List<GamePlayer> players playMove(List<GamePlayer> players, MovePass move) {
+        
+    }
+    
+    private GamePlayer getPlayer(List<GamePlayer> players ,Colour colour) {
+        for (GamePlayer gamePlayer : players) {
+            if (gamePlayer.colour().equals(colour)) return gamePlayer;
+        }
+        return null;
     }
     
     private class TreeNode {
         
         private List<GamePlayer> players;
         public static final double multiplier = 1.0;
+        private TreeNode parent;
         
-        public TreeNode(List<GamePlayer> players) {
+        public TreeNode(TreeNode parent, List<GamePlayer> players) {
+            this.parent = parent;
             this.players = new ArrayList<GamePlayer>();
             for (GamePlayer player : players) {
                 this.players.add(new GamePlayer(player));

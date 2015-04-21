@@ -7,14 +7,46 @@ import java.util.*;
 
 public class ModelHelper {
   
-    public static boolean mrXWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
-        // Return whether Mr X has won.
-        return true;
+    
+    public static GamePlayer getNextPlayer(List<GamePlayer> players, GamePlayer currentPlayer) {
+        int currentPosition = players.indexOf(currentPlayer);
+        GamePlayer nextPlayer = players.get((currentPosition + 1) % players.size());
+        return nextPlayer;
+    }
+    public static Set<Colour> getWinningPlayers(List<GamePlayer> players, GamePlayer currentPlayer, Graph<Integer, Route> graph, List<Boolean> rounds, Integer round) {
+        Set<Colour> winners = new HashSet<Colour>();
+        if (detectivesNoValidMoves(players, graph) || players.size() == 1
+            || (round >= (rounds.size() - 1)
+                && currentPlayer.colour().equals(Colour.Black))) {
+                winners.add(Colour.Black);
+            } else if (onMrX(players) || validMoves(players.get(0), players, graph).size() == 0) {
+                for (GamePlayer player : players) {
+                    if (!player.colour().equals(Colour.Black)) winners.add(player.colour());
+                }
+            }
+        return winners;
     }
     
-    public static boolean detectivesWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
-        // Return whether the Detectives have won (and subsequently get to break Mr X's knee caps).
-        return true;
+    
+    public static boolean detectivesNoValidMoves(List<GamePlayer> players, Graph<Integer, Route> graph) {
+        boolean noMoves = true;
+        for (GamePlayer player : players) {
+            if (!player.colour().equals(Colour.Black)) {
+                Set<Move> moves = validMoves(player, players, graph);
+                if (!(moves.size() == 1 && moves.iterator().next() instanceof MovePass)) {
+                    noMoves = false;
+                }
+            }
+        }
+        return noMoves;
+    }
+    
+    public static boolean onMrX(List<GamePlayer> players) {
+        GamePlayer mrX = players.get(0);
+        for (GamePlayer player : players) {
+            if (!player.colour().equals(Colour.Black) && player.location().equals(mrX.location())) return true;
+        }
+        return false;
     }
     
     //Create a list of valid moves

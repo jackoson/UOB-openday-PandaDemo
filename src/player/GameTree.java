@@ -12,17 +12,26 @@ public class GameTree {
     private PageRank pageRank;
     private Dijkstra routeFinder;
     
-    public GameTree(Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players) {
+    private List<Boolean> rounds;
+    private Integer round;
+    private GamePlayer currentPlayer;
+    int depth;
+    
+    public GameTree(Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.graph = graph;
         this.pageRank = pageRank;
         this.routeFinder = routeFinder;
+        this.rounds = rounds;
+        this.round = round;
+        depth = 0;
         
         //
         TreeNode root = new TreeNode(null, players);
-        addLayer(root, root.players);
+        addLayer(root, players);
     }
     
     private void addLayer(TreeNode parent, List<GamePlayer> players) {
+        if(currentPlayer.colour().equals(Colour.Black)) round++;
         GamePlayer mrX = players.get(0);
         Set<Move> validMoves = ModelHelper.validMoves(mrX, players, graph);
         
@@ -31,7 +40,10 @@ public class GameTree {
             playMove(clonedPlayers, move);
             TreeNode node = new TreeNode(parent, clonedPlayers);
             //Do stuff
+            if (depth < 6) addLayer(node, clonedPlayers);
         }
+        
+        currentPlayer = ModelHelper.getNextPlayer(players, currentPlayer);
     }
     
     private void playMove(List<GamePlayer> players, Move move) {
@@ -69,8 +81,10 @@ public class GameTree {
     
     private class TreeNode {
         
-        public final List<GamePlayer> players;
-        public static final double multiplier = 1.0;
+        private final List<GamePlayer> players;
+        public static final double kMultiplier = 1.0;
+        public static final double kMax = 10.0;
+        public static final double kMin = -10.0;
         public final TreeNode parent;
         
         public TreeNode(TreeNode parent, List<GamePlayer> players) {
@@ -79,6 +93,9 @@ public class GameTree {
         }
         
         public double score() {
+            Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(players, currentPlayer, graph, rounds, round);
+            if (winningPlayers.contains(Colour.Black)) return kMax;
+            if (winningPlayers.size() != 0) return kMin;
             int mrXLocation = players.get(0).location();
             double mrXPageRank = pageRank.getPageRank(mrXLocation);
             double sumDetPageRank = 0.0;
@@ -94,7 +111,7 @@ public class GameTree {
             }
             double avgDetPageRank = sumDetPageRank / (double) (players.size() - 1);
             double avgDetDistance = sumDetDistance / (double) (players.size() - 1);
-            double score = ((mrXPageRank * avgDetDistance) / avgDetPageRank) * TreeNode.multiplier;
+            double score = ((mrXPageRank * avgDetDistance) / avgDetPageRank) * TreeNode.kMultiplier;
             return score;
         }
         

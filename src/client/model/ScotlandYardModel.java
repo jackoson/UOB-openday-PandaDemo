@@ -61,8 +61,7 @@ public class ScotlandYardModel extends ScotlandYard {
     //Get the next player in the list of players
     @Override
     protected void nextPlayer() {
-        int currentPosition = players.indexOf(currentPlayer);
-        currentPlayer = players.get((currentPosition + 1) % players.size());
+        currentPlayer = ModelHelper.getNextPlayer(players, currentPlayer);
     }
 
     //Play a MoveTicket
@@ -164,17 +163,7 @@ public class ScotlandYardModel extends ScotlandYard {
     //Check for winners
     @Override
     public Set<Colour> getWinningPlayers() {
-        Set<Colour> winners = new HashSet<Colour>();
-        if (detectivesNoValidMoves() || getPlayers().size() == 1 
-            || (roundCounter >= (rounds.size() - 1) 
-                  && currentPlayer.colour().equals(Colour.Black))) {
-            winners.add(Colour.Black);
-        } else if (onMrX() || validMoves(Colour.Black).size() == 0) {
-            for (GamePlayer player : players) {
-                if (!player.colour().equals(Colour.Black)) winners.add(player.colour());
-            }
-        }
-        return winners;
+        return ModelHelper.getWinningPlayers(players, currentPlayer, graph, rounds, roundCounter);
     }
 
     @Override
@@ -207,31 +196,10 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     public boolean isGameOver() {
         if (isReady() && ((roundCounter >= (rounds.size() - 1) && currentPlayer.colour().equals(Colour.Black)) || validMoves(Colour.Black).size() == 0
-              || getPlayers().size() == 1 || onMrX() || detectivesNoValidMoves())) return true;
+              || getPlayers().size() == 1 || ModelHelper.onMrX(players) || ModelHelper.detectivesNoValidMoves(players, graph))) return true;
         return false;
     }
     
-    private boolean detectivesNoValidMoves() {
-        boolean noMoves = true;
-        for (GamePlayer player : players) {
-            if (!player.colour().equals(Colour.Black)) {
-                Set<Move> moves = validMoves(player.colour());
-                if (!(moves.size() == 1 && moves.iterator().next() instanceof MovePass)) {
-                    noMoves = false;
-                }
-            }
-        }
-        return noMoves;
-    }
-    
-    private boolean onMrX() {
-        GamePlayer mrX = getPlayer(Colour.Black);
-        for (GamePlayer player : players) {
-            if (!player.colour().equals(Colour.Black) && player.location().equals(mrX.location())) return true;
-        }
-        return false;
-    }
-
     @Override
     public boolean isReady() {
         if (players.size() == numberOfPlayers && getPlayer(Colour.Black) != null) return true;

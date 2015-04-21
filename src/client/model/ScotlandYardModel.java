@@ -111,7 +111,7 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     protected Set<Move> validMoves(Colour player) {
         GamePlayer gamePlayer = getPlayer(player);
-        Set<Move> validMoves = MoveHandler.validMoves(gamePlayer, players, graph);
+        Set<Move> validMoves = ModelHelper.validMoves(gamePlayer, players, graph);
         return validMoves;
     }
     

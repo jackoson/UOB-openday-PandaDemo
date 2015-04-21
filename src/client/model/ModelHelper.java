@@ -5,7 +5,17 @@ import scotlandyard.*;
 import java.util.*;
 
 
-public class MoveHandler {
+public class ModelHelper {
+  
+    static public boolean mrXWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
+        // Return whether Mr X has won.
+        return true;
+    }
+    
+    static public boolean detectivesWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
+        // Return whether the Detectives have won (and subsequently get to break Mr X's knee caps).
+        return true;
+    }
     
     //Create a list of valid moves
     static public Set<Move> validMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {

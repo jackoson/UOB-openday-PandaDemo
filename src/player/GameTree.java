@@ -8,44 +8,58 @@ import java.util.*;
 
 public class GameTree {
     
-    private Graph graph;
+    private Graph<Integer, Route> graph;
     private PageRank pageRank;
     private Dijkstra routeFinder;
     
-    public GameTree(Graph graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players) {
+    public GameTree(Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players) {
         this.graph = graph;
         this.pageRank = pageRank;
         this.routeFinder = routeFinder;
         
         //
         TreeNode root = new TreeNode(null, players);
-        
+        addLayer(root, root.players);
     }
     
     private void addLayer(TreeNode parent, List<GamePlayer> players) {
-        GamePlayer mrX = players.get(0);
-        List<Move> validMoves = MoveHandler.validMoves(mrX, players, graph);
+        GamePlayer mrX = players.get(0);// Should be getting next player (Not just Mr X).
+        Set<Move> validMoves = ModelHelper.validMoves(mrX, players, graph);
         
         for (Move move : validMoves) {
-            List<GamePlayer> newPLayers = //players after this move has been played
+            List<GamePlayer> newPlayers = playMove(players, move);
             TreeNode node = new TreeNode(parent, newPlayers);
-            
+            // Check we are at required depth, if we are, stop, else create the next layer.
         }
     }
     
-    private List<GamePlayer> players playMove(List<GamePlayer> players, MoveTicket move) {
-        GamePlayer player = getPlayer(players, move.player);
+    private List<GamePlayer> playMove(List<GamePlayer> players, Move move) {
+        if (move instanceof MoveTicket) return playMove(players, (MoveTicket) move);
+        else if (move instanceof MoveDouble) return playMove(players, (MoveDouble) move);
+        else return players;
     }
     
-    private List<GamePlayer> players playMove(List<GamePlayer> players, MoveDouble move) {
-        
+    private List<GamePlayer> playMove(List<GamePlayer> players, MoveTicket move) {
+        players = cloneList(players);
+        GamePlayer player = getPlayer(players, move.colour);
+        player.setLocation(move.target);
+        player.removeTicket(move.ticket);
+        return players;
     }
     
-    private List<GamePlayer> players playMove(List<GamePlayer> players, MovePass move) {
-        
+    private List<GamePlayer> playMove(List<GamePlayer> players, MoveDouble move) {
+        return playMove(playMove(players, move.move1), move.move2);
     }
     
-    private GamePlayer getPlayer(List<GamePlayer> players ,Colour colour) {
+    private List<GamePlayer> cloneList(List<GamePlayer> players) {
+        List<GamePlayer> newPlayers = new ArrayList<GamePlayer>();
+        for (GamePlayer player : players) {
+            newPlayers.add(new GamePlayer(player));
+        }
+        return newPlayers;
+    }
+    
+    private GamePlayer getPlayer(List<GamePlayer> players, Colour colour) {
         for (GamePlayer gamePlayer : players) {
             if (gamePlayer.colour().equals(colour)) return gamePlayer;
         }
@@ -54,9 +68,9 @@ public class GameTree {
     
     private class TreeNode {
         
-        private List<GamePlayer> players;
+        public final List<GamePlayer> players;
         public static final double multiplier = 1.0;
-        private TreeNode parent;
+        public final TreeNode parent;
         
         public TreeNode(TreeNode parent, List<GamePlayer> players) {
             this.parent = parent;

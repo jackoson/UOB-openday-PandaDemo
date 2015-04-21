@@ -7,18 +7,18 @@ import java.util.*;
 
 public class ModelHelper {
   
-    static public boolean mrXWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
+    public static boolean mrXWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
         // Return whether Mr X has won.
         return true;
     }
     
-    static public boolean detectivesWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
+    public static boolean detectivesWon(List<GamePlayer> players, Graph<Integer, Route> graph) {
         // Return whether the Detectives have won (and subsequently get to break Mr X's knee caps).
         return true;
     }
     
     //Create a list of valid moves
-    static public Set<Move> validMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
+    public static Set<Move> validMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
         Colour player = gamePlayer.colour();
         int secretMoveCount = gamePlayer.tickets().get(Ticket.Secret);
         int doubleMoveCount = gamePlayer.tickets().get(Ticket.Double);
@@ -42,7 +42,7 @@ public class ModelHelper {
     }
     
     //Create a list of valid single moves
-    static private Set<MoveTicket> createSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Integer location) {
+    private static Set<MoveTicket> createSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Integer location) {
         Set<MoveTicket> moves = new HashSet<MoveTicket>();
         Set<Edge<Integer, Route>> edges = graph.getEdges(location);
         
@@ -60,7 +60,7 @@ public class ModelHelper {
     }
     
     //Create a list of valid double moves including secret moves
-    static private Set<MoveDouble> createDoubleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Set<MoveTicket> moves, int secretMoveCount) {
+    private static Set<MoveDouble> createDoubleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Set<MoveTicket> moves, int secretMoveCount) {
         Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
         for (MoveTicket move : moves) {
             Set<MoveTicket> secondMoves = createSingleMoves(gamePlayer, players,  graph, move.target);
@@ -81,7 +81,7 @@ public class ModelHelper {
     }
     
     //Create a list of secret single moves
-    static private Set<MoveTicket> createSingleSecretMoves(Set<MoveTicket> moves) {
+    private static Set<MoveTicket> createSingleSecretMoves(Set<MoveTicket> moves) {
         Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
         for (MoveTicket move : moves) {
             secretMoves.add(makeSecret(move));
@@ -89,12 +89,12 @@ public class ModelHelper {
         return secretMoves;
     }
     
-    static private MoveTicket makeSecret(MoveTicket move) {
+    private static MoveTicket makeSecret(MoveTicket move) {
         return MoveTicket.instance(move.colour, Ticket.Secret, move.target);
     }
     
     //Check to see if player has required moves
-    static private boolean hasTickets(GamePlayer gamePlayer, MoveTicket move1, MoveTicket move2) {
+    private static boolean hasTickets(GamePlayer gamePlayer, MoveTicket move1, MoveTicket move2) {
         Ticket ticket1;
         if (move1 != null){
             ticket1 = move1.ticket;
@@ -112,7 +112,7 @@ public class ModelHelper {
     }
     
     //Checks whether a detective occupies a given node
-    static private boolean nodeOccupied(List<GamePlayer> players, Node<Integer> node) {
+    private static boolean nodeOccupied(List<GamePlayer> players, Node<Integer> node) {
         for (GamePlayer player : players) {
             if (node.data().equals(player.location())) {
                 if (!player.colour().equals(Colour.Black)) return true;

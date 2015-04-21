@@ -263,7 +263,9 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     public Set<Colour> getWinningPlayers() {
         Set<Colour> winners = new HashSet<Colour>();
-        if (detectivesNoValidMoves() || getPlayers().size() == 1 || roundCounter >= rounds.size()) {
+        if (detectivesNoValidMoves() || getPlayers().size() == 1 
+            || (roundCounter >= (rounds.size() - 1) 
+                  && currentPlayer.colour().equals(Colour.Black))) {
             winners.add(Colour.Black);
         } else if (onMrX() || validMoves(Colour.Black).size() == 0) {
             for (GamePlayer player : players) {

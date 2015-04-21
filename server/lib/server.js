@@ -37,6 +37,7 @@ Server.prototype.start = function(player_port, game_port) {
     this.game_server.on('initialised', function(id) {
         self.game_id = id;
     });
+    console.log("Server started; Player port - " + player_port + "; Game port - " + game_port + ";");
 }
 
 
@@ -46,6 +47,7 @@ Server.prototype.start = function(player_port, game_port) {
 Server.prototype.close = function() {
     this.player_server.close();
     this.game_server.close();
+    console.log("Server DESTROYED.");
 }
 
 

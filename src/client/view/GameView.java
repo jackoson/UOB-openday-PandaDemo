@@ -201,9 +201,14 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         for (int i = 0; i < moves.size(); i++) {
             if(v.size() > 14) break;
             Move move = it.next();
-            if (move instanceof MoveDouble) continue;
             List<Move> m = new ArrayList<Move>();
-            m.add(move);
+            if (move instanceof MoveDouble) {
+                MoveDouble moveDouble = (MoveDouble) move;
+                m.add(moveDouble.move1);
+                m.add(moveDouble.move2);
+            } else {
+                m.add(move);
+            }
             v.add(new RouteView(m, fileAccess));
         }
         listView.setCells(v);
@@ -217,6 +222,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
+    }
+    
+    public void zoomToPlayer(Colour player) {
+        board.zoomToPlayer(player);
     }
     
     /**

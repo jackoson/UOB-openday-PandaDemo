@@ -16,6 +16,7 @@ import java.util.Set;
  * which must be one from the list.
  */
 public class RandomPlayer implements Player {
+  
     public RandomPlayer(ScotlandYardView view, String graphFilename) {
         //TODO: A better AI makes use of `view` and `graphFilename`.
     }
@@ -44,7 +45,11 @@ public class RandomPlayer implements Player {
      *     - PageRank of detectives nodes
      *     - Maybe convex hull
      */
-     private void score() {
+     private void scoreMrX() {
+        //TODO: Implement the board score heuristic here.
+     }
+     
+     private void scoreDetectives() {
         //TODO: Implement the board score heuristic here.
      }
 

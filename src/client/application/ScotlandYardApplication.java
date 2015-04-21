@@ -194,7 +194,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) object;
             Colour colour = (Colour) list.get(0);
+            @SuppressWarnings("unchecked")
             Map<Ticket, Integer> tickets = (Map<Ticket, Integer>) list.get(1);
+            for (Map.Entry<Ticket, Integer> e : tickets.entrySet());
             gameView.updateTickets(colour, tickets);
         } else if (id.equals("send_notification")) {
             String message = (String) object;
@@ -202,6 +204,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("zoom_in")) {
             Integer location = (Integer) object;
             gameView.zoomToNode(location);
+        } else if (id.equals("zoom_in_colour")) {
+            Colour player = (Colour) object;
+            gameView.zoomToPlayer(player);
         } else if (id.equals("zoom_out")) {
             gameView.zoomOut();
         } else if (id.equals("reset_timer")) {

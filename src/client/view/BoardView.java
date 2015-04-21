@@ -193,6 +193,11 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         zoomToCoordinates(loc.x, loc.y, true);
     }
     
+    public void zoomToPlayer(Colour player) {
+        Point loc = locations.get(player);
+        zoomToCoordinates(loc.x, loc.y, true);
+    }
+    
     /**
      * Zooms out so the map fits in the view.
      */

@@ -12,12 +12,13 @@ import javax.swing.JLabel;
  * A class that runs on a new Thread and starts a new instance of the game.
  */
 
-public class ScotlandYardGame implements Player, Runnable {
+public class ScotlandYardGame implements Player, Spectator, Runnable {
     
     private ScotlandYardModel model;
     private SaveGame saveGame = null;
     private int numPlayers;
     private List<GamePlayer> players;
+    private List<Colour> aiPlayers;
     private String gameName;
     private String graphName;
     private InputPDA pda;
@@ -34,6 +35,14 @@ public class ScotlandYardGame implements Player, Runnable {
     
     private int[] detectiveLocations = {26, 29, 50, 53, 91, 94, 103, 112, 117, 123, 138, 141, 155, 174};
     private int[] mrXLocations = {35, 45, 51, 71, 78, 104, 106, 127, 132, 166, 170, 172};
+    
+    /**
+     * For the constructor for the multiplayer game, we need this:
+     *    - this.guiPlayers = new ArrayList<Colour>();
+     *    - add all AI players to the List
+     *    - model.spectate(this);
+     * This will update the UI when an AI player makes a Move.
+     */
     
     /**
      * Constructs a new ScotlandYardGame object.
@@ -88,7 +97,8 @@ public class ScotlandYardGame implements Player, Runnable {
             players = initialiseGame(saveGame.getMrXLocation(), saveGame.getDetectiveLocations());
             replaying = true;
         } catch (Exception e) {
-            System.err.println("Error loading game :" + e.getStackTrace());
+            System.err.println("Error loading game :" + e);
+            e.printStackTrace();
             System.exit(1);
         }
     }
@@ -126,7 +136,7 @@ public class ScotlandYardGame implements Player, Runnable {
                              false, false, false, true, false,
                              false, false, false, true, false,
                              false, false, false, true, false,
-                             false, false, false, true);
+                             false, false, false, false, true);
     }
     
     // Returns the List of players in the game.
@@ -192,6 +202,7 @@ public class ScotlandYardGame implements Player, Runnable {
      */
     public Move notify(int location, Set<Move> moves) {
         updateUI(location, model.getCurrentPlayer(), moves);
+        pda.reset();
         Move move = null;
         while (true) {
             if (saveGame.hasSavedMove()) {
@@ -230,9 +241,19 @@ public class ScotlandYardGame implements Player, Runnable {
         }
         updateUI(move);
         outOfTime = false;
-        pda.reset();
         saveGame.addMove(move);
         return move;
+    }
+    
+    /**
+     * Used to update the view with the specified Move.
+     * Part of the Spectator interface.
+     */
+    public void notify(Move move) {
+        if (move instanceof MoveTicket && aiPlayers.contains(move.colour)) {
+            // Update UI for AI players.
+            updateUI(move);
+        }
     }
     
     // Decodes the id from the queue and performs the appropriate action.
@@ -310,8 +331,10 @@ public class ScotlandYardGame implements Player, Runnable {
         updateTickets(move.colour, move);
         wait(500);
         Integer target = getTarget(move);
-        if (target != null) threadCom.putUpdate("zoom_in", target);
-        wait(kMoveWait);
+        if (target != null && target != 0) {
+            threadCom.putUpdate("zoom_in", target);
+            wait(kMoveWait);
+        }
         threadCom.putUpdate("zoom_out", true);
         wait(kMoveWait);
     }

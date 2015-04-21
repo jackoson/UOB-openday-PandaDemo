@@ -23,32 +23,33 @@ public class GameTree {
     }
     
     private void addLayer(TreeNode parent, List<GamePlayer> players) {
-        GamePlayer mrX = players.get(0);// Should be getting next player (Not just Mr X).
+        GamePlayer mrX = players.get(0);
         Set<Move> validMoves = ModelHelper.validMoves(mrX, players, graph);
         
         for (Move move : validMoves) {
-            List<GamePlayer> newPlayers = playMove(players, move);
-            TreeNode node = new TreeNode(parent, newPlayers);
-            // Check we are at required depth, if we are, stop, else create the next layer.
+            List<GamePlayer> clonedPlayers = cloneList(players);
+            playMove(clonedPlayers, move);
+            TreeNode node = new TreeNode(parent, clonedPlayers);
+            //Do stuff
         }
     }
     
-    private List<GamePlayer> playMove(List<GamePlayer> players, Move move) {
-        if (move instanceof MoveTicket) return playMove(players, (MoveTicket) move);
-        else if (move instanceof MoveDouble) return playMove(players, (MoveDouble) move);
-        else return players;
+    private void playMove(List<GamePlayer> players, Move move) {
+        if (move instanceof MoveTicket) playMove(players, (MoveTicket) move);
+        else if (move instanceof MoveDouble) playMove(players, (MoveDouble) move);
     }
     
-    private List<GamePlayer> playMove(List<GamePlayer> players, MoveTicket move) {
-        players = cloneList(players);
+    private void playMove(List<GamePlayer> players, MoveTicket move) {
         GamePlayer player = getPlayer(players, move.colour);
         player.setLocation(move.target);
         player.removeTicket(move.ticket);
-        return players;
     }
     
-    private List<GamePlayer> playMove(List<GamePlayer> players, MoveDouble move) {
-        return playMove(playMove(players, move.move1), move.move2);
+    private void playMove(List<GamePlayer> players, MoveDouble move) {
+        playMove(players, move.move1);
+        playMove(players, move.move2);
+        GamePlayer player = getPlayer(players, move.colour);
+        player.removeTicket(Ticket.Double);
     }
     
     private List<GamePlayer> cloneList(List<GamePlayer> players) {
@@ -74,10 +75,7 @@ public class GameTree {
         
         public TreeNode(TreeNode parent, List<GamePlayer> players) {
             this.parent = parent;
-            this.players = new ArrayList<GamePlayer>();
-            for (GamePlayer player : players) {
-                this.players.add(new GamePlayer(player));
-            }
+            this.players = players;
         }
         
         public double score() {

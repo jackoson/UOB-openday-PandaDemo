@@ -2,7 +2,7 @@ package client.model;
 
 import scotlandyard.*;
 
-import java.util.Map;
+import java.util.*;
 import java.io.Serializable;
 
 /**
@@ -29,6 +29,16 @@ public class GamePlayer {
         this.colour = colour;
         this.location = location;
         this.tickets = tickets;
+    }
+    
+    public GamePlayer(GamePlayer player) {
+        this.player = player.player();
+        this.colour = player.colour();
+        this.location = new Integer(player.location());
+        Map<Ticket, Integer> ticketMap = new HashMap<Ticket, Integer>();
+        for (Map.Entry<Ticket, Integer> entry : player.tickets().entrySet()) {
+            ticketMap.put(entry.getKey(), new Integer(entry.getValue()));
+        }
     }
     
     /**

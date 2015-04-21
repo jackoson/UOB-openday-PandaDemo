@@ -45,6 +45,7 @@ public class Dijkstra {
      * @return the optimal route from start to destination.
      */
     public List<Integer> getRoute(int start, int destination, Map<Route, Integer> tickets) {
+        
         Set<Node<Integer>> nodes = graph.getNodes();
         //Initialisation
         Map<Node<Integer>, Double> unvisitedNodes = new HashMap<Node<Integer>, Double>();

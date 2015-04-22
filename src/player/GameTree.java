@@ -15,7 +15,8 @@ public class GameTree {
     private List<Boolean> rounds;
     private Integer round;
     private GamePlayer currentPlayer;
-    int depth;
+    public static final int kMaxDepth = 6;
+    private int depth;
     
     public GameTree(Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.graph = graph;
@@ -26,24 +27,41 @@ public class GameTree {
         depth = 0;
         
         //
-        TreeNode root = new TreeNode(null, players);
+        TreeNode root = new TreeNode(null, players, null, false);
         addLayer(root, players);
     }
     
-    private void addLayer(TreeNode parent, List<GamePlayer> players) {
+    private double addLayer(TreeNode parent, List<GamePlayer> players, Double minBest, Double maxBest) {
+        Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, players, graph);
+        
         if(currentPlayer.colour().equals(Colour.Black)) round++;
-        GamePlayer mrX = players.get(0);
-        Set<Move> validMoves = ModelHelper.validMoves(mrX, players, graph);
+        currentPlayer = ModelHelper.getNextPlayer(players, currentPlayer);
+        
+        Double currentBestScore = 0.0;
+        if (parent.minimum) currentBestScore = Double.POSITIVE_INFINITY;
+        TreeNode currentBestNode = null;
         
         for (Move move : validMoves) {
             List<GamePlayer> clonedPlayers = cloneList(players);
             playMove(clonedPlayers, move);
-            TreeNode node = new TreeNode(parent, clonedPlayers);
+            boolean minimum = currentPlayer.colour().equals(Colour.Black);
+            TreeNode node = new TreeNode(parent, clonedPlayers, move, minimum);
             //Do stuff
-            if (depth < 6) addLayer(node, clonedPlayers);
+            if (depth == kMaxDepth) {
+                if ((parent.minimiser && node.score > maxBest) || (!parent.minimum && node.score < minBest)){
+                    return node;
+                }
+                
+                if ((minimum && node.score > currentBestScore) || (!minimum && node.score < currentBestScore)){
+                    currentBestScore = node.score;
+                    currentBestNode = node;
+                }
+                
+                return currentBestNode;
+            }
+            if (depth < kMaxDepth) addLayer(node, clonedPlayers);
         }
-        
-        currentPlayer = ModelHelper.getNextPlayer(players, currentPlayer);
+        return 1.0;
     }
     
     private void playMove(List<GamePlayer> players, Move move) {
@@ -81,21 +99,25 @@ public class GameTree {
     
     private class TreeNode {
         
-        private final List<GamePlayer> players;
         public static final double kMultiplier = 1.0;
         public static final double kMax = 10.0;
         public static final double kMin = -10.0;
         public final TreeNode parent;
+        public final boolean minimum;
+        public Move move;
+        public final double score;
         
-        public TreeNode(TreeNode parent, List<GamePlayer> players) {
+        public TreeNode(TreeNode parent, List<GamePlayer> players, Move move, boolean minimum) {
             this.parent = parent;
-            this.players = players;
+            this.minimum = minimum;
+            this.move = move;
+            //this.score = score(players);
         }
         
-        public double score() {
+        public double score(List<GamePlayer> players) {
             Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(players, currentPlayer, graph, rounds, round);
-            if (winningPlayers.contains(Colour.Black)) return kMax;
-            if (winningPlayers.size() != 0) return kMin;
+            if (winningPlayers.contains(Colour.Black)) return TreeNode.kMax;
+            if (winningPlayers.size() != 0) return TreeNode.kMin;
             int mrXLocation = players.get(0).location();
             double mrXPageRank = pageRank.getPageRank(mrXLocation);
             double sumDetPageRank = 0.0;

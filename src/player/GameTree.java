@@ -87,39 +87,53 @@ public class GameTree {
         System.out.println(ModelHelper.validMoves(currentPlayer, players, graph).size());
         
         TreeNode root = new TreeNode(players);
-        double bestScore = alphaBeta(root, 0, currentPlayer, players, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        
-        System.out.println("Best score = " + bestScore);
+        int depth = 5;
+        for (int i = 0; i < depth; i++) {
+            double bestScore = alphaBeta(root, 0, currentPlayer, players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            System.out.println("Best score at depth " + i + ": " + bestScore);
+        }
     }
 
     private double alphaBeta(TreeNode node, int round, GamePlayer currentPlayer, List<GamePlayer> currentState, int depth, double alpha, double beta) {
         if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
             return node.score(currentPlayer, round);
         }
+        List<TreeNode> children = new ArrayList<TreeNode>();
+        
         boolean maximising = false;
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
-        Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
-        // Advance the game.
-        if (maximising) round++;
-        currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
-        if (maximising) {
-            // We are on a maximising node.
-            Double v = Double.NEGATIVE_INFINITY;
+        
+        if (depth == 1) {
+            //Create new layer
+            Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
+            // Advance the game.
+            if (maximising) round++;
+            currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
+            
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
-                v = Math.max(v, alphaBeta(new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
-                alpha = Math.max(alpha, v);
+                TreeNode newNode = new TreeNode(clonedPlayers);
+                node.addChild(newNode);
+            }
+        }
+        //Get children
+        children = node.children;
+        
+        if (maximising) {
+            // We are on a maximising node.
+            Double v = Double.NEGATIVE_INFINITY;
+            for (TreeNode child : children) {
+                v = Math.max(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
+                beta = Math.max(beta, v);
                 if (beta <= alpha) break;
             }
             return v;
         } else {
             // We are on a minimising node.
             Double v = Double.POSITIVE_INFINITY;
-            for (Move move : validMoves) {
-                List<GamePlayer> clonedPlayers = cloneList(currentState);
-                playMove(clonedPlayers, move);
-                v = Math.min(v, alphaBeta(new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
+            for (TreeNode child : children) {
+                v = Math.min(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
                 beta = Math.min(beta, v);
                 if (beta <= alpha) break;
             }
@@ -166,10 +180,16 @@ public class GameTree {
         public static final double kMultiplier = 1.0;
         public static final double kMax = 10.0;
         public static final double kMin = -10.0;
+        public List<TreeNode> children;
         public Double score;
         
         public TreeNode(List<GamePlayer> players) {
             this.players = players;
+            this.children = new ArrayList<TreeNode>();
+        }
+        
+        public void addChild(TreeNode child) {
+            children.add(child);
         }
         
         public double getScore(GamePlayer currentPlayer, int round) {

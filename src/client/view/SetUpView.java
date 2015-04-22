@@ -23,15 +23,13 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
     private JButton replay;
     private JButton load;
     private JButton start;
-    private JButton create;
     private JButton join;
     private JList<String> loadList;
-    private JList<String> joinList;
     private JTextField newGameField;
-    private JTextField createPlayerField;
-    private JTextField createGameField;
+    private JTextField joinUsernameField;
+    private JTextField joinIPField;
+    private JTextField joinPortField;
     private JComboBox<Integer> playerDropDown;
-    private JComboBox<Colour> colorDropDown;
     private JPanel singlePanel;
     private JPanel multiPanel;
     private GridBagConstraints constraints;
@@ -104,16 +102,13 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         //
         multiPanel = new JPanel();
         multiPanel.setOpaque(false);
+        multiPanel.setPreferredSize(new Dimension(814, 390));
         multiPanel.setBackground(new Color(50, 50, 50, 125));
         constraints.gridy = 2;
         
         CreatePanel createPanel = new CreatePanel(this);
         createPanel.setPreferredSize(new Dimension(400, 380));
         multiPanel.add(createPanel);
-        
-        JoinPanel joinPanel = new JoinPanel();
-        joinPanel.setPreferredSize(new Dimension(400, 380));
-        multiPanel.add(joinPanel);
         
         backgroundImage = fileAccess.getSetupImage(new Dimension(1200, 800));
     }
@@ -186,26 +181,22 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         return (Integer)playerDropDown.getSelectedItem();
     }
     
-    public String createPlayerName() {
-        String playerName = createPlayerField.getText();
+    public String joinUsername() {
+        String playerName = joinUsernameField.getText();
         if (playerName.length() == 0) return null;
         return playerName;
     }
     
-    public String createGameName() {
-        String gameName = createGameField.getText();
+    public String joinIP() {
+        String gameName = joinIPField.getText();
         if (gameName.length() == 0) return null;
         return gameName;
     }
     
-    public String createColor() {
-        return (String)colorDropDown.getSelectedItem();
-    }
-    
-    public String createGameServer() {
-        int index = joinList.getSelectedIndex();
-        if (index >= 0) return savedGames.get(index);//need to change
-        return null;
+    public String joinPort() {
+        String gameName = joinPortField.getText();
+        if (gameName.length() == 0) return null;
+        return gameName;
     }
     
     /**
@@ -216,7 +207,6 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
     public void setActionListener(ActionListener listener) {
         load.addActionListener(listener);
         start.addActionListener(listener);
-        create.addActionListener(listener);
         join.addActionListener(listener);
         this.listener = listener;
     }
@@ -360,7 +350,7 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         private static final long serialVersionUID = -6864680088672987842L;
         
         /**
-         * Constructs a new NewPanel object.
+         * Constructs a new CreatePanel object.
          */
         public CreatePanel(KeyListener listener) {
             setLayout(new BorderLayout());
@@ -383,84 +373,50 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
             constraints.gridy = 0;
             container.add(playerFieldLabel, constraints);
             
-            createPlayerField = new JTextField(10);
-            createPlayerField.addKeyListener(listener);
-            createPlayerField.setPreferredSize(new Dimension(100, 30));
-            createPlayerField.setFont(Formatter.defaultFontOfSize(18));
+            joinUsernameField = new JTextField();
+            joinUsernameField.addKeyListener(listener);
+            joinUsernameField.setPreferredSize(new Dimension(100, 30));
+            joinUsernameField.setFont(Formatter.defaultFontOfSize(18));
             Border outside = BorderFactory.createLineBorder(new Color(220, 220, 220, 255), 1);
             Border inside = BorderFactory.createEmptyBorder(0, 5, 0, 5);
-            createPlayerField.setBorder(BorderFactory.createCompoundBorder(outside, inside));
+            joinUsernameField.setBorder(BorderFactory.createCompoundBorder(outside, inside));
             constraints.gridy = 1;
             constraints.fill = GridBagConstraints.HORIZONTAL;
-            container.add(createPlayerField, constraints);
+            container.add(joinUsernameField, constraints);
             constraints.fill = GridBagConstraints.NONE;
             
-            JComponent nameLabel = new JLabel("Game Name");
+            JComponent nameLabel = new JLabel("IP Address - port");
             nameLabel.setFont(Formatter.defaultFontOfSize(18));
             nameLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
             constraints.gridy = 2;
             container.add(nameLabel, constraints);
             
-            createGameField = new JTextField(10);
-            createGameField.addKeyListener(listener);
-            createGameField.setPreferredSize(new Dimension(100, 30));
-            createGameField.setFont(Formatter.defaultFontOfSize(18));
-            createGameField.setBorder(BorderFactory.createCompoundBorder(outside, inside));
+            JPanel addressHolder = new JPanel();
+            addressHolder.setOpaque(false);
             constraints.gridy = 3;
             constraints.fill = GridBagConstraints.HORIZONTAL;
-            container.add(createGameField, constraints);
+            container.add(addressHolder, constraints);
             constraints.fill = GridBagConstraints.NONE;
             
+            joinIPField = new JTextField();
+            joinIPField.addKeyListener(listener);
+            joinIPField.setPreferredSize(new Dimension(210, 30));
+            joinIPField.setFont(Formatter.defaultFontOfSize(18));
+            joinIPField.setBorder(BorderFactory.createCompoundBorder(outside, inside));
+            addressHolder.add(joinIPField);
             
-            JComponent playerLabel = new JLabel("Colour");
-            playerLabel.setFont(Formatter.defaultFontOfSize(18));
-            playerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
-            constraints.gridy = 4;
-            container.add(playerLabel, constraints);
-            
-            Colour[] colors = Colour.values();
-            colorDropDown  = new JComboBox<Colour>(colors);
-            colorDropDown.setLightWeightPopupEnabled(true);
-            colorDropDown.setMaximumSize(new Dimension(80,30));
-            constraints.gridy = 5;
-            container.add(colorDropDown, constraints);
-            
-            
-            create = Formatter.button("Create");
-            create.setActionCommand("createGame");
-            constraints.gridy = 6;
-            add(create, BorderLayout.SOUTH);
-        }
-    }
-    
-    // A view to draw the load list and button.
-    private class JoinPanel extends JPanel {
-        
-        private static final long serialVersionUID = -5596275096590998296L;
-        
-        /**
-         * Constructs a new LoadPanel object.
-         */
-        public JoinPanel() {
-            setBorder(new EmptyBorder(15, 40, 40, 40));
-            setOpaque(false);
-            
-            savedGames = fileAccess.savedGames();//Need to change
-            
-            joinList = Formatter.list(savedGames);
-            JScrollPane scrollPane = new JScrollPane(joinList);
-            scrollPane.setPreferredSize(new Dimension(320, 260));
-            scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220, 255), 1));
-            add(scrollPane);
-            
-            Component spacer = Box.createRigidArea(new Dimension(400,10));
-            add(spacer);
+            joinPortField = new JTextField();
+            joinPortField.addKeyListener(listener);
+            joinPortField.setPreferredSize(new Dimension(100, 30));
+            joinPortField.setFont(Formatter.defaultFontOfSize(18));
+            joinPortField.setBorder(BorderFactory.createCompoundBorder(outside, inside));
+            addressHolder.add(joinPortField);
             
             join = Formatter.button("Join");
             join.setActionCommand("joinGame");
-            add(join);
+            constraints.gridy = 6;
+            add(join, BorderLayout.SOUTH);
         }
-        
     }
     
     // Returns the styled version of the element.

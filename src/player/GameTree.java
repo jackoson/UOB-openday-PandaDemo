@@ -16,7 +16,8 @@ public class GameTree {
     private List<Boolean> rounds;
     private Integer round;
     private GamePlayer currentPlayer;
-    int depth;
+    public static final int kMaxDepth = 6;
+    private int depth;
     
     public static void main(String[] args) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
@@ -85,16 +86,15 @@ public class GameTree {
         //
         System.out.println(ModelHelper.validMoves(currentPlayer, players, graph).size());
         
-        Move bestMove = null;
         TreeNode root = new TreeNode(players);
-        alphaBeta(bestMove, root, 0, currentPlayer, players, 6, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        double bestScore = alphaBeta(root, 0, currentPlayer, players, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         
-        System.out.println("Best move = " + bestMove);
+        System.out.println("Best score = " + bestScore);
     }
 
-    private double alphaBeta(Move bestMove, TreeNode node, int round, GamePlayer currentPlayer, List<GamePlayer> currentState, int depth, double alpha, double beta) {
+    private double alphaBeta(TreeNode node, int round, GamePlayer currentPlayer, List<GamePlayer> currentState, int depth, double alpha, double beta) {
         if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
-            return node.score();
+            return node.score(currentPlayer, round);
         }
         boolean maximising = false;
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
@@ -108,12 +108,9 @@ public class GameTree {
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
-                v = Math.max(v, alphaBeta(bestMove, new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
+                v = Math.max(v, alphaBeta(new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
                 alpha = Math.max(alpha, v);
-                if (beta <= alpha) {
-                    bestMove = move;
-                    break;
-                }
+                if (beta <= alpha) break;
             }
             return v;
         } else {
@@ -122,12 +119,9 @@ public class GameTree {
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
-                v = Math.min(v, alphaBeta(bestMove, new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
+                v = Math.min(v, alphaBeta(new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
                 beta = Math.min(beta, v);
-                if (beta <= alpha) {
-                    bestMove = move;
-                    break;
-                }
+                if (beta <= alpha) break;
             }
             return v;
         }
@@ -168,7 +162,7 @@ public class GameTree {
     
     private class TreeNode {
         
-        private final List<GamePlayer> players;
+        public final List<GamePlayer> players;
         public static final double kMultiplier = 1.0;
         public static final double kMax = 10.0;
         public static final double kMin = -10.0;
@@ -178,15 +172,15 @@ public class GameTree {
             this.players = players;
         }
         
-        public double getScore() {
-            if (score == null) score = score();
+        public double getScore(GamePlayer currentPlayer, int round) {
+            if (score == null) score = score(currentPlayer, round);
             return score;
         }
         
-        private double score() {
+        private double score(GamePlayer currentPlayer, int round) {
             Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(players, currentPlayer, graph, rounds, round);
-            if (winningPlayers.contains(Colour.Black)) return kMax;
-            if (winningPlayers.size() != 0) return kMin;
+            if (winningPlayers.contains(Colour.Black)) return TreeNode.kMax;
+            if (winningPlayers.size() != 0) return TreeNode.kMin;
             int mrXLocation = players.get(0).location();
             double mrXPageRank = pageRank.getPageRank(mrXLocation);
             double sumDetPageRank = 0.0;

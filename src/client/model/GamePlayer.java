@@ -39,6 +39,7 @@ public class GamePlayer {
         for (Map.Entry<Ticket, Integer> entry : player.tickets().entrySet()) {
             ticketMap.put(entry.getKey(), new Integer(entry.getValue()));
         }
+        this.tickets = ticketMap;
     }
     
     /**

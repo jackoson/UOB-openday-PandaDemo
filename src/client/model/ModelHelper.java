@@ -13,6 +13,7 @@ public class ModelHelper {
         GamePlayer nextPlayer = players.get((currentPosition + 1) % players.size());
         return nextPlayer;
     }
+    
     public static Set<Colour> getWinningPlayers(List<GamePlayer> players, GamePlayer currentPlayer, Graph<Integer, Route> graph, List<Boolean> rounds, Integer round) {
         Set<Colour> winners = new HashSet<Colour>();
         if (detectivesNoValidMoves(players, graph) || players.size() == 1

@@ -5,6 +5,7 @@ import client.algorithms.*;
 import client.model.*;
 
 import java.util.*;
+import java.io.*;
 
 public class GameTree {
     
@@ -17,6 +18,62 @@ public class GameTree {
     private GamePlayer currentPlayer;
     int depth;
     
+    public static void main(String[] args) {
+        List<GamePlayer> players = new ArrayList<GamePlayer>();
+        Colour[] colours = Colour.values();
+        
+        Map<Ticket, Integer> mrXTickets = new HashMap<Ticket, Integer>();
+        mrXTickets.put(Ticket.Taxi, 10);
+        mrXTickets.put(Ticket.Bus, 10);
+        mrXTickets.put(Ticket.Underground, 10);
+        mrXTickets.put(Ticket.Double, 2);
+        mrXTickets.put(Ticket.Secret, 5);
+        players.add(new GamePlayer(null, colours[0], 127, mrXTickets));
+        
+        Map<Ticket, Integer> blueDetTickets = new HashMap<Ticket, Integer>();
+        blueDetTickets.put(Ticket.Taxi, 11);
+        blueDetTickets.put(Ticket.Bus, 8);
+        blueDetTickets.put(Ticket.Underground, 4);
+        blueDetTickets.put(Ticket.Double, 0);
+        blueDetTickets.put(Ticket.Secret, 0);
+        players.add(new GamePlayer(null, colours[1], 128, blueDetTickets));
+        
+        Map<Ticket, Integer> greenDetTickets = new HashMap<Ticket, Integer>();
+        greenDetTickets.put(Ticket.Taxi, 11);
+        greenDetTickets.put(Ticket.Bus, 8);
+        greenDetTickets.put(Ticket.Underground, 4);
+        greenDetTickets.put(Ticket.Double, 0);
+        greenDetTickets.put(Ticket.Secret, 0);
+        players.add(new GamePlayer(null, colours[2], 140, greenDetTickets));
+        
+        Map<Ticket, Integer> redDetTickets = new HashMap<Ticket, Integer>();
+        redDetTickets.put(Ticket.Taxi, 11);
+        redDetTickets.put(Ticket.Bus, 8);
+        redDetTickets.put(Ticket.Underground, 4);
+        redDetTickets.put(Ticket.Double, 0);
+        redDetTickets.put(Ticket.Secret, 0);
+        players.add(new GamePlayer(null, colours[3], 158, redDetTickets));
+        
+        List<Boolean> rounds = Arrays.asList(false, false, false, true, false,
+                                             false, false, false, true, false,
+                                             false, false, false, true, false,
+                                             false, false, false, true, false,
+                                             false, false, false, false, true);
+        
+        try {
+            ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
+            Graph<Integer, Route> testGraph = graphReader.readGraph("graph.txt");
+            Dijkstra dijkstra = new Dijkstra("graph.txt");
+            PageRank testPageRank = new PageRank(testGraph);
+            testPageRank.iterate(100);
+            GameTree gameTree = new GameTree(testGraph, testPageRank, dijkstra, players, rounds, 0, players.get(0));
+        } catch (Exception e) {
+            System.err.println("Error running alpha-beta pruning test :" + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+    
     public GameTree(Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.graph = graph;
         this.pageRank = pageRank;
@@ -26,25 +83,55 @@ public class GameTree {
         depth = 0;
         
         //
-        TreeNode root = new TreeNode(null, players);
-        addLayer(root, players);
-    }
-    
-    private void addLayer(TreeNode parent, List<GamePlayer> players) {
-        if(currentPlayer.colour().equals(Colour.Black)) round++;
-        GamePlayer mrX = players.get(0);
-        Set<Move> validMoves = ModelHelper.validMoves(mrX, players, graph);
+        System.out.println(ModelHelper.validMoves(currentPlayer, players, graph).size());
         
-        for (Move move : validMoves) {
-            List<GamePlayer> clonedPlayers = cloneList(players);
-            playMove(clonedPlayers, move);
-            TreeNode node = new TreeNode(parent, clonedPlayers);
-            //Do stuff
-            if (depth < 6) addLayer(node, clonedPlayers);
+        Move bestMove = null;
+        TreeNode root = new TreeNode(players);
+        alphaBeta(bestMove, root, 0, currentPlayer, players, 6, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        
+        System.out.println("Best move = " + bestMove);
+    }
+
+    private double alphaBeta(Move bestMove, TreeNode node, int round, GamePlayer currentPlayer, List<GamePlayer> currentState, int depth, double alpha, double beta) {
+        if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
+            return node.score();
         }
-        
-        currentPlayer = ModelHelper.getNextPlayer(players, currentPlayer);
-    }
+        boolean maximising = false;
+        if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
+        Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
+        // Advance the game.
+        if (maximising) round++;
+        currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
+        if (maximising) {
+            // We are on a maximising node.
+            Double v = Double.NEGATIVE_INFINITY;
+            for (Move move : validMoves) {
+                List<GamePlayer> clonedPlayers = cloneList(currentState);
+                playMove(clonedPlayers, move);
+                v = Math.max(v, alphaBeta(bestMove, new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
+                alpha = Math.max(alpha, v);
+                if (beta <= alpha) {
+                    bestMove = move;
+                    break;
+                }
+            }
+            return v;
+        } else {
+            // We are on a minimising node.
+            Double v = Double.POSITIVE_INFINITY;
+            for (Move move : validMoves) {
+                List<GamePlayer> clonedPlayers = cloneList(currentState);
+                playMove(clonedPlayers, move);
+                v = Math.min(v, alphaBeta(bestMove, new TreeNode(clonedPlayers), round, currentPlayer, clonedPlayers, depth - 1, alpha, beta));
+                beta = Math.min(beta, v);
+                if (beta <= alpha) {
+                    bestMove = move;
+                    break;
+                }
+            }
+            return v;
+        }
+    } 
     
     private void playMove(List<GamePlayer> players, Move move) {
         if (move instanceof MoveTicket) playMove(players, (MoveTicket) move);
@@ -85,14 +172,18 @@ public class GameTree {
         public static final double kMultiplier = 1.0;
         public static final double kMax = 10.0;
         public static final double kMin = -10.0;
-        public final TreeNode parent;
+        public Double score;
         
-        public TreeNode(TreeNode parent, List<GamePlayer> players) {
-            this.parent = parent;
+        public TreeNode(List<GamePlayer> players) {
             this.players = players;
         }
         
-        public double score() {
+        public double getScore() {
+            if (score == null) score = score();
+            return score;
+        }
+        
+        private double score() {
             Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(players, currentPlayer, graph, rounds, round);
             if (winningPlayers.contains(Colour.Black)) return kMax;
             if (winningPlayers.size() != 0) return kMin;

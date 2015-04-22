@@ -28,7 +28,7 @@
 	<target name="compile">
 		<mkdir dir="${classes.dir}" />
     <mkdir dir="${jar.dir}"/>
-		<javac srcdir="${src.dir}" includeantruntime="false" destdir="${classes.dir}">
+		<javac srcdir="${src.dir}" debug="true" includeantruntime="false" destdir="${classes.dir}">
       <compilerarg value="-Xlint:unchecked"/>
       <classpath>
         <pathelement location="${classes.dir}" />

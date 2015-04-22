@@ -135,6 +135,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         new Thread(this).start();
     }
     
+    public void newAIGame() {
+        // Start a new AI game here.
+    }
+    
     // Starts a new game in a new Thread.
     private void newGame() {
         int playerNo = setUpView.newPlayers();

@@ -43,6 +43,23 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      *    - model.spectate(this);
      * This will update the UI when an AI player makes a Move.
      */
+    public ScotlandYardGame(int numPlayers, String graphName, ThreadCommunicator threadCom) {
+        try {
+            this.threadCom = threadCom;
+            this.threadCom = threadCom;
+            this.numPlayers = numPlayers;
+            this.gameName = gameName;
+            this.graphName = graphName;
+            routeFinder = new Dijkstra(graphName);
+            List<Boolean> rounds = getRounds();
+            model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
+            fileAccess = new FileAccess();
+        } catch (Exception e) {
+            System.err.println("Error setting up a new game with AI :" + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
     
     /**
      * Constructs a new ScotlandYardGame object.
@@ -117,10 +134,9 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             List<Boolean> rounds = getRounds();
             pda = new InputPDA();
             initialiseViews(players);
-            fileAccess.saveGame(saveGame);
-            threadCom.putUpdate("update_moves", MoveTicket.instance(Colour.Black, null, model.getTruePlayerLocation(Colour.Black)));
+            if (saveGame != null) fileAccess.saveGame(saveGame);
             model.start();
-            fileAccess.saveGame(saveGame);
+            if (saveGame != null) fileAccess.saveGame(saveGame);
             threadCom.putUpdate("stop_timer", true);
             Set<Colour> winningPlayers = model.getWinningPlayers();
             sendNotification(getWinningMessage(winningPlayers));
@@ -437,7 +453,11 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * Saves the game.
      */
     public void saveGame() {
-        if (!replaying) fileAccess.saveGame(saveGame);
+        if (!replaying && saveGame != null) fileAccess.saveGame(saveGame);
+    }
+    
+    public ScotlandYardView getModel() {
+        return model;
     }
     
 }

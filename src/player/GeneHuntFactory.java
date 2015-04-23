@@ -85,17 +85,15 @@ public class GeneHuntFactory implements PlayerFactory {
 
     @Override
     public void finish() {
+        // Set message to winning player.
         if (gui != null && application != null) application.endGame();
     }
 
 
     private ScotlandYardGame gui(ScotlandYardView view) {
-        if (gui == null) try {
+        if (gui == null) {
             gui = new ScotlandYardGame(view, graphFilename, threadCom);
             spectators.add(gui);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
         }
         return gui;
     }

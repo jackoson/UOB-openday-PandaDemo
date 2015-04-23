@@ -15,6 +15,7 @@
   <property name="judge_main" value="AdminClientService"/>
   <property name="players_main" value="PlayerService"/>
   <property name="client_jar" value="scotlandyardapplication"/>
+  <property name="gson_jar" value="gson-2.3.1"/>
 
   <path id="tests_classpath">
     <fileset dir="${lib.dir}" includes="**/*.jar" />
@@ -53,6 +54,7 @@
     <jar destfile="${jar.dir}/${client_jar}.jar" basedir="${classes.dir}" manifest="Manifest.txt" filesetmanifest="skip" >
       <fileset dir="${classes.dir}" />
       <zipfileset src="${lib.dir}/${ant.project.name}.jar" />
+      <zipfileset src="${lib.dir}/${gson_jar}.jar" />
     </jar>
   </target>
   

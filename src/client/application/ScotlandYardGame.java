@@ -14,11 +14,10 @@ import javax.swing.JLabel;
 
 public class ScotlandYardGame implements Player, Spectator, Runnable {
     
-    private ScotlandYardModel model;
+    private ScotlandYard model;
     private SaveGame saveGame = null;
     private int numPlayers;
     private List<GamePlayer> players;
-    private List<Colour> aiPlayers;
     private String gameName;
     private String graphName;
     private InputPDA pda;
@@ -35,32 +34,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     
     private int[] detectiveLocations = {26, 29, 50, 53, 91, 94, 103, 112, 117, 123, 138, 141, 155, 174};
     private int[] mrXLocations = {35, 45, 51, 71, 78, 104, 106, 127, 132, 166, 170, 172};
-    
-    /**
-     * For the constructor for the multiplayer game, we need this:
-     *    - this.guiPlayers = new ArrayList<Colour>();
-     *    - add all AI players to the List
-     *    - model.spectate(this);
-     * This will update the UI when an AI player makes a Move.
-     */
-    public ScotlandYardGame(int numPlayers, String graphName, ThreadCommunicator threadCom) {
-        try {
-            this.threadCom = threadCom;
-            this.threadCom = threadCom;
-            this.numPlayers = numPlayers;
-            this.gameName = gameName;
-            this.graphName = graphName;
-            routeFinder = new Dijkstra(graphName);
-            List<Boolean> rounds = getRounds();
-            model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
-            fileAccess = new FileAccess();
-        } catch (Exception e) {
-            System.err.println("Error setting up a new game with AI :" + e);
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-    
+        
     /**
      * Constructs a new ScotlandYardGame object.
      *
@@ -86,7 +60,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             saveGame.setMrXLocation(randMrXLocation);
             saveGame.setDetectiveLocations(randDetectiveLocations);
             fileAccess = new FileAccess();
-            
         } catch (Exception e) {
             System.err.println("Error setting up new game :" + e);
             e.printStackTrace();
@@ -121,12 +94,19 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
     }
     
+    /**
+     * For the constructor for the multiplayer game, we need this:
+     *    - this.guiPlayers = new ArrayList<Colour>();
+     *    - add all AI players to the List
+     *    - model.spectate(this);
+     * This will update the UI when an AI player makes a Move.
+     */
     public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
         try {
             this.threadCom = threadCom;
             this.graphName = graphName;
             this.routeFinder = new Dijkstra(graphName);
-            this.model = model;
+            this.model = (ScotlandYard) model;
             this.fileAccess = new FileAccess();
         } catch (Exception e) {
             System.err.println("Error joining a new game :" + e);
@@ -141,9 +121,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      */
     public void run() {
         try {
-            List<Boolean> rounds = getRounds();
             pda = new InputPDA();
-            initialiseViews(players);
+            initialiseViews(getPlayers());
             if (saveGame != null) fileAccess.saveGame(saveGame);
             model.start();
             if (saveGame != null) fileAccess.saveGame(saveGame);
@@ -156,6 +135,18 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.err.println("Error playing game :" + e);
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+    
+    private List<GamePlayer> getPlayers() {
+        if (players == null) {
+            List<GamePlayer> playerList = new ArrayList<GamePlayer>();
+            for (Colour player : model.getPlayers()) {
+                playerList.add(new GamePlayer(null, player, model.getPlayerLocation(player), getPlayerTickets(player)));
+            }
+            return playerList;
+        } else {
+            return players;
         }
     }
     
@@ -281,7 +272,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * Part of the Spectator interface.
      */
     public void notify(Move move) {
-        if (move instanceof MoveTicket && aiPlayers.contains(move.colour)) {
+        if (move instanceof MoveTicket && move.colour.equals(Colour.Black)) {
             // Update UI for AI players.
             updateUI(move);
         }
@@ -295,7 +286,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             Integer location = (Integer) object;
             if (waitForHint) {
                 Colour player = model.getCurrentPlayer();
-                Integer playerLoc = model.getTruePlayerLocation(player);
+                //?Integer playerLoc = model.getTruePlayerLocation(player);
+                Integer playerLoc = model.getPlayerLocation(player);
                 threadCom.putUpdate("show_route", routeFinder.getRoute(playerLoc, location, getPlayerTicketsRoute(player)));
                 
                 waitForHint = false;
@@ -342,8 +334,9 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param location the actual locaton of the player.
     // @param player the colour of the player whose turn it is.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
-        if (replaying) threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getTruePlayerLocation(Colour.Black)));
-        else threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
+        //?if (replaying) threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getTruePlayerLocation(Colour.Black)));
+        //?else threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
+        threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
         updateTickets(player, null);
         if (player.equals(Colour.Black) && !replaying) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");

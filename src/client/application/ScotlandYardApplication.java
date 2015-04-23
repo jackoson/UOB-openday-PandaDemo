@@ -1,8 +1,10 @@
 package client.application;
 
 import scotlandyard.*;
+import net.*;
 import client.view.*;
 import client.model.*;
+import player.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -114,17 +116,22 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 loadGame();
             }
         } else if (e.getActionCommand().equals("joinGame")) {
-            threadCom = new ThreadCommunicator();
-            
-            String idString = setUpView.joinUsername();
-            List<String> studentIds = Arrays.asList(idString.split(" "));
-            String hostname = setUpView.joinIP();
-            int port = Integer.parseInt(setUpView.joinPort());
-            
-            GeneHuntFactory factory = new GeneHuntFactory(this, threadCom);
-            PlayerClient client = new PlayerClient(hostname, port, studentIds, factory);
-            client.run();
-            System.err.println("Finished");
+            try {
+                threadCom = new ThreadCommunicator();
+                
+                String idString = setUpView.joinUsername();
+                List<String> studentIds = Arrays.asList(idString.split(" "));
+                String hostname = setUpView.joinIP();
+                int port = Integer.parseInt(setUpView.joinPort());
+                
+                GeneHuntFactory factory = new GeneHuntFactory(this, threadCom);
+                PlayerClient client = new PlayerClient(hostname, port, studentIds, factory);
+                new Thread(new ScotlandYardAIGame(client)).start();
+            } catch (Exception exc) {
+                System.err.println("Error joining game :" + exc);
+                exc.printStackTrace();
+                System.exit(1);
+            }
         }
     }
     
@@ -141,7 +148,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     
     // Starts a new ScotlandYardGame.
     // Starts the game and the views in new threads.
-    private void beginGame() {
+    public void beginGame() {
         gameView.setThreadCom(threadCom);
         CardLayout cl = (CardLayout) container.getLayout();
         cl.next(container);
@@ -170,7 +177,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     }
     
     // Removes the gameview and shows the setup view
-    private void endGame() {
+    public void endGame() {
         gameView.setThreadCom(null);
         game = null;
         CardLayout cl = (CardLayout) container.getLayout();

@@ -9,6 +9,10 @@ public class ModelHelper {
   
     
     public static GamePlayer getNextPlayer(List<GamePlayer> players, GamePlayer currentPlayer) {
+        System.out.println(players);
+        for (GamePlayer player : players) {
+            System.out.println(player.colour());
+        }
         int currentPosition = players.indexOf(currentPlayer);
         GamePlayer nextPlayer = players.get((currentPosition + 1) % players.size());
         return nextPlayer;

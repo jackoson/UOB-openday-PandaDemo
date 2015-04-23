@@ -82,33 +82,28 @@ public class GameTree {
         this.rounds = rounds;
         this.round = round;
         
-        //
-        System.out.println(ModelHelper.validSingleMoves(currentPlayer, players, graph).size());
-        
+        //        
         TreeNode root = new TreeNode(players, null);
-        int depth = 10;
+        int depth = 4;
         for (int i = 1; i < depth; i++) {
             long start = System.nanoTime();
             double bestScore = alphaBeta(root, 0, currentPlayer, players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            List<Move> moves = findRoute(root);
             long diff = System.nanoTime() - start;
             System.out.println("Best score at depth " + i + ": " + bestScore + ". It took " + diff + " ns");
-            System.out.println("Sequence of Moves - " + moves);
         }
     }
 
     private double alphaBeta(TreeNode node, int round, GamePlayer currentPlayer, List<GamePlayer> currentState, int depth, double alpha, double beta) {
+        System.out.println("depth - " + depth + " Current Player - " + currentPlayer.colour());
         if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
-            return node.score(currentPlayer, round);
+            double score = node.score(currentPlayer, round);
+            System.out.println("Depth - " + depth + " score = " + score + " Current Player - " + currentPlayer.colour());
+            return score;
         }
         List<TreeNode> children = new ArrayList<TreeNode>();
         
         boolean maximising = false;
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
-        // Advance the game.
-        if (maximising) round++;
-        currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
-        
         if (depth == 1) {
             //Create new layer
             Set<Move> validMoves = ModelHelper.validSingleMoves(currentPlayer, currentState, graph);           
@@ -119,6 +114,9 @@ public class GameTree {
                 node.addChild(newNode);
             }
         }
+        // Advance the game.  
+        if (maximising) round++;
+        currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
         //Get children
         children = node.children;
         if (maximising) {
@@ -126,6 +124,7 @@ public class GameTree {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : children) {
                 v = Math.max(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
+                System.out.println("max: Depth = " + depth + " v = " + v + " alpha = " + alpha + " beta = " + beta);
                 if (v >= beta) { System.out.println("Prune max"); break; }
                 alpha = Math.max(alpha, v);
             }
@@ -135,6 +134,7 @@ public class GameTree {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : children) {
                 v = Math.min(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
+                System.out.println("min: Depth = " + depth + " v = " + v + " alpha = " + alpha + " beta = " + beta);
                 if (v <= alpha) { System.out.println("Prune min"); break; }
                 beta = Math.min(beta, v);
             }

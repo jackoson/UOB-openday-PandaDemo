@@ -99,6 +99,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("startGame")) {
             if(validGameName(setUpView.newGameName())) {
+                threadCom = new ThreadCommunicator();
                 beginGame();
                 newGame();
             } else {
@@ -108,9 +109,22 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
         } else if (e.getActionCommand().equals("loadGame")) {
             if (setUpView.loadFilePath() != null) {
+                threadCom = new ThreadCommunicator();
                 beginGame();
                 loadGame();
             }
+        } else if (e.getActionCommand().equals("joinGame")) {
+            threadCom = new ThreadCommunicator();
+            
+            String idString = setUpView.joinUsername();
+            List<String> studentIds = Arrays.asList(idString.split(" "));
+            String hostname = setUpView.joinIP();
+            int port = Integer.parseInt(setUpView.joinPort());
+            
+            GeneHuntFactory factory = new GeneHuntFactory(this, threadCom);
+            PlayerClient client = new PlayerClient(hostname, port, studentIds, factory);
+            client.run();
+            System.err.println("Finished");
         }
     }
     
@@ -128,15 +142,17 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     // Starts a new ScotlandYardGame.
     // Starts the game and the views in new threads.
     private void beginGame() {
-        threadCom = new ThreadCommunicator();
         gameView.setThreadCom(threadCom);
         CardLayout cl = (CardLayout) container.getLayout();
         cl.next(container);
         new Thread(this).start();
     }
     
-    public void newAIGame() {
+    public void newAIGame(ScotlandYardGame game) {
         // Start a new AI game here.
+        this.game = game;
+        new Thread(game).start();
+        
     }
     
     // Starts a new game in a new Thread.

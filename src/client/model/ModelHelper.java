@@ -7,6 +7,12 @@ import java.util.*;
 
 public class ModelHelper {
   
+    public static GamePlayer getPlayerOfColour(List<GamePlayer> players, Colour colour) {
+        for (GamePlayer gamePlayer : players) {
+            if (gamePlayer.colour().equals(colour)) return gamePlayer;
+        }
+        return null;
+    }
     
     public static GamePlayer getNextPlayer(List<GamePlayer> players, GamePlayer currentPlayer) {
         int currentPosition = players.indexOf(currentPlayer);
@@ -72,6 +78,13 @@ public class ModelHelper {
             allMoves.add(MovePass.instance(player));
         }
         return allMoves;
+    }
+    
+    public static Set<Move> validSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
+        Colour player = gamePlayer.colour();
+        Node<Integer> currentPosition = graph.getNode(gamePlayer.location());
+        Set<MoveTicket> singleMoves = createSingleMoves(gamePlayer, players, graph, currentPosition.data());
+        return new HashSet<Move>(singleMoves);
     }
     
     //Create a list of valid single moves

@@ -87,11 +87,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             saveGame.setDetectiveLocations(randDetectiveLocations);
             fileAccess = new FileAccess();
             
-            long startTime = System.nanoTime();
-            routeFinder.getRoute(1, 171, getPlayerTicketsRoute(Colour.Black));
-            long endTime = System.nanoTime();
-            System.err.println("TIME:" + (endTime - startTime));
-            
         } catch (Exception e) {
             System.err.println("Error setting up new game :" + e);
             e.printStackTrace();
@@ -121,6 +116,20 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             replaying = true;
         } catch (Exception e) {
             System.err.println("Error loading game :" + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+    
+    public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
+        try {
+            this.threadCom = threadCom;
+            this.graphName = graphName;
+            this.routeFinder = new Dijkstra(graphName);
+            this.model = model;
+            this.fileAccess = new FileAccess();
+        } catch (Exception e) {
+            System.err.println("Error joining a new game :" + e);
             e.printStackTrace();
             System.exit(1);
         }
@@ -227,7 +236,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         pda.reset();
         Move move = null;
         while (true) {
-            if (saveGame.hasSavedMove()) {
+            if (saveGame != null && saveGame.hasSavedMove()) {
                 move = saveGame.getSavedMove();
                 wait(kMoveWait);
                 break;
@@ -263,7 +272,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
         updateUI(move);
         outOfTime = false;
-        saveGame.addMove(move);
+        if (saveGame != null) saveGame.addMove(move);
         return move;
     }
     
@@ -313,7 +322,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 threadCom.putUpdate("show_location", label);
             }
         } else if (id.equals("save_game")) {
-            fileAccess.saveGame(saveGame);
+            if (saveGame != null) fileAccess.saveGame(saveGame);
         }
     }
     
@@ -455,10 +464,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      */
     public void saveGame() {
         if (!replaying && saveGame != null) fileAccess.saveGame(saveGame);
-    }
-    
-    public ScotlandYardView getModel() {
-        return model;
     }
     
 }

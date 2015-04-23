@@ -45,7 +45,7 @@ public class GameTree {
         greenDetTickets.put(Ticket.Underground, 4);
         greenDetTickets.put(Ticket.Double, 0);
         greenDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[2], 140, greenDetTickets));
+        players.add(new GamePlayer(null, colours[2], 133, greenDetTickets));
         
         Map<Ticket, Integer> redDetTickets = new HashMap<Ticket, Integer>();
         redDetTickets.put(Ticket.Taxi, 11);
@@ -81,23 +81,37 @@ public class GameTree {
         this.routeFinder = routeFinder;
         this.rounds = rounds;
         this.round = round;
-        
         //        
         TreeNode root = new TreeNode(players, null);
-        int depth = 4;
+        int depth = 10;
+        
+        Set<Move> validMoves = ModelHelper.validSingleMoves(currentPlayer, players, graph);
+        for (Move move : validMoves) {
+            List<GamePlayer> clonedPlayers = cloneList(players);
+            playMove(clonedPlayers, move);
+            TreeNode newNode = new TreeNode(clonedPlayers, move);
+            System.err.println("Score: " + newNode.getScore(currentPlayer, 0));
+        }
+        
         for (int i = 1; i < depth; i++) {
             long start = System.nanoTime();
-            double bestScore = alphaBeta(root, 0, currentPlayer, players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            double bestScore = alphaBeta(root, 0, currentPlayer.colour(), players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             long diff = System.nanoTime() - start;
             System.out.println("Best score at depth " + i + ": " + bestScore + ". It took " + diff + " ns");
+            System.err.println("MOVES:");
+            
+            TreeNode n = root;
+            while (n!= null) {
+                System.err.println(n.getMove());
+                n = n.bestChild;
+            }
         }
     }
 
-    private double alphaBeta(TreeNode node, int round, GamePlayer currentPlayer, List<GamePlayer> currentState, int depth, double alpha, double beta) {
-        System.out.println("depth - " + depth + " Current Player - " + currentPlayer.colour());
+    private double alphaBeta(TreeNode node, int round, Colour currentPlayerColour, List<GamePlayer> currentState, int depth, double alpha, double beta) {
+        GamePlayer currentPlayer = ModelHelper.getPlayerOfColour(currentState, currentPlayerColour);
         if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
             double score = node.score(currentPlayer, round);
-            System.out.println("Depth - " + depth + " score = " + score + " Current Player - " + currentPlayer.colour());
             return score;
         }
         List<TreeNode> children = new ArrayList<TreeNode>();
@@ -123,9 +137,13 @@ public class GameTree {
             // We are on a maximising node.
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : children) {
-                v = Math.max(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
-                System.out.println("max: Depth = " + depth + " v = " + v + " alpha = " + alpha + " beta = " + beta);
-                if (v >= beta) { System.out.println("Prune max"); break; }
+                double newValue = alphaBeta(child, round, currentPlayer.colour(), child.players, depth - 1, alpha, beta);
+                if (newValue > v) {
+                    v = newValue;
+                    node.bestChild = child;
+                }
+                //System.out.println("max: Depth = " + depth + " v = " + v + " alpha = " + alpha + " beta = " + beta);
+                if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
             return v;
@@ -133,9 +151,13 @@ public class GameTree {
             // We are on a minimising node.
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : children) {
-                v = Math.min(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
-                System.out.println("min: Depth = " + depth + " v = " + v + " alpha = " + alpha + " beta = " + beta);
-                if (v <= alpha) { System.out.println("Prune min"); break; }
+                double newValue = alphaBeta(child, round, currentPlayer.colour(), child.players, depth - 1, alpha, beta);
+                if (newValue < v) {
+                    v = newValue;
+                    node.bestChild = child;
+                }
+                //System.out.println("min: Depth = " + depth + " v = " + v + " alpha = " + alpha + " beta = " + beta);
+                if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
             return v;
@@ -202,6 +224,7 @@ public class GameTree {
         public List<TreeNode> children;
         public Double score;
         private boolean best = false;
+        public TreeNode bestChild = null;
         private Move move;
         
         public TreeNode(List<GamePlayer> players, Move move) {
@@ -239,13 +262,13 @@ public class GameTree {
             double mrXPageRank = pageRank.getPageRank(mrXLocation);
             double sumDetPageRank = 0.0;
             double sumDetDistance = 0.0;
-            boolean oneMoveAway = false;
+            
             for (int i = 1; i < players.size(); i++) {
                 GamePlayer player = players.get(i);
                 int detLocation = player.location();
                 sumDetPageRank += pageRank.getPageRank(detLocation);
                 int detDistance = routeFinder.getRoute(detLocation, mrXLocation, convertDetTickets(player.tickets())).size();
-                if (detDistance == 1) oneMoveAway = true; //?
+                if (detDistance == 1) return TreeNode.kMin;
                 sumDetDistance += (double) detDistance;
             }
             double avgDetPageRank = sumDetPageRank / (double) (players.size() - 1);

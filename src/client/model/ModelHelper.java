@@ -7,12 +7,14 @@ import java.util.*;
 
 public class ModelHelper {
   
+    public static GamePlayer getPlayerOfColour(List<GamePlayer> players, Colour colour) {
+        for (GamePlayer gamePlayer : players) {
+            if (gamePlayer.colour().equals(colour)) return gamePlayer;
+        }
+        return null;
+    }
     
     public static GamePlayer getNextPlayer(List<GamePlayer> players, GamePlayer currentPlayer) {
-        System.out.println(players);
-        for (GamePlayer player : players) {
-            System.out.println(player.colour());
-        }
         int currentPosition = players.indexOf(currentPlayer);
         GamePlayer nextPlayer = players.get((currentPosition + 1) % players.size());
         return nextPlayer;

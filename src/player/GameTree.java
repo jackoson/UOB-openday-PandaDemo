@@ -81,16 +81,19 @@ public class GameTree {
         this.routeFinder = routeFinder;
         this.rounds = rounds;
         this.round = round;
-        depth = 0;
         
         //
-        System.out.println(ModelHelper.validMoves(currentPlayer, players, graph).size());
+        System.out.println(ModelHelper.validSingleMoves(currentPlayer, players, graph).size());
         
-        TreeNode root = new TreeNode(players);
-        int depth = 5;
-        for (int i = 0; i < depth; i++) {
+        TreeNode root = new TreeNode(players, null);
+        int depth = 10;
+        for (int i = 1; i < depth; i++) {
+            long start = System.nanoTime();
             double bestScore = alphaBeta(root, 0, currentPlayer, players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            System.out.println("Best score at depth " + i + ": " + bestScore);
+            List<Move> moves = findRoute(root);
+            long diff = System.nanoTime() - start;
+            System.out.println("Best score at depth " + i + ": " + bestScore + ". It took " + diff + " ns");
+            System.out.println("Sequence of Moves - " + moves);
         }
     }
 
@@ -102,31 +105,29 @@ public class GameTree {
         
         boolean maximising = false;
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
+        // Advance the game.
+        if (maximising) round++;
+        currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
         
         if (depth == 1) {
             //Create new layer
-            Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
-            // Advance the game.
-            if (maximising) round++;
-            currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
-            
+            Set<Move> validMoves = ModelHelper.validSingleMoves(currentPlayer, currentState, graph);           
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
-                TreeNode newNode = new TreeNode(clonedPlayers);
+                TreeNode newNode = new TreeNode(clonedPlayers, move);
                 node.addChild(newNode);
             }
         }
         //Get children
         children = node.children;
-        
         if (maximising) {
             // We are on a maximising node.
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : children) {
                 v = Math.max(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
-                beta = Math.max(beta, v);
-                if (beta <= alpha) break;
+                if (v >= beta) { System.out.println("Prune max"); break; }
+                alpha = Math.max(alpha, v);
             }
             return v;
         } else {
@@ -134,12 +135,30 @@ public class GameTree {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : children) {
                 v = Math.min(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
+                if (v <= alpha) { System.out.println("Prune min"); break; }
                 beta = Math.min(beta, v);
-                if (beta <= alpha) break;
             }
             return v;
         }
-    } 
+    }
+    
+    public List<Move> findRoute(TreeNode root) {
+        if (root.children.size() == 0) {
+            List<Move> move = new ArrayList<Move>();
+            move.add(root.getMove());
+            return move;
+        }
+        for (TreeNode child : root.children) {
+            if (child.getBest()) {
+                List<Move> move = findRoute(child);
+                List<Move> moves = new ArrayList<Move>();
+                moves.add(child.getMove());
+                moves.addAll(move);
+                return moves;
+            }
+        }
+        return new ArrayList<Move>();
+    }
     
     private void playMove(List<GamePlayer> players, Move move) {
         if (move instanceof MoveTicket) playMove(players, (MoveTicket) move);
@@ -182,9 +201,12 @@ public class GameTree {
         public static final double kMin = -10.0;
         public List<TreeNode> children;
         public Double score;
+        private boolean best = false;
+        private Move move;
         
-        public TreeNode(List<GamePlayer> players) {
+        public TreeNode(List<GamePlayer> players, Move move) {
             this.players = players;
+            this.move = move;
             this.children = new ArrayList<TreeNode>();
         }
         
@@ -195,6 +217,18 @@ public class GameTree {
         public double getScore(GamePlayer currentPlayer, int round) {
             if (score == null) score = score(currentPlayer, round);
             return score;
+        }
+        
+        public Move getMove() {
+            return move;
+        }
+        
+        public void setBest(boolean best) {
+            this.best = best;
+        }
+        
+        public boolean getBest() {
+            return best;
         }
         
         private double score(GamePlayer currentPlayer, int round) {

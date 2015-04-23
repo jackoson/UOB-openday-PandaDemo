@@ -74,6 +74,13 @@ public class ModelHelper {
         return allMoves;
     }
     
+    public static Set<Move> validSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
+        Colour player = gamePlayer.colour();
+        Node<Integer> currentPosition = graph.getNode(gamePlayer.location());
+        Set<MoveTicket> singleMoves = createSingleMoves(gamePlayer, players, graph, currentPosition.data());
+        return new HashSet<Move>(singleMoves);
+    }
+    
     //Create a list of valid single moves
     private static Set<MoveTicket> createSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Integer location) {
         Set<MoveTicket> moves = new HashSet<MoveTicket>();

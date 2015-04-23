@@ -125,7 +125,7 @@ public class GameTree {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : children) {
                 v = Math.max(v, alphaBeta(child, round, currentPlayer, child.players, depth - 1, alpha, beta));
-                beta = Math.max(beta, v);
+                alpha = Math.max(alpha, v);
                 if (beta <= alpha) break;
             }
             return v;

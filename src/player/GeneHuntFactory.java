@@ -36,12 +36,12 @@ public class GeneHuntFactory implements PlayerFactory {
         this.threadCom = threadCom;
         
         typeMap = new HashMap<Colour, PlayerType>();
-        typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
+        typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
-        typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.AI);
 
         graphFilename = "resources/graph.txt";
 

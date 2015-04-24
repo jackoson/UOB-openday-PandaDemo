@@ -82,9 +82,16 @@ public class ModelHelper {
     
     public static Set<Move> validSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
         Colour player = gamePlayer.colour();
+        int secretMoveCount = gamePlayer.tickets().get(Ticket.Secret);
         Node<Integer> currentPosition = graph.getNode(gamePlayer.location());
         Set<MoveTicket> singleMoves = createSingleMoves(gamePlayer, players, graph, currentPosition.data());
-        return new HashSet<Move>(singleMoves);
+        Set<Move> allMoves = new HashSet<Move>(singleMoves);
+        if (gamePlayer.colour().equals(Colour.Black) && secretMoveCount
+            >= 1) {
+            Set<MoveTicket> secretMoves = createSingleSecretMoves(singleMoves);
+            allMoves.addAll(secretMoves);
+        }
+        return allMoves;
     }
     
     //Create a list of valid single moves
@@ -165,6 +172,16 @@ public class ModelHelper {
             }
         }
         return false;
+    }
+    
+    public static Map<Ticket, Integer> getTickets(Colour player, ScotlandYardView model) {
+        Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
+        tickets.put(Ticket.Taxi, model.getPlayerTickets(player, Ticket.Taxi));
+        tickets.put(Ticket.Bus, model.getPlayerTickets(player, Ticket.Bus));
+        tickets.put(Ticket.Underground, model.getPlayerTickets(player, Ticket.Underground));
+        tickets.put(Ticket.Secret, model.getPlayerTickets(player, Ticket.Secret));
+        tickets.put(Ticket.Double, model.getPlayerTickets(player, Ticket.Double));
+        return tickets;
     }
 
 }

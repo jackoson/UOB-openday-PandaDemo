@@ -36,10 +36,10 @@ public class GeneHuntFactory implements PlayerFactory {
         typeMap = new HashMap<Colour, PlayerType>();
         typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
         typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.GUI);
-        //typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
-        //typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
-        //typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
-        //typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.GUI);
         
         graphFilename = "resources/graph.txt";
     }
@@ -52,17 +52,7 @@ public class GeneHuntFactory implements PlayerFactory {
     }
 
     @Override
-    public Player player(Colour colour, ScotlandYardView view, String graphFilename) {
-        System.out.println("Start waiting - " + colour);
-        System.out.flush();
-        try {
-            Thread.sleep(10000);
-        } catch(Exception e) {
-            System.err.println("Error");
-        }
-        System.out.println("end waiting - " + colour);
-        System.out.flush();
-        
+    public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
             case AI:
                 return new GeneHunt(view, graphFilename);

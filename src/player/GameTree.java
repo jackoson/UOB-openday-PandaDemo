@@ -2,13 +2,18 @@ package player;
 
 import scotlandyard.*;
 import client.algorithms.*;
+import client.application.*;
 import client.model.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.io.*;
+import java.awt.event.*;
+import javax.swing.Timer;
 
-public class GameTree {
+public class GameTree implements Runnable, ActionListener {
     
+    private ThreadCommunicator threadCom;
     private Graph<Integer, Route> graph;
     private PageRank pageRank;
     private Dijkstra routeFinder;
@@ -16,9 +21,15 @@ public class GameTree {
     private List<Boolean> rounds;
     private Integer round;
     private GamePlayer currentPlayer;
+    private List<GamePlayer> players;
     public static final int kMaxDepth = 6;
     private int depth;
-    
+    public List<Move> moves;
+    public boolean iterate;
+    private GameTree tree;
+    private Timer timer;
+    private TreeNode root;
+    /*
     public static void main(String[] args) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
         Colour[] colours = Colour.values();
@@ -29,7 +40,7 @@ public class GameTree {
         mrXTickets.put(Ticket.Underground, 10);
         mrXTickets.put(Ticket.Double, 2);
         mrXTickets.put(Ticket.Secret, 5);
-        players.add(new GamePlayer(null, colours[0], 127, mrXTickets));
+        players.add(new GamePlayer(null, colours[0], 115, mrXTickets));
         
         Map<Ticket, Integer> blueDetTickets = new HashMap<Ticket, Integer>();
         blueDetTickets.put(Ticket.Taxi, 11);
@@ -37,7 +48,7 @@ public class GameTree {
         blueDetTickets.put(Ticket.Underground, 4);
         blueDetTickets.put(Ticket.Double, 0);
         blueDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[1], 128, blueDetTickets));
+        players.add(new GamePlayer(null, colours[1], 102, blueDetTickets));
         
         Map<Ticket, Integer> greenDetTickets = new HashMap<Ticket, Integer>();
         greenDetTickets.put(Ticket.Taxi, 11);
@@ -45,7 +56,7 @@ public class GameTree {
         greenDetTickets.put(Ticket.Underground, 4);
         greenDetTickets.put(Ticket.Double, 0);
         greenDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[2], 133, greenDetTickets));
+        players.add(new GamePlayer(null, colours[2], 114, greenDetTickets));
         
         Map<Ticket, Integer> redDetTickets = new HashMap<Ticket, Integer>();
         redDetTickets.put(Ticket.Taxi, 11);
@@ -53,7 +64,15 @@ public class GameTree {
         redDetTickets.put(Ticket.Underground, 4);
         redDetTickets.put(Ticket.Double, 0);
         redDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[3], 158, redDetTickets));
+        players.add(new GamePlayer(null, colours[3], 126, redDetTickets));
+        
+        Map<Ticket, Integer> yellowDetTickets = new HashMap<Ticket, Integer>();
+        yellowDetTickets.put(Ticket.Taxi, 11);
+        yellowDetTickets.put(Ticket.Bus, 8);
+        yellowDetTickets.put(Ticket.Underground, 4);
+        yellowDetTickets.put(Ticket.Double, 0);
+        yellowDetTickets.put(Ticket.Secret, 0);
+        players.add(new GamePlayer(null, colours[4], 133, yellowDetTickets));
         
         List<Boolean> rounds = Arrays.asList(false, false, false, true, false,
                                              false, false, false, true, false,
@@ -68,44 +87,68 @@ public class GameTree {
             PageRank testPageRank = new PageRank(testGraph);
             testPageRank.iterate(100);
             GameTree gameTree = new GameTree(testGraph, testPageRank, dijkstra, players, rounds, 0, players.get(0));
+            //gameTree.calculateTree();
         } catch (Exception e) {
             System.err.println("Error running alpha-beta pruning test :" + e);
             e.printStackTrace();
             System.exit(1);
         }
     }
-    
-    public GameTree(Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
+    */
+    public GameTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
+        this.threadCom = threadCom;
         this.graph = graph;
         this.pageRank = pageRank;
         this.routeFinder = routeFinder;
+        this.players = players;
+        this.currentPlayer = currentPlayer;
         this.rounds = rounds;
         this.round = round;
-        //        
-        TreeNode root = new TreeNode(players, null);
-        int depth = 10;
+    }
+    
+    public GameTree() {
+        //To run a game tree
         
-        Set<Move> validMoves = ModelHelper.validSingleMoves(currentPlayer, players, graph);
-        for (Move move : validMoves) {
-            List<GamePlayer> clonedPlayers = cloneList(players);
-            playMove(clonedPlayers, move);
-            TreeNode newNode = new TreeNode(clonedPlayers, move);
-            System.err.println("Score: " + newNode.getScore(currentPlayer, 0));
-        }
+    }
+    
+    public void calculateTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
+        this.threadCom = threadCom;
+        tree = new GameTree(threadCom, graph, pageRank, routeFinder, players, rounds, round, currentPlayer);
+        new Thread(tree).start();
+        System.err.println("Timer started");
+        timer = new Timer(13000, this);
+        timer.start();
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        timer.stop();
+        moves = tree.moves;
+        tree.iterate = false;
+        threadCom.putEvent("calculated_moves", moves);
+    }
+    
+    public void run() {
+        root = new TreeNode(players, null);
+        iterate = true;//need to stop alphabeta when iterate cahnges
+        moves = new ArrayList<Move>();
         
-        for (int i = 1; i < depth; i++) {
-            long start = System.nanoTime();
-            double bestScore = alphaBeta(root, 0, currentPlayer.colour(), players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            long diff = System.nanoTime() - start;
-            System.out.println("Best score at depth " + i + ": " + bestScore + ". It took " + diff + " ns");
-            System.err.println("MOVES:");
-            
-            TreeNode n = root;
-            while (n!= null) {
-                System.err.println(n.getMove());
-                n = n.bestChild;
-            }
+        int i = 1;
+        while (iterate) {
+            double bestScore = alphaBeta(root, round, currentPlayer.colour(), players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            moves = createMoves();
+            i++;
         }
+    }
+    
+    public List<Move> createMoves() {
+        List<Move> moves = new ArrayList<Move>();
+        TreeNode n = root;
+        n = n.bestChild;
+        while (n != null) {
+            moves.add(n.getMove());
+            n = n.bestChild;
+        }
+        return moves;
     }
 
     private double alphaBeta(TreeNode node, int round, Colour currentPlayerColour, List<GamePlayer> currentState, int depth, double alpha, double beta) {

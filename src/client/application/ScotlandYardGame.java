@@ -272,7 +272,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * Part of the Spectator interface.
      */
     public void notify(Move move) {
-        if (move instanceof MoveTicket && move.colour.equals(Colour.Black)) {
+        if (move instanceof MoveTicket) {
             // Update UI for AI players.
             updateUI(move);
         }

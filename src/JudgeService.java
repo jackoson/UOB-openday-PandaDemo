@@ -42,7 +42,7 @@ public class JudgeService {
                 false, false, false, false, false,
                 true);
 
-        JudgedScotlandYard game = new JudgedScotlandYard(5, rounds, "resources/graph.txt");
+        JudgedScotlandYard game = new JudgedScotlandYard(1, rounds, "resources/graph.txt");
 
 
         Map<Colour, Integer> locations = new HashMap<Colour, Integer>();
@@ -81,8 +81,8 @@ public class JudgeService {
         judge.interpretMessages();
     }
 
-    public final static int[] mrXTicketNumbers = {4, 3, 3, 2, 5};
-    public final static int[] detectiveTicketNumbers = {11, 8, 4, 0, 0};
+    public final static int[] mrXTicketNumbers = {4, 3, 3, 0, 5};
+    public final static int[] detectiveTicketNumbers = {8, 11, 4, 0, 0};
 
     public static Map<Ticket, Integer> getTickets(boolean mrX) {
         Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();

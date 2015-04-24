@@ -2,9 +2,12 @@ import net.PlayerClient;
 import net.PlayerFactory;
 import player.RandomPlayerFactory;
 
+import client.application.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * The PlayerService creates a new service that connects to the
@@ -26,6 +29,10 @@ public class PlayerService {
         String host = args[0];
         int port = Integer.parseInt(args[1]);
         List<String> studentIds = Arrays.asList(Arrays.copyOfRange(args, 2, args.length));
+        
+        for (String s : studentIds) {
+            System.out.println(s);
+        }
 
         // TODO: This factory should be replaced with a clever AI.
         PlayerFactory factory = new RandomPlayerFactory();

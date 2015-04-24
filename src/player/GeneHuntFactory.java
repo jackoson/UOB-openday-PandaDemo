@@ -25,8 +25,6 @@ public class GeneHuntFactory implements PlayerFactory {
     public enum PlayerType {AI, GUI}
 
     String graphFilename;
-
-    protected List<Spectator> spectators;
     ScotlandYardGame gui;
     ScotlandYardApplication application;
     ThreadCommunicator threadCom;
@@ -38,14 +36,12 @@ public class GeneHuntFactory implements PlayerFactory {
         typeMap = new HashMap<Colour, PlayerType>();
         typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
         typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.GUI);
-        typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
-        typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
-        typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
-        typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.GUI);
-
+        //typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
+        //typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
+        //typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
+        //typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.GUI);
+        
         graphFilename = "resources/graph.txt";
-
-        spectators = new ArrayList<Spectator>();
     }
 
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom, Map<Colour, PlayerType> typeMap, String graphFilename) {
@@ -53,11 +49,20 @@ public class GeneHuntFactory implements PlayerFactory {
         this.threadCom = threadCom;
         this.typeMap = typeMap;
         this.graphFilename = graphFilename;
-        spectators = new ArrayList<Spectator>();
     }
 
     @Override
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {
+        System.out.println("Start waiting - " + colour);
+        System.out.flush();
+        try {
+            Thread.sleep(10000);
+        } catch(Exception e) {
+            System.err.println("Error");
+        }
+        System.out.println("end waiting - " + colour);
+        System.out.flush();
+        
         switch (typeMap.get(colour)) {
             case AI:
                 return new GeneHunt(view, graphFilename);
@@ -70,6 +75,7 @@ public class GeneHuntFactory implements PlayerFactory {
 
     @Override
     public void ready() {
+        System.out.println("Ready");
         if (gui != null && application != null) {
             application.beginGame();
             application.newAIGame(gui);
@@ -93,7 +99,6 @@ public class GeneHuntFactory implements PlayerFactory {
     private ScotlandYardGame gui(ScotlandYardView view) {
         if (gui == null) {
             gui = new ScotlandYardGame(view, graphFilename, threadCom);
-            spectators.add(gui);
         }
         return gui;
     }

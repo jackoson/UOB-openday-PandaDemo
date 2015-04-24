@@ -119,14 +119,18 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             try {
                 threadCom = new ThreadCommunicator();
                 
-                String idString = setUpView.joinUsername();
+                //String idString = setUpView.joinUsername();
+                String idString = "ab1234 cd5678";
                 List<String> studentIds = Arrays.asList(idString.split(" "));
-                String hostname = setUpView.joinIP();
-                int port = Integer.parseInt(setUpView.joinPort());
+                //String hostname = setUpView.joinIP();
+                String hostname = "localhost";
+                //int port = Integer.parseInt(setUpView.joinPort());
+                int port = 8122;
                 
-                GeneHuntFactory factory = new GeneHuntFactory(this, threadCom);
-                PlayerClient client = new PlayerClient(hostname, port, studentIds, factory);
-                new Thread(new ScotlandYardAIGame(client)).start();
+                //GeneHuntFactory factory = new GeneHuntFactory(this, threadCom);
+                //PlayerClient client = new PlayerClient(hostname, port, studentIds, factory);
+                //Thread.sleep(1000);
+                new Thread(new ScotlandYardAIGame(this, threadCom, hostname, port, studentIds)).start();
             } catch (Exception exc) {
                 System.err.println("Error joining game :" + exc);
                 exc.printStackTrace();

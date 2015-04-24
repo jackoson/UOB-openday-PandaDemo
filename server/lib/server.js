@@ -25,17 +25,17 @@ function Server() {
  */
 Server.prototype.start = function(player_port, game_port) {
     var self = this;
-    this.player_server.listen(player_port);
-    this.player_server.on('register', function(player, studentId) {
-        var colour = self.getNextColour();
-        self.game_server.addPlayer(player, colour, self.gameId());
-    });
-    this.player_server.on('move', function(player, move) {
-        self.game_server.makeMove(player, move);
-    });
     this.game_server.listen(game_port);
     this.game_server.on('initialised', function(id) {
         self.game_id = id;
+        self.player_server.listen(player_port);
+        self.player_server.on('register', function(player, studentId) {
+            var colour = self.getNextColour();
+            self.game_server.addPlayer(player, colour, self.gameId());
+        });
+        self.player_server.on('move', function(player, move) {
+            self.game_server.makeMove(player, move);
+        });
     });
     console.log("Server started; Player port - " + player_port + "; Game port - " + game_port + ";");
 }
@@ -66,8 +66,7 @@ Server.prototype.gameId = function() {
  * @returns {*}
  */
 Server.prototype.getNextColour = function() {
-    var nextColour = this.colours.shift();
-    return nextColour;
+    return this.colours.shift();
 }
 
 

@@ -34,10 +34,10 @@ public class RandomPlayerFactory implements PlayerFactory {
         typeMap = new HashMap<Colour, PlayerType>();
         typeMap.put(Colour.Black, RandomPlayerFactory.PlayerType.AI);
         typeMap.put(Colour.Blue, RandomPlayerFactory.PlayerType.GUI);
-        typeMap.put(Colour.Green, RandomPlayerFactory.PlayerType.AI);
-        typeMap.put(Colour.Red, RandomPlayerFactory.PlayerType.AI);
-        typeMap.put(Colour.White, RandomPlayerFactory.PlayerType.AI);
-        typeMap.put(Colour.Yellow, RandomPlayerFactory.PlayerType.AI);
+        typeMap.put(Colour.Green, RandomPlayerFactory.PlayerType.GUI);
+        typeMap.put(Colour.Red, RandomPlayerFactory.PlayerType.GUI);
+        typeMap.put(Colour.White, RandomPlayerFactory.PlayerType.GUI);
+        typeMap.put(Colour.Yellow, RandomPlayerFactory.PlayerType.GUI);
 
         positionsFilename = "resources/pos.txt";
         imageFilename     = "resources/map.jpg";

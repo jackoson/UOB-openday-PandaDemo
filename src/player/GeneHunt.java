@@ -23,8 +23,7 @@ public class GeneHunt implements Player {
 
     @Override
     public Move notify(int location, Set<Move> moves) {
-        //TODO: Some clever AI here ...
-
+        //TODO: Some clever AI here ...       
         int choice = new Random().nextInt(moves.size());
         for (Move move : moves) {
             if (choice == 0) {

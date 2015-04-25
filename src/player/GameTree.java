@@ -29,7 +29,7 @@ public class GameTree implements Runnable, ActionListener {
     private GameTree tree;
     private Timer timer;
     private TreeNode root;
-    /*
+    
     public static void main(String[] args) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
         Colour[] colours = Colour.values();
@@ -38,41 +38,41 @@ public class GameTree implements Runnable, ActionListener {
         mrXTickets.put(Ticket.Taxi, 10);
         mrXTickets.put(Ticket.Bus, 10);
         mrXTickets.put(Ticket.Underground, 10);
-        mrXTickets.put(Ticket.Double, 2);
-        mrXTickets.put(Ticket.Secret, 5);
-        players.add(new GamePlayer(null, colours[0], 115, mrXTickets));
+        mrXTickets.put(Ticket.Double, 1);
+        mrXTickets.put(Ticket.Secret, 3);
+        players.add(new GamePlayer(null, colours[0], 194, mrXTickets));
         
         Map<Ticket, Integer> blueDetTickets = new HashMap<Ticket, Integer>();
         blueDetTickets.put(Ticket.Taxi, 11);
-        blueDetTickets.put(Ticket.Bus, 8);
+        blueDetTickets.put(Ticket.Bus, 7);
         blueDetTickets.put(Ticket.Underground, 4);
         blueDetTickets.put(Ticket.Double, 0);
         blueDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[1], 102, blueDetTickets));
+        players.add(new GamePlayer(null, colours[1], 67, blueDetTickets));
         
         Map<Ticket, Integer> greenDetTickets = new HashMap<Ticket, Integer>();
-        greenDetTickets.put(Ticket.Taxi, 11);
+        greenDetTickets.put(Ticket.Taxi, 10);
         greenDetTickets.put(Ticket.Bus, 8);
         greenDetTickets.put(Ticket.Underground, 4);
         greenDetTickets.put(Ticket.Double, 0);
         greenDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[2], 114, greenDetTickets));
+        players.add(new GamePlayer(null, colours[2], 132, greenDetTickets));
         
         Map<Ticket, Integer> redDetTickets = new HashMap<Ticket, Integer>();
-        redDetTickets.put(Ticket.Taxi, 11);
+        redDetTickets.put(Ticket.Taxi, 10);
         redDetTickets.put(Ticket.Bus, 8);
         redDetTickets.put(Ticket.Underground, 4);
         redDetTickets.put(Ticket.Double, 0);
         redDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[3], 126, redDetTickets));
+        players.add(new GamePlayer(null, colours[3], 140, redDetTickets));
         
         Map<Ticket, Integer> yellowDetTickets = new HashMap<Ticket, Integer>();
         yellowDetTickets.put(Ticket.Taxi, 11);
-        yellowDetTickets.put(Ticket.Bus, 8);
+        yellowDetTickets.put(Ticket.Bus, 7);
         yellowDetTickets.put(Ticket.Underground, 4);
         yellowDetTickets.put(Ticket.Double, 0);
         yellowDetTickets.put(Ticket.Secret, 0);
-        players.add(new GamePlayer(null, colours[4], 133, yellowDetTickets));
+        players.add(new GamePlayer(null, colours[4], 157, yellowDetTickets));
         
         List<Boolean> rounds = Arrays.asList(false, false, false, true, false,
                                              false, false, false, true, false,
@@ -86,15 +86,15 @@ public class GameTree implements Runnable, ActionListener {
             Dijkstra dijkstra = new Dijkstra("graph.txt");
             PageRank testPageRank = new PageRank(testGraph);
             testPageRank.iterate(100);
-            GameTree gameTree = new GameTree(testGraph, testPageRank, dijkstra, players, rounds, 0, players.get(0));
-            //gameTree.calculateTree();
+            GameTree gameTree = new GameTree();
+            gameTree.calculateTree(null, testGraph, testPageRank, dijkstra, players, rounds, 0, players.get(0));
         } catch (Exception e) {
             System.err.println("Error running alpha-beta pruning test :" + e);
             e.printStackTrace();
             System.exit(1);
         }
     }
-    */
+    
     public GameTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.threadCom = threadCom;
         this.graph = graph;
@@ -116,7 +116,7 @@ public class GameTree implements Runnable, ActionListener {
         tree = new GameTree(threadCom, graph, pageRank, routeFinder, players, rounds, round, currentPlayer);
         new Thread(tree).start();
         System.err.println("Timer started");
-        timer = new Timer(13000, this);
+        timer = new Timer(300000, this);
         timer.start();
     }
     
@@ -124,7 +124,12 @@ public class GameTree implements Runnable, ActionListener {
         timer.stop();
         moves = tree.moves;
         tree.iterate = false;
-        threadCom.putEvent("calculated_moves", moves);
+        if (threadCom != null) threadCom.putEvent("calculated_moves", moves);
+        else {
+            for (Move m : moves) {
+                System.err.println(m);
+            }
+        }
     }
     
     public void run() {
@@ -163,7 +168,7 @@ public class GameTree implements Runnable, ActionListener {
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
         if (depth == 1) {
             //Create new layer
-            Set<Move> validMoves = ModelHelper.validSingleMoves(currentPlayer, currentState, graph);           
+            Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
@@ -314,9 +319,11 @@ public class GameTree implements Runnable, ActionListener {
                 if (detDistance == 1) return TreeNode.kMin;
                 sumDetDistance += (double) detDistance;
             }
-            double avgDetPageRank = sumDetPageRank / (double) (players.size() - 1);
             double avgDetDistance = sumDetDistance / (double) (players.size() - 1);
-            double score = ((mrXPageRank * avgDetDistance) / avgDetPageRank) * TreeNode.kMultiplier;
+            double avgDetPageRank = sumDetPageRank / (double) (players.size() - 1);
+            avgDetPageRank = avgDetPageRank * (Math.pow(avgDetDistance, 2) / 50);
+            mrXPageRank = mrXPageRank * (Math.pow(avgDetDistance, 2) / 100);
+            double score = ((mrXPageRank * avgDetDistance) * avgDetPageRank);
             return score;
         }
         

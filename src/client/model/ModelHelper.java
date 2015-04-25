@@ -108,6 +108,7 @@ public class ModelHelper {
         int secretMoveCount = gamePlayer.tickets().get(Ticket.Secret);
         int doubleMoveCount = gamePlayer.tickets().get(Ticket.Double);
         Node<Integer> currentPosition = graph.getNode(gamePlayer.location());
+        if (currentPosition == null) currentPosition = graph.getNode(1); //NEED TO FIND A BETTER SOLUTION TO THIS
         Set<Move> allMoves = new HashSet<Move>();
         Set<MoveTicket> singleMoves = createSingleMoves(gamePlayer, players, graph, currentPosition.data());
         allMoves.addAll(singleMoves);

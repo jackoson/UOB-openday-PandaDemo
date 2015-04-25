@@ -9,17 +9,14 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class ScotlandYardAIGame implements Runnable {
-    
-    //private PlayerClient client;
-    
-    ScotlandYardApplication app;
-    ThreadCommunicator threadCom;
-    String hostname;
-    int port;
-    List<String> studentIds;
+  
+    private ScotlandYardApplication app;
+    private ThreadCommunicator threadCom;
+    private String hostname;
+    private int port;
+    private List<String> studentIds;
     
     public ScotlandYardAIGame(ScotlandYardApplication app, ThreadCommunicator threadCom, String hostname, int port, List<String> studentIds) {
-        //this.client = client;
         this.app = app;
         this.threadCom = threadCom;
         this.hostname = hostname;

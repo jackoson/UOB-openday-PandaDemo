@@ -217,6 +217,13 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
+     * Clears the game log.
+     */
+    public void clearLog() {
+        eventView.clear();
+    }
+    
+    /**
      * Updates the valid Moves shown by RouteView and the List in BoardView.
      *
      * @param moves the List of valid Moves.

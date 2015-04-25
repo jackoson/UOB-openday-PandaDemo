@@ -27,6 +27,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private Dijkstra routeFinder;
     private boolean firstRound = true;
     private boolean replaying = false;
+    private final boolean aiGame;
     
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
@@ -45,6 +46,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * communicate between Threads.
      */
     public ScotlandYardGame(int numPlayers, String gameName, String graphName, ThreadCommunicator threadCom) {
+        aiGame = false;
         try {
             this.threadCom = threadCom;
             this.numPlayers = numPlayers;
@@ -76,6 +78,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * communicate between Threads.
      */
     public ScotlandYardGame(String gameName, ThreadCommunicator threadCom) {
+        aiGame = false;
         try {
             this.threadCom = threadCom;
             fileAccess = new FileAccess();
@@ -105,6 +108,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * communicate between Threads.
      */
     public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
+        aiGame = true;
         try {
             this.threadCom = threadCom;
             this.graphName = graphName;
@@ -127,18 +131,29 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             pda = new InputPDA();
             initialiseViews(getPlayers());
             if (saveGame != null) fileAccess.saveGame(saveGame);
-            model.start();
-            if (saveGame != null) fileAccess.saveGame(saveGame);
-            threadCom.putUpdate("stop_timer", true);
-            Set<Colour> winningPlayers = model.getWinningPlayers();
-            sendNotification(getWinningMessage(winningPlayers));
-            wait(5000);
-            threadCom.putUpdate("end_game", true);
+            if (!aiGame) {
+                model.start();
+                endGame();
+            }
         } catch (Exception e) {
             System.err.println("Error playing game :" + e);
             e.printStackTrace();
             System.exit(1);
         }
+    }
+    
+    /**
+     * Called when the game is over.
+     * Updates the views and then returns to the SetUpView.
+     */
+    public void endGame() {
+        if (saveGame != null) fileAccess.saveGame(saveGame);
+        threadCom.putUpdate("stop_timer", true);
+        Set<Colour> winningPlayers = model.getWinningPlayers();
+        sendNotification(getWinningMessage(winningPlayers));
+        wait(5000);
+        threadCom.putUpdate("end_game", true);
+        threadCom.putUpdate("clear_log", true);
     }
     
     // Returns the List of GamePlayer objects that contain all
@@ -231,6 +246,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      */
     public Move notify(int location, Set<Move> moves) {
         updateUI(location, model.getCurrentPlayer(), moves);
+        outOfTime = false;
         pda.reset();
         Move move = null;
         while (true) {
@@ -239,10 +255,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 wait(kMoveWait);
                 break;
             } else {
-                if (replaying) {
-                    threadCom.putUpdate("send_notification", getMessage(model.getCurrentPlayer()));
-                    threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
-                }
                 replaying = false;
             }
             String eventId = (String) threadCom.takeEvent();
@@ -268,7 +280,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 break;
             }
         }
-        outOfTime = false;
         if (saveGame != null) saveGame.addMove(move);
         return move;
     }
@@ -341,6 +352,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // Updates the UI at the end of a turn.
     // @param move the Move that has been played.
     private void updateUI(Move move) {
+        threadCom.putUpdate("stop_timer", true);
         threadCom.putUpdate("update_log", move);
         updateTickets(move.colour);
         threadCom.putUpdate("update_board", move);

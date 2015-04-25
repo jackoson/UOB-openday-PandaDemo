@@ -38,8 +38,8 @@ public class GeneHuntFactory implements PlayerFactory {
         this.gameTree = new GameTree();
         
         typeMap = new HashMap<Colour, PlayerType>();
-        typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.GUI);
-        typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.AI);
+        typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
+        typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
@@ -69,7 +69,6 @@ public class GeneHuntFactory implements PlayerFactory {
 
     @Override
     public void ready() {
-        System.out.println("Ready");
         if (gui != null && application != null) {
             application.beginGame(kTimerTime);
             application.newAIGame(gui);
@@ -86,8 +85,9 @@ public class GeneHuntFactory implements PlayerFactory {
 
     @Override
     public void finish() {
-        // Set message to winning player.
-        if (gui != null && application != null) application.endGame();
+        if (gui != null && application != null) {
+            application.endGame();
+        }
     }
 
 

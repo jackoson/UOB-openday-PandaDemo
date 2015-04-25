@@ -122,7 +122,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 threadCom = new ThreadCommunicator();
                 
                 //String idString = setUpView.joinUsername();
-                String idString = "ab1234 cd5678";
+                String idString = "ab1234 cd5678 ab1234 cd5678 ab1234 cd5678";
                 List<String> studentIds = Arrays.asList(idString.split(" "));
                 //String hostname = setUpView.joinIP();
                 String hostname = "localhost";
@@ -190,6 +190,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     
     // Removes the GameView and shows the SetUpView view
     public void endGame() {
+        game.endGame();
         gameView.setThreadCom(null);
         game = null;
         CardLayout cl = (CardLayout) container.getLayout();
@@ -272,6 +273,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_log")) {
             Move move = (Move) object;
             gameView.updateLog(move);
+        } else if (id.equals("clear_log")) {
+            gameView.clearLog();
         }
     }
     

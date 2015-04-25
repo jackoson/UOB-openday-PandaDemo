@@ -111,6 +111,13 @@ public class ChatEventView extends JPanel {
         vBar.setValue(vBar.getMaximum());
     }
     
+    /**
+     * Clears the game log.
+     */
+    public void clear() {
+        scrollContainer.removeAll();
+    }
+    
     // A view to display a message.
     private class MessageView extends AnimatablePanel {
       

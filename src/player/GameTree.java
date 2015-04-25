@@ -328,6 +328,7 @@ public class GameTree implements Runnable, ActionListener, Spectator {
             if (winningPlayers.contains(Colour.Black)) return TreeNode.kMax;
             if (winningPlayers.size() != 0) return TreeNode.kMin;
             int mrXLocation = players.get(0).location();
+            if (mrXLocation == 0) mrXLocation = 1; //NEED TO FIND A BETTER SOLUTION TO THIS
             double mrXPageRank = pageRank.getPageRank(mrXLocation);
             double sumDetPageRank = 0.0;
             double sumDetDistance = 0.0;

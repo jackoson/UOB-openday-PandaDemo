@@ -153,6 +153,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         sendNotification(getWinningMessage(winningPlayers));
         wait(5000);
         threadCom.putUpdate("end_game", true);
+        threadCom.putUpdate("clear_log", true);
     }
     
     // Returns the List of GamePlayer objects that contain all

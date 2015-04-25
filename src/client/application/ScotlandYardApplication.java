@@ -273,6 +273,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_log")) {
             Move move = (Move) object;
             gameView.updateLog(move);
+        } else if (id.equals("clear_log")) {
+            gameView.clearLog();
         }
     }
     

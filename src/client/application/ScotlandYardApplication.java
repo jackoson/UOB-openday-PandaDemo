@@ -77,7 +77,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setVisible(true);
         
         if (DEBUG){//?
-            beginGame();
+            beginGame(kNormalTimer);
             newGame();
         }
     }

@@ -17,7 +17,7 @@ public class TimerView extends JPanel implements ActionListener {
     
     private Timer timer;
     private ActionListener aListener;
-    private final int maxTime = 260;
+    private int maxTime = 260;
     private int timeLeft;
     private JLabel label;
     

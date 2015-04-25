@@ -149,7 +149,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         if (players == null) {
             List<GamePlayer> playerList = new ArrayList<GamePlayer>();
             for (Colour player : model.getPlayers()) {
-                playerList.add(new GamePlayer(null, player, model.getPlayerLocation(player), getPlayerTickets(player)));
+                playerList.add(new GamePlayer(null, player, model.getPlayerLocation(player), ModelHelper.getTickets(player, model)));
             }
             return playerList;
         } else {

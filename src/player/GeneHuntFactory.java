@@ -24,18 +24,20 @@ public class GeneHuntFactory implements PlayerFactory {
 
     public enum PlayerType {AI, GUI}
 
-    String graphFilename;
-    ScotlandYardGame gui;
-    ScotlandYardApplication application;
-    ThreadCommunicator threadCom;
+    private String graphFilename;
+    private ScotlandYardGame gui;
+    private ScotlandYardApplication application;
+    private ThreadCommunicator threadCom;
+    
+    private final int kTimerTime = 15;
 
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom) {
         this.application = application;
         this.threadCom = threadCom;
         
         typeMap = new HashMap<Colour, PlayerType>();
-        typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
-        typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.GUI);
+        typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.AI);
         typeMap.put(Colour.Green, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
@@ -67,7 +69,7 @@ public class GeneHuntFactory implements PlayerFactory {
     public void ready() {
         System.out.println("Ready");
         if (gui != null && application != null) {
-            application.beginGame();
+            application.beginGame(kTimerTime);
             application.newAIGame(gui);
         }
     }

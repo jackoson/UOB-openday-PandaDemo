@@ -4,9 +4,19 @@ import scotlandyard.*;
 
 import java.util.*;
 
+/**
+ * A class to perform certain operations used by both the game model and the AI.
+ */
 
 public class ModelHelper {
   
+    /**
+     * Returns the GamePlayer object of the specified player from a List.
+     *
+     * @param players the List of GamePlayer objects.
+     * @param colour the player whose GamePlayer object is to be returned.
+     * @return the GamePlayer object of the specified player from a List.
+     */
     public static GamePlayer getPlayerOfColour(List<GamePlayer> players, Colour colour) {
         for (GamePlayer gamePlayer : players) {
             if (gamePlayer.colour().equals(colour)) return gamePlayer;
@@ -14,12 +24,29 @@ public class ModelHelper {
         return null;
     }
     
+    /**
+     * Returns the GamePlayer object of the player whose turn it is next.
+     *
+     * @param players the List of GamePlayer objects for all players in the game.
+     * @param currentPlayer the GamePlayer object of the current player in the game.
+     * @return the GamePlayer object of the player whose turn it is next.
+     */
     public static GamePlayer getNextPlayer(List<GamePlayer> players, GamePlayer currentPlayer) {
         int currentPosition = players.indexOf(currentPlayer);
         GamePlayer nextPlayer = players.get((currentPosition + 1) % players.size());
         return nextPlayer;
     }
     
+    /**
+     * Returns the Set of players who have won the game.
+     *
+     * @param players the List of players in the game.
+     * @param currentPlayers the current player in the game.
+     * @param graph the Graph associated with the game.
+     * @param rounds the List of Booleans that decide when Mr X is visible.
+     * @param round the current round of the game.
+     * @return the Set of players who have won the game.
+     */
     public static Set<Colour> getWinningPlayers(List<GamePlayer> players, GamePlayer currentPlayer, Graph<Integer, Route> graph, List<Boolean> rounds, Integer round) {
         Set<Colour> winners = new HashSet<Colour>();
         if (detectivesNoValidMoves(players, graph) || players.size() == 1
@@ -34,7 +61,13 @@ public class ModelHelper {
         return winners;
     }
     
-    
+    /**
+     * Returns true if all detectives have no valid Moves.
+     *
+     * @param players the List of players in the game.
+     * @param graph the Graph associated with the game.
+     * @return true if all detectives have no valid Moves.
+     */
     public static boolean detectivesNoValidMoves(List<GamePlayer> players, Graph<Integer, Route> graph) {
         boolean noMoves = true;
         for (GamePlayer player : players) {
@@ -48,6 +81,12 @@ public class ModelHelper {
         return noMoves;
     }
     
+    /**
+     * Returns true if a detective shares the same Node as Mr X.
+     *
+     * @param players the List of players in the game.
+     * @return true if a detective shares the same Node as Mr X.
+     */
     public static boolean onMrX(List<GamePlayer> players) {
         GamePlayer mrX = players.get(0);
         for (GamePlayer player : players) {
@@ -56,7 +95,14 @@ public class ModelHelper {
         return false;
     }
     
-    //Create a list of valid moves
+    /**
+     * Returns the Set of valid Moves a player can make.
+     *
+     * @param gamePlayer the player for whom to generate the Set of valid Moves.
+     * @param players the List of players in the game.
+     * @param graph the Graph associated with the game.
+     * @return the Set of valid Moves a player can make.
+     */
     public static Set<Move> validMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
         Colour player = gamePlayer.colour();
         int secretMoveCount = gamePlayer.tickets().get(Ticket.Secret);
@@ -80,21 +126,12 @@ public class ModelHelper {
         return allMoves;
     }
     
-    public static Set<Move> validSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
-        Colour player = gamePlayer.colour();
-        int secretMoveCount = gamePlayer.tickets().get(Ticket.Secret);
-        Node<Integer> currentPosition = graph.getNode(gamePlayer.location());
-        Set<MoveTicket> singleMoves = createSingleMoves(gamePlayer, players, graph, currentPosition.data());
-        Set<Move> allMoves = new HashSet<Move>(singleMoves);
-        if (gamePlayer.colour().equals(Colour.Black) && secretMoveCount
-            >= 1) {
-            Set<MoveTicket> secretMoves = createSingleSecretMoves(singleMoves);
-            allMoves.addAll(secretMoves);
-        }
-        return allMoves;
-    }
-    
-    //Create a list of valid single moves
+    // Returns a Set of valid MoveTickets for a specified player.
+    // @param gamePlayer the player for whom to generate the Set of valid MoveTickets.
+    // @param players the List of players in the game.
+    // @param graph the Graph associated with the game.
+    // @param location the location of the player.
+    // @return a Set of valid single Moves for a specified player.
     private static Set<MoveTicket> createSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Integer location) {
         Set<MoveTicket> moves = new HashSet<MoveTicket>();
         Set<Edge<Integer, Route>> edges = graph.getEdges(location);
@@ -112,7 +149,13 @@ public class ModelHelper {
         return moves;
     }
     
-    //Create a list of valid double moves including secret moves
+    // Returns a Set of valid MoveDoubles for a specified player.
+    // @param gamePlayer the player for whom to generate the Set of valid MoveDoubles.
+    // @param players the List of players in the game.
+    // @param graph the Graph associated with the game.
+    // @param moves the Set of valid MoveTickets for the player.
+    // @param secondMoveCount the number of secret Tickets the player has.
+    // @return a Set of valid MoveDoubles for a specified player.
     private static Set<MoveDouble> createDoubleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Set<MoveTicket> moves, int secretMoveCount) {
         Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
         for (MoveTicket move : moves) {
@@ -133,7 +176,9 @@ public class ModelHelper {
         return doubleMoves;
     }
     
-    //Create a list of secret single moves
+    // Returns a Set of valid MoveTickets using secret Tickets for a specified player.
+    // @param moves the Set of valid MoveTickets for the specified player.
+    // @return a Set of valid MoveTickets using secret Tickets for a specified player.
     private static Set<MoveTicket> createSingleSecretMoves(Set<MoveTicket> moves) {
         Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
         for (MoveTicket move : moves) {
@@ -142,11 +187,18 @@ public class ModelHelper {
         return secretMoves;
     }
     
+    // Returns the MoveTicket after the Ticket has been replaced with a secret Ticket.
+    // @param move the MoveTicket to be converted.
+    // @return the MoveTicket after the Ticket has been replaced with a secret Ticket.
     private static MoveTicket makeSecret(MoveTicket move) {
         return MoveTicket.instance(move.colour, Ticket.Secret, move.target);
     }
     
-    //Check to see if player has required moves
+    // Returns true if the specified player has enough Tickets for a MoveDouble.
+    // @param gamePlayer the player whose Tickets are to be checked.
+    // @param move1 the first Move in the MoveDouble.
+    // @param move2 the second Move in the MoveDouble.
+    // @return true if the specified player has enough Tickets for a MoveDouble.
     private static boolean hasTickets(GamePlayer gamePlayer, MoveTicket move1, MoveTicket move2) {
         Ticket ticket1;
         if (move1 != null){
@@ -164,7 +216,10 @@ public class ModelHelper {
         return true;
     }
     
-    //Checks whether a detective occupies a given node
+    // Returns true if a detective lies on the specified Node.
+    // @param players the List of players in the game.
+    // @param node the Node to be checked.
+    // @return true if a detective lies on the specified Node.
     private static boolean nodeOccupied(List<GamePlayer> players, Node<Integer> node) {
         for (GamePlayer player : players) {
             if (node.data().equals(player.location())) {
@@ -174,6 +229,13 @@ public class ModelHelper {
         return false;
     }
     
+    /**
+     * Returns the Map of Tickets for a specified player.
+     *
+     * @param player the player whose Tickets are to be returned.
+     * @param model the ScotlandYardView which contains the players information.
+     * @return the Map of Tickets for a specified player.
+     */
     public static Map<Ticket, Integer> getTickets(Colour player, ScotlandYardView model) {
         Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
         tickets.put(Ticket.Taxi, model.getPlayerTickets(player, Ticket.Taxi));

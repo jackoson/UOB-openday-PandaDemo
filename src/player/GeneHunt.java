@@ -54,7 +54,6 @@ public class GeneHunt implements Player {
                 String id = (String)threadCom.takeEvent();
                 Object object = threadCom.takeEvent();
                 if (id.equals("calculated_moves")) {
-                    //@SuppressWarnings("unchecked")
                     moveList = (List<Move>) object;
                     for (Move m : moveList);
                     break;

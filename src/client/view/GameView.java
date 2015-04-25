@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * A view to display the board, players information and Mr X's previous moves.
+ * A view to display the board, players information and previous moves.
  */
 
 public class GameView extends JPanel implements ComponentListener, ActionListener {
@@ -24,6 +24,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private TimerView timer;
     private PlayerTicketView ticket;
     private ChatView chat;
+    private ChatEventView eventView;
     private ListView listView;
     private MenuBar bar;
     private FileAccess fileAccess;
@@ -34,8 +35,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      *
      * @param fileAccess the FileAccess object needed to get the 
      * images for the views.
-     * @param threadCom the ThreadCommunicator object to communicate
-     * between Threads.
      */
     public GameView(FileAccess fileAccess) {
         setPreferredSize(new Dimension(1200, 800));
@@ -47,7 +46,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         notify = new NotifyView(fileAccess.getNotify());
         chat = new ChatView();
         chat.setActionListener(this);
-        ChatEventView eventView = new ChatEventView(fileAccess);
+        eventView = new ChatEventView(fileAccess);
         ticket = new PlayerTicketView(fileAccess);
         ticket.setActionListener(this);
         timer = new TimerView();
@@ -95,16 +94,20 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
                 //Player has clicked on a ticket in the players view
                 threadCom.putEvent("hint_clicked", (Boolean) e.getSource());
             } else if (e.getActionCommand().equals("show_chat")) {
+                // Player has clicked on the button to show the game log.
                 bar.showChat();
             } else if (e.getActionCommand().equals("hide_chat")) {
+                // Player has clicked on the button to hide the game log.
                 bar.hideChat();
             } else if (e.getActionCommand().equals("list_cell_highlighted")) {
+                // Player has hovered over a suggested route.
                 ListView listView = (ListView) e.getSource();
                 @SuppressWarnings("unchecked")
                 List<Integer> route = (List<Integer>) listView.highlightedRoute();
                 for (Integer i : route);
                 setRouteHint(route);
             } else if (e.getActionCommand().equals("list_cell_unhighlighted")) {
+                // Player has moved their cursor out of a suggested route.
                 List<Integer> route = new ArrayList<Integer>();
                 setRouteHint(route);
             }
@@ -157,6 +160,15 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
+     * Sets the max time for the Timer in the TimerView.
+     *
+     * @param maxTime the new max time for the Timer.
+     */
+    public void setTimerMaxTime(int maxTime) {
+        timer.setMaxTime(maxTime);
+    }
+    
+    /**
      * Highlists a node in the board view.
      *
      * @param location the location of the node to be
@@ -175,6 +187,12 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         notify.notify(message);
     }
     
+    /**
+     * Updates the tickets displayed in the PlayerTicketView.
+     *
+     * @param colour the Colour of the player whose Tickets are to be updated.
+     * @param ticket the Map of Tickets to be displayed by the PlayerTicketView.
+     */
     public void updateTickets(Colour colour, Map<Ticket, Integer> tickets) {
         bar.setBackgroundColor(Formatter.colorForPlayer(colour));
         ticket.update(tickets);
@@ -187,6 +205,15 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void updateBoard(Move move) {
         board.update(move);
+    }
+    
+    /**
+     * Adds a Move to the game log.
+     *
+     * @param move the Move to be added to the game log.
+     */
+    public void updateLog(Move move) {
+        eventView.addMessage(move);
     }
     
     /**
@@ -222,10 +249,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
-    }
-    
-    public void zoomToPlayer(Colour player) {
-        board.zoomToPlayer(player);
     }
     
     /**

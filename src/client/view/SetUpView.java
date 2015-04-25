@@ -84,7 +84,6 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         multiplayerButton.addActionListener(this);
         title.add(multiplayerButton, BorderLayout.EAST);
         
-        //
         singlePanel = new JPanel();
         singlePanel.setOpaque(false);
         singlePanel.setBackground(new Color(50, 50, 50, 125));
@@ -98,8 +97,7 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         NewPanel newPanel = new NewPanel(this);
         newPanel.setPreferredSize(new Dimension(400, 380));
         singlePanel.add(newPanel);
-        
-        //
+
         multiPanel = new JPanel();
         multiPanel.setOpaque(false);
         multiPanel.setPreferredSize(new Dimension(814, 390));
@@ -127,6 +125,8 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         g.drawImage(background, (panelSize.width / 2) - 415, (panelSize.height / 2) - 215, null);
     }
     
+    // Toggles between showing the local game or multiplayer game views.
+    // @param multi the boolean that decides which view to show.
     private void showMultiplayer(boolean multi) {
         if (multi) {
             remove(singlePanel);
@@ -144,6 +144,12 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         isMultiplayer = multi;
     }
     
+    /** 
+     * Called when the multiplayer button is clicked.
+     * 
+     * @param e the ActionEvent containing information 
+     * about the button that was clicked.
+     */
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("multiplayer")) {
             showMultiplayer(!isMultiplayer);
@@ -181,18 +187,33 @@ public class SetUpView extends JPanel implements KeyListener, ActionListener {
         return (Integer)playerDropDown.getSelectedItem();
     }
     
+    /**
+     * Returns the user name entered by the user.
+     *
+     * @return the user name entered by the user.
+     */
     public String joinUsername() {
         String playerName = joinUsernameField.getText();
         if (playerName.length() == 0) return null;
         return playerName;
     }
     
+    /**
+     * Returns the IP address entered by the user.
+     *
+     * @return the IP address entered by the user.
+     */
     public String joinIP() {
         String gameName = joinIPField.getText();
         if (gameName.length() == 0) return null;
         return gameName;
     }
     
+    /**
+     * Returns the port entered by the user.
+     *
+     * @return the port entered by the user.
+     */
     public String joinPort() {
         String gameName = joinPortField.getText();
         if (gameName.length() == 0) return null;

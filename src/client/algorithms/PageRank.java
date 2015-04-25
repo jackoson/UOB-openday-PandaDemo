@@ -16,6 +16,7 @@ public class PageRank {
     private Set<Node<Integer>> nodes;
     private Double d;
     private Map<Integer, Set<Edge<Integer, Route>>> edgeMap;
+    
     /**
      * Constructs a new PageRank object.
      *
@@ -47,7 +48,8 @@ public class PageRank {
         for (int i = 0; i < iterNo; i++) {
             iterate();
         }
-    }     
+    }
+    
     /**
      * Completes one iteration of the algorithm to calculate the new
      * PageRank for all nodes.
@@ -56,7 +58,6 @@ public class PageRank {
         Map<Node<Integer>, Double> updatedPageRanks = new HashMap<Node<Integer>, Double>();
         for (Map.Entry<Node<Integer>, Double> entry : pageRanks.entrySet()) {
             Node<Integer> node = entry.getKey();
-            //Set<Edge<Integer, Route>> edges = graph.getEdges(node.data());
             Set<Edge<Integer, Route>> edges = edgeMap.get(node.data());
             Double newPageRank = (1 - d) + (d * sumPageRanks(node.data(), edges));
             updatedPageRanks.put(node, newPageRank);
@@ -75,14 +76,15 @@ public class PageRank {
             if (location.equals(currentLocation)) {
                 location = edge.target();
             }
-            Node<Integer> node = getNode(location);
-            //Set<Edge<Integer, Route>> nodeEdges = graph.getEdges(node.data());
+            Node<Integer> node = graph.getNode(location);
             Set<Edge<Integer, Route>> nodeEdges = edgeMap.get(node.data());
             sum += getPageRank(node.data()) / (double) nodeEdges.size();
         }
         return sum;
     }
     
+    // Returns a Map which maps the Nodes to their corresponding Set of Edges.
+    // @return a Map which maps the Nodes to their corresponding Set of Edges.
     private Map<Integer, Set<Edge<Integer, Route>>> mapEdges() {
         Map<Integer, Set<Edge<Integer, Route>>> map = new HashMap<Integer, Set<Edge<Integer, Route>>>();
         Set<Edge<Integer, Route>> edges = graph.getEdges();
@@ -110,22 +112,8 @@ public class PageRank {
      * @return the PageRank for a given node.
      */
     public Double getPageRank(Integer location) {
-        Node<Integer> node = getNode(location);
+        Node<Integer> node = graph.getNode(location);
         return pageRanks.get(node);
-    }
-    
-    // Returns the node in the graph with the given location.
-    // Returns null if there is no node in the graph.
-    // Needed as supplied code is incorrect.
-    // @param id the location of the node to be found.
-    // @return the node in the graph with the given location.
-    private Node<Integer> getNode(Integer id) {
-        for (Node<Integer> node : nodes) {
-            if (node.data().equals(id)) {
-              return node;
-            }
-        }
-        return null;
     }
     
 }

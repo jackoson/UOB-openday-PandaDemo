@@ -52,10 +52,10 @@ public class PlayerTicketView extends JLabel {
     }
     
     /**
-     * Updates a ticketview with a new value
+     * Updates a TicketView with a new value.
      *
-     * @param ticket the ticket that represents the ticketview
-     * @param value the newm value to be updated
+     * @param ticket the ticket that is represented by the TicketView.
+     * @param value the new value for the TicketView.
      */
     public void update(Map<Ticket, Integer> tickets) {
         for (Map.Entry<Ticket, Integer> entry : tickets.entrySet()) {
@@ -64,7 +64,7 @@ public class PlayerTicketView extends JLabel {
         }
     }
     
-    // Add the TicketViews
+    // Adds the TicketViews.
     private void addTicketViews() {
         Map<Ticket, BufferedImage> ticketImages = fileAccess.getTicketsSmall();
         
@@ -92,10 +92,9 @@ public class PlayerTicketView extends JLabel {
         secretTicket.setValue(0);
         add(secretTicket);
         ticketViews.put(Ticket.Double, secretTicket);
-        
     }
     
-    // A class for displaying a ticket and number badge;
+    // A view for displaying a ticket and number badge.
     private class TicketView extends JLabel implements MouseListener {
         
         private static final long serialVersionUID = 5796740871755932476L;
@@ -180,6 +179,7 @@ public class PlayerTicketView extends JLabel {
         /**
          * Draws a transparent white background when the cursor
          * enters the view.
+         *
          * @param e the MouseEvent containing the cursor location.
          */
         public void mouseEntered(MouseEvent e) {
@@ -190,6 +190,7 @@ public class PlayerTicketView extends JLabel {
         /**
          * Draws a transparent background when the cursor
          * enters the view.
+         *
          * @param e the MouseEvent containing the cursor location.
          */
         public void mouseExited(MouseEvent e) {
@@ -199,27 +200,33 @@ public class PlayerTicketView extends JLabel {
         
         /**
          * Unused method from the MouseListener interface.
+         *
          * @param e the MouseEvent containing the cursor location.
          */
         public void mouseReleased(MouseEvent e) {}
+        
         /**
          * Unused method from the MouseListener interface.
+         *
          * @param e the MouseEvent containing the cursor location.
          */
         public void mousePressed(MouseEvent e) {}
+        
         /**
          * Unused method from the MouseListener interface.
+         *
          * @param e the MouseEvent containing the cursor location.
          */
         public void mouseDragged(MouseEvent e) {}
+        
         /**
          * Unused method from the MouseListener interface.
+         *
          * @param e the MouseEvent containing the cursor location.
          */
         public void mouseMoved(MouseEvent e) {}
         
-        // Class for displaying the number of tickets in
-        // a badge.
+        // A view to display the number of tickets in a badge.
         private class TicketBadge extends JLabel {
             
             private static final long serialVersionUID = 6607860351406820475L;

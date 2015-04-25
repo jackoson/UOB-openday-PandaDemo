@@ -85,12 +85,11 @@ public class NotifyView extends JPanel implements ActionListener {
     
     /**
      * Is called when the timer runs out. Timer is for
-     * 5 seconds and determines how long the messages are visible for.
+     * 3 seconds and determines how long the messages are visible for.
      * 
      * @param e the ActionEvent from the timer.
      */
     public void actionPerformed(ActionEvent e) {
-        //Timer has gone off
         visible = false;
         label.setText("");
         timer.stop();

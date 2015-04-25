@@ -235,9 +235,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("zoom_in")) {
             Integer location = (Integer) object;
             gameView.zoomToNode(location);
-        } else if (id.equals("zoom_in_colour")) {
-            Colour player = (Colour) object;
-            gameView.zoomToPlayer(player);
         } else if (id.equals("zoom_out")) {
             gameView.zoomOut();
         } else if (id.equals("reset_timer")) {
@@ -264,6 +261,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             Set<Move> moves = (Set<Move>) object;
             for (Move move : moves);
             gameView.updateRoutes(moves);
+        } else if (id.equals("update_log")) {
+            Move move = (Move) object;
+            gameView.updateLog(move);
         }
         
     }

@@ -16,7 +16,7 @@ public class MenuBar extends JPanel {
         setOpaque(false);
         
         this.eventView = eventView;
-        eventView.setPreferredSize(new Dimension(360, 100));
+        eventView.setPreferredSize(new Dimension(280, 100));
         add(eventView, BorderLayout.WEST);
         eventView.setVisible(false);
         

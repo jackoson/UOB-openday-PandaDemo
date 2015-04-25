@@ -24,6 +24,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private TimerView timer;
     private PlayerTicketView ticket;
     private ChatView chat;
+    private ChatEventView eventView;
     private ListView listView;
     private MenuBar bar;
     private FileAccess fileAccess;
@@ -47,7 +48,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         notify = new NotifyView(fileAccess.getNotify());
         chat = new ChatView();
         chat.setActionListener(this);
-        ChatEventView eventView = new ChatEventView(fileAccess);
+        eventView = new ChatEventView(fileAccess);
         ticket = new PlayerTicketView(fileAccess);
         ticket.setActionListener(this);
         timer = new TimerView();
@@ -189,6 +190,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         board.update(move);
     }
     
+    public void updateLog(Move move) {
+        eventView.addMessage(move);
+    }
+    
     /**
      * Updates the valid Moves shown by RouteView and the List in BoardView.
      *
@@ -222,10 +227,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
-    }
-    
-    public void zoomToPlayer(Colour player) {
-        board.zoomToPlayer(player);
     }
     
     /**

@@ -10,13 +10,12 @@ import java.awt.event.*;
  * A view for displaying a text field to the user and getting it's contents when they press enter.
  */
 
-public class ChatView extends JPanel implements KeyListener, FocusListener {
+public class ChatView extends JLabel implements MouseListener {
   
     private static final long serialVersionUID = 3644963183305191230L;
     
-    private String hint = "Chat";
-    private boolean showHint = true;
-    private JTextField text;
+    private boolean logVisible = false;
+    private boolean highlighted = false;
     private ActionListener listener;
     
     /**
@@ -24,24 +23,26 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
      */
     public ChatView() {
         setOpaque(false);
-        setPreferredSize(new Dimension(360, 40));
+        setHorizontalAlignment(SwingConstants.CENTER);
+        setVerticalAlignment(SwingConstants.CENTER);
+        setPreferredSize(new Dimension(150, 40));
         setLayout(new GridBagLayout());
-        text = getStyledTextField();
-        add(text);
+        setForeground(Color.WHITE);
+        setFont(Formatter.boldFontOfSize(14));
+        setText("Show game log");
+        addMouseListener(this);
     }
     
-    // Returns a styled text field.
-    // @return a styled text field.
-    private JTextField getStyledTextField() {
-        RoundTextField textField = new RoundTextField(hint);
-        textField.setPreferredSize(new Dimension(320, 20));
-        textField.setBackground(Color.WHITE);
-        textField.setForeground(Color.GRAY);
-        textField.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        textField.addKeyListener(this);
-        textField.addFocusListener(this);
-        return textField;
+    /**
+     * Draws the view in the JLabel.
+     *
+     * @param g0 the Graphics object to draw to.
+     */
+    public void paintComponent(Graphics g0) {
+        super.paintComponent(g0);
+        Graphics2D g = (Graphics2D) g0;
+        g.setColor(new Color(255, 255, 255, 60));
+        if (highlighted) g.fillRect(0, 0, 280, 40);
     }
     
     /**
@@ -55,89 +56,63 @@ public class ChatView extends JPanel implements KeyListener, FocusListener {
     }
     
     /**
-     * Called when a key is pressed whilst in a text field.
-     * sends an ActionEvent to the specified listener when the enter key is pressed.
+     * Is called when the view is clicked on. Sends an ActionEvent to the
+     * added ActionListener.
      *
-     * @param e the KeyEvent that contains which key has been pressed.
+     * @param e the MouseEvent containing the view of the Move clicked on.
      */
-    public void keyPressed(KeyEvent e) {
-        if (listener != null && e.getKeyCode() == KeyEvent.VK_ENTER && !showHint) {
-            String message = text.getText();
-            if (!message.isEmpty()) {
-              listener.actionPerformed(new ActionEvent(message, 0, "message"));
+    public void mouseClicked(MouseEvent e) {
+        if (listener != null) {
+            if (!logVisible) {
+                listener.actionPerformed(new ActionEvent(this, 0, "show_chat"));
+                setText("Hide game log");
+            } else {
+                listener.actionPerformed(new ActionEvent(this, 0, "hide_chat"));
+                setText("Show game log");
             }
-            text.setText("");
+            logVisible = !logVisible;
         }
     }
     
     /**
-     * Called when the text field gets focus.
-     * Removes the hint.
-     *
-     * @param e the FocusEvent containing information about 
-     * this focus change.
+     * Draws a transparent white background when the cursor
+     * enters the view.
+     * @param e the MouseEvent containing the cursor location.
      */
-    public void focusGained(FocusEvent e) {
-        if (text.getText().equals(hint)) {
-            text.setText("");
-            showHint = false;
-        }
-        if (listener != null) listener.actionPerformed(new ActionEvent(this, 0, "show_chat"));
-    }
-
-    /**
-     * Called when the text field loses focus.
-     * Sets the hint if no text has been entered.
-     *
-     * @param e the FocusEvent containing information about 
-     * this focus change.
-     */
-    public void focusLost(FocusEvent e) {
-        if (text.getText().isEmpty()) {
-            text.setText(hint);
-            showHint = true;
-        }
-        if (listener != null) listener.actionPerformed(new ActionEvent(this, 0, "hide_chat"));
+    public void mouseEntered(MouseEvent e) {
+        highlighted = true;
+        repaint();
     }
     
     /**
-     * Unused method from the KeyListener interface.
-     *
-     * @param e the KeyEvent containing information about
-     * which key has been released.
+     * Draws a transparent background when the cursor
+     * enters the view.
+     * @param e the MouseEvent containing the cursor location.
      */
-    public void keyReleased(KeyEvent e) {}
+    public void mouseExited(MouseEvent e) {
+        highlighted = false;
+        repaint();
+    }
     
     /**
-     * Unused method from the KeyListener interface.
-     *
-     * @param e the KeyEvent containing information about
-     * which key has been typed.
+     * Unused method from the MouseListener interface.
+     * @param e the MouseEvent containing the cursor location.
      */
-    public void keyTyped(KeyEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    /**
+     * Unused method from the MouseListener interface.
+     * @param e the MouseEvent containing the cursor location.
+     */
+    public void mousePressed(MouseEvent e) {}
+    /**
+     * Unused method from the MouseListener interface.
+     * @param e the MouseEvent containing the cursor location.
+     */
+    public void mouseDragged(MouseEvent e) {}
+    /**
+     * Unused method from the MouseListener interface.
+     * @param e the MouseEvent containing the cursor location.
+     */
+    public void mouseMoved(MouseEvent e) {}
     
-    private class RoundTextField extends JTextField {
-        
-        public RoundTextField(String text) {
-            super(text);
-            setOpaque(false);
-        }
-        
-        @Override
-        public void paintComponent(Graphics g0) {
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                               RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            
-            Dimension size = getSize();
-            g.setColor(new Color(0, 0, 0, 50));
-            g.fillRoundRect(0, 0, size.width, size.height, size.height, size.height);
-            
-            g.setColor(new Color(255, 255, 255, 250));
-            g.fillRoundRect(1, 1, size.width - 2, size.height - 2, size.height - 2, size.height - 2);
-            g.translate(10, 0);
-            super.paintComponent(g0);
-        }
-    }
 }

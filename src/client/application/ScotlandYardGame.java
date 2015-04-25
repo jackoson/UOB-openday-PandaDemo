@@ -25,12 +25,12 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private FileAccess fileAccess;
     private boolean outOfTime = false;
     private Dijkstra routeFinder;
-    private boolean waitForHint = false;
     private boolean firstRound = true;
     private boolean replaying = false;
     
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
+    private final int kAnimationWait = 500;
     
     private int[] detectiveLocations = {26, 29, 50, 53, 91, 94, 103, 112, 117, 123, 138, 141, 155, 174};
     private int[] mrXLocations = {35, 45, 51, 71, 78, 104, 106, 127, 132, 166, 170, 172};
@@ -53,6 +53,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             routeFinder = new Dijkstra(graphName);
             List<Boolean> rounds = getRounds();
             model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
+            model.spectate(this);
             int randMrXLocation = randomMrXLocation();
             int[] randDetectiveLocations = randomDetectiveLocations(numPlayers - 1);
             this.players = initialiseGame(randMrXLocation, randDetectiveLocations);
@@ -85,6 +86,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             routeFinder = new Dijkstra(graphName);
             List<Boolean> rounds = getRounds();
             model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
+            model.spectate(this);
             players = initialiseGame(saveGame.getMrXLocation(), saveGame.getDetectiveLocations());
             replaying = true;
         } catch (Exception e) {
@@ -261,20 +263,19 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 break;
             }
         }
-        updateUI(move);
         outOfTime = false;
         if (saveGame != null) saveGame.addMove(move);
         return move;
     }
     
     /**
-     * Used to update the view with the specified Move.
-     * Part of the Spectator interface.
+     * Updates the UI after a move has been made.
      */
     public void notify(Move move) {
         if (move instanceof MoveTicket) {
-            // Update UI for AI players.
             updateUI(move);
+        } else if (move instanceof MoveDouble) {
+            threadCom.putUpdate("update_log", move);
         }
     }
     
@@ -284,17 +285,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private void decodeEvents(String id, Object object) {
         if (id.equals("node_clicked")) {
             Integer location = (Integer) object;
-            if (waitForHint) {
-                Colour player = model.getCurrentPlayer();
-                //?Integer playerLoc = model.getTruePlayerLocation(player);
-                Integer playerLoc = model.getPlayerLocation(player);
-                threadCom.putUpdate("show_route", routeFinder.getRoute(playerLoc, location, getPlayerTicketsRoute(player)));
-                
-                waitForHint = false;
-            } else {
-                threadCom.putUpdate("highlight_node", location);
-                pda.transition(location);
-            }
+            threadCom.putUpdate("highlight_node", location);
+            pda.transition(location);
         } else if (id.equals("timer_fired")) {
             outOfTime = true;
         } else if (id.equals("ticket_clicked")) {
@@ -306,13 +298,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         } else if (id.equals("ticket_clicked")) {
             Ticket ticket = (Ticket) object;
             pda.transition(ticket);
-        } else if (id.equals("hint_clicked")) {
-            waitForHint = true;
-        } else if (id.equals("move_clicked")) {
-            JLabel label = (JLabel) object;
-            if (model.getCurrentPlayer().equals(Colour.Black)) {
-                threadCom.putUpdate("show_location", label);
-            }
         } else if (id.equals("save_game")) {
             if (saveGame != null) fileAccess.saveGame(saveGame);
         }
@@ -334,10 +319,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param location the actual locaton of the player.
     // @param player the colour of the player whose turn it is.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
-        //?if (replaying) threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getTruePlayerLocation(Colour.Black)));
-        //?else threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
-        threadCom.putUpdate("update_board", MoveTicket.instance(Colour.Black, null, model.getPlayerLocation(Colour.Black)));
-        updateTickets(player, null);
+        updateTickets(player);
         if (player.equals(Colour.Black) && !replaying) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
@@ -351,11 +333,12 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // Updates the UI at the end of a turn.
     // @param move the Move that has been chosen by the player.
     private void updateUI(Move move) {
+        threadCom.putUpdate("update_log", move);
+        updateTickets(move.colour);
         threadCom.putUpdate("update_board", move);
-        updateTickets(move.colour, move);
-        wait(500);
+        wait(kAnimationWait);
         Integer target = getTarget(move);
-        if (target != null && target != 0) {
+        if (!move.colour.equals(Colour.Black)) {
             threadCom.putUpdate("zoom_in", target);
             wait(kMoveWait);
         }
@@ -369,36 +352,12 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         else return null;
     }
     
-    private void updateTickets(Colour player, Move move) {
+    private void updateTickets(Colour player) {
         List<Object> newTickets = new ArrayList<Object>();
         newTickets.add(player);
         Map<Ticket, Integer> tickets = getPlayerTickets(player);
-        if (move != null) tickets = adjustTickets(tickets, move);
         newTickets.add(tickets);
         threadCom.putUpdate("update_tickets", newTickets);
-    }
-    
-    private Map<Ticket, Integer> adjustTickets(Map<Ticket, Integer> tickets, Move move) {
-        if (move instanceof MoveTicket) {
-            MoveTicket moveTicket = (MoveTicket) move;
-            Integer ticketNo = tickets.get(moveTicket.ticket);
-            tickets.remove(moveTicket.ticket);
-            tickets.put(moveTicket.ticket, --ticketNo);
-        } else if (move instanceof MoveDouble) {
-            MoveDouble moveDouble = (MoveDouble) move;
-            MoveTicket move1 = moveDouble.move1;
-            MoveTicket move2 = moveDouble.move2;
-            Integer doubleNo = tickets.get(Ticket.Double);
-            tickets.remove(Ticket.Double);
-            tickets.put(Ticket.Double, --doubleNo);
-            Integer move1No = tickets.get(move1.ticket);
-            tickets.remove(move1.ticket);
-            tickets.put(move1.ticket, --move1No);
-            Integer move2No = tickets.get(move2.ticket);
-            tickets.remove(move2.ticket);
-            tickets.put(move2.ticket, --move2No);
-        }
-        return tickets;
     }
     
     private Map<Ticket, Integer> getPlayerTickets(Colour player) {

@@ -10,7 +10,7 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
-public class ChatEventView extends JPanel implements MouseListener {
+public class ChatEventView extends JPanel {
   
     private static final long serialVersionUID = 6051734428889451747L;
   
@@ -25,7 +25,6 @@ public class ChatEventView extends JPanel implements MouseListener {
         setLayout(new BorderLayout());
         messageCount = 0;
         setOpaque(false);
-        addMouseListener(this);
         setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 20));
         
         scrollContainer = new JPanel();
@@ -72,12 +71,12 @@ public class ChatEventView extends JPanel implements MouseListener {
         g.fillRoundRect(20, 0, size.width-40, size.height+10, 10, 10);
     }
     
-    public void addMessage(boolean b) {
+    public void addMessage(Move move) {
         constraints.gridy = messageCount + 1;
         remove(spacer);
-        System.err.println(scrollContainer.getSize().width);
-        if (b) scrollContainer.add(new MessageView("This is an example of a message.", "Green Player", scrollContainer.getSize().width - 48) , constraints);
-        else scrollContainer.add(new MessageView(MoveTicket.instance(Colour.Green, Ticket.Bus, 67)) , constraints);
+        if (move instanceof MoveDouble) scrollContainer.add(new MessageView(move.colour, "Mr X played a double move:", scrollContainer.getSize().width - 48) , constraints);
+        else if (move instanceof MoveTicket) scrollContainer.add(new MessageView((MoveTicket) move) , constraints);
+        else if (move instanceof MovePass) scrollContainer.add(new MessageView(move.colour, move.colour + " Detective played a MovePass", scrollContainer.getSize().width - 48), constraints);
         messageCount++;
         constraints.gridy = messageCount + 1;
         constraints.fill = GridBagConstraints.BOTH;
@@ -93,56 +92,12 @@ public class ChatEventView extends JPanel implements MouseListener {
         vBar.setValue(vBar.getMaximum());
     }
     
-    /**
-     * Is called when a Move is clicked on. Sends an ActionEvent to the
-     * added ActionListener.
-     *
-     * @param e the MouseEvent containing the JLabel of the Move clicked on.
-     */
-    public void mouseClicked(MouseEvent e) {
-        addMessage(true);
-        addMessage(false);
-    }
-    
-    /**
-     * Unused method from the MouseListener interface.
-     * @param e the MouseEvent containing the cursor location.
-     */
-    public void mouseReleased(MouseEvent e) {}
-    
-    /**
-     * Unused method from the MouseListener interface.
-     * @param e the MouseEvent containing the cursor location.
-     */
-    public void mousePressed(MouseEvent e) {}
-    
-    /**
-     * Unused method from the MouseListener interface.
-     * @param e the MouseEvent containing the cursor location.
-     */
-    public void mouseDragged(MouseEvent e) {}
-    
-    /**
-     * Unused method from the MouseListener interface.
-     * @param e the MouseEvent containing the cursor location.
-     */
-    public void mouseEntered(MouseEvent e) {}
-    
-    /**
-     * Unused method from the MouseListener interface.
-     * @param e the MouseEvent containing the cursor location.
-     */
-    public void mouseExited(MouseEvent e) {}
-    
-    /**
-     * Unused method from the MouseListener interface.
-     * @param e the MouseEvent containing the cursor location.
-     */
-    public void mouseMoved(MouseEvent e) {}
-    
     private class MessageView extends AnimatablePanel {
+      
+        private Colour player;
         
-        public MessageView(String message, String player, int width) {
+        public MessageView(Colour player, String message, int width) {
+            this.player = player;
             setup();
             setBorder(BorderFactory.createEmptyBorder(-1, 16, 1, 4));
             
@@ -150,7 +105,7 @@ public class ChatEventView extends JPanel implements MouseListener {
             holder.setOpaque(false);
             add(holder, BorderLayout.WEST);
             
-            String text = String.format("<html><div WIDTH=%d>%s</div><html>", width, player + ": " + message);
+            String text = String.format("<html><div WIDTH=%d>%s</div><html>", width, message);
             JLabel label = new JLabel(text);
             label.setFont(Formatter.defaultFontOfSize(14));
             label.setForeground(Formatter.greyColor());
@@ -158,9 +113,10 @@ public class ChatEventView extends JPanel implements MouseListener {
         }
         
         public MessageView(MoveTicket move) {
+            
             Integer target = move.target;
             Ticket ticket = move.ticket;
-            Colour colour = move.colour;
+            this.player = move.colour;
             setup();
             setBorder(BorderFactory.createEmptyBorder(0, 16, 1, 4));
             
@@ -168,7 +124,7 @@ public class ChatEventView extends JPanel implements MouseListener {
             holder.setOpaque(false);
             add(holder, BorderLayout.WEST);
             
-            JLabel colourLabel = new JLabel(colour + " ");
+            JLabel colourLabel = new JLabel(player + " ");
             colourLabel.setFont(Formatter.defaultFontOfSize(14));
             colourLabel.setForeground(Formatter.greyColor());
             holder.add(colourLabel);
@@ -176,10 +132,12 @@ public class ChatEventView extends JPanel implements MouseListener {
             TicketIndicator ticketView = new TicketIndicator(images.get(ticket));
             holder.add(ticketView);
             
-            JLabel locationLabel = new JLabel(" " + target);
-            locationLabel.setFont(Formatter.defaultFontOfSize(14));
-            locationLabel.setForeground(Formatter.greyColor());
-            holder.add(locationLabel);
+            if (!player.equals(Colour.Black)) {
+                JLabel locationLabel = new JLabel(" " + target);
+                locationLabel.setFont(Formatter.defaultFontOfSize(14));
+                locationLabel.setForeground(Formatter.greyColor());
+                holder.add(locationLabel);
+            }
         }
         
         private void setup() {
@@ -195,7 +153,7 @@ public class ChatEventView extends JPanel implements MouseListener {
                                RenderingHints.VALUE_ANTIALIAS_ON);
             
             
-            g.setColor(new Color(25, 25, 255, 250));
+            g.setColor(Formatter.colorForPlayer(player));
             g.fillOval(2, 10, 8, 8);
         }
     }
@@ -203,10 +161,7 @@ public class ChatEventView extends JPanel implements MouseListener {
     public class ScrollBarUI extends BasicScrollBarUI {
         
         @Override
-        protected void paintTrack(Graphics g0, JComponent c, Rectangle trackBounds) {
-            
-            
-        }
+        protected void paintTrack(Graphics g0, JComponent c, Rectangle trackBounds) {}
         
         @Override
         protected void paintThumb(Graphics g0, JComponent c, Rectangle thumbBounds) {

@@ -163,7 +163,7 @@ public class GameTree implements Runnable, ActionListener {
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
         if (depth == 1) {
             //Create new layer
-            Set<Move> validMoves = ModelHelper.validSingleMoves(currentPlayer, currentState, graph);           
+            Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);           
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);

@@ -1,13 +1,11 @@
 package client.view;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * A view for displaying a text field to the user and getting it's contents when they press enter.
+ * A view for displaying a button to toggle between showing and hiding the game log.
  */
 
 public class ChatView extends JLabel implements MouseListener {
@@ -34,7 +32,7 @@ public class ChatView extends JLabel implements MouseListener {
     }
     
     /**
-     * Draws the view in the JLabel.
+     * Highlights the view if the users cursor is hovered over it.
      *
      * @param g0 the Graphics object to draw to.
      */
@@ -46,7 +44,7 @@ public class ChatView extends JLabel implements MouseListener {
     }
     
     /**
-     * Adds the specified ActionListener to receive events from all sub views.
+     * Adds the specified ActionListener to receive when the user clicks the view.
      * If listener listener is null, no action is performed.
      * 
      * @param listener the listener to be added to the view.
@@ -77,6 +75,7 @@ public class ChatView extends JLabel implements MouseListener {
     /**
      * Draws a transparent white background when the cursor
      * enters the view.
+     *
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseEntered(MouseEvent e) {
@@ -87,6 +86,7 @@ public class ChatView extends JLabel implements MouseListener {
     /**
      * Draws a transparent background when the cursor
      * enters the view.
+     *
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseExited(MouseEvent e) {
@@ -96,21 +96,28 @@ public class ChatView extends JLabel implements MouseListener {
     
     /**
      * Unused method from the MouseListener interface.
+     *
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseReleased(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
+     *
      * @param e the MouseEvent containing the cursor location.
      */
     public void mousePressed(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
+     *
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseDragged(MouseEvent e) {}
+    
     /**
      * Unused method from the MouseListener interface.
+     *
      * @param e the MouseEvent containing the cursor location.
      */
     public void mouseMoved(MouseEvent e) {}

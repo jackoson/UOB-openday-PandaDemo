@@ -10,6 +10,10 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * A view to display a sequence of Moves.
+ */
+
 public class RouteView extends ListCellView {
     
     private MainIndicator indicator;
@@ -19,6 +23,12 @@ public class RouteView extends ListCellView {
     private Move firstMove = null;
     private List<Integer> locations;
     
+    /**
+     * Constructs a new RouteView.
+     *
+     * @param moves the List of Moves to the displayed.
+     * @param fileAccess the FileAccess object containing all images.
+     */
     public RouteView(List<Move> moves, FileAccess fileAccess) {
         firstMove = moves.get(0);
         locations = new ArrayList<Integer>();
@@ -71,19 +81,29 @@ public class RouteView extends ListCellView {
         if (count > 3) {dots = new DotsHolder(); add(dots, constraints);}
     }
     
-    //Return the first move as the ListCell object
+    /**
+     * Returns the first Move as a ListCell object.
+     *
+     * @return the first Move as a ListCell object.
+     */
     @Override
     public Object object() {
         return firstMove;
     }
     
-    //Return the first move as the ListCell object
+    /**
+     * Returns the first Move as a ListCell object.
+     *
+     * @return the first Move as a ListCell object.
+     */
     @Override
     public Collection collection() {
         return locations;
     }
     
-    //Update the UI as the expand animation begins
+    /**
+     * Updates the UI when the expand animation begins.
+     */
     @Override
     public void animationBegun() {
         if (!highlighted()) {
@@ -95,7 +115,9 @@ public class RouteView extends ListCellView {
         }
     }
     
-    //Update the UI as the expand animation finishes
+    /**
+     * Updates the UI when the expand animation finishes.
+     */
     @Override
     public void animationCompleted() {
         if (highlighted()) {
@@ -107,7 +129,9 @@ public class RouteView extends ListCellView {
         }
     }
     
-    //Update the Ui as the cell is seleced or deselected
+    /**
+     * Updates the UI when the cell is seleced or deselected.
+     */
     @Override
     public void setSelected(boolean selected) {
         super.setSelected(selected);
@@ -121,7 +145,11 @@ public class RouteView extends ListCellView {
         indicator.setSelected(selected);
     }
     
-    //Draw background and shadow
+    /**
+     * Draws the background and shadow.
+     *
+     * @param g0 the Graphics object to draw to.
+     */
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -137,13 +165,18 @@ public class RouteView extends ListCellView {
         g.fillRoundRect(1, 3, size.width-2, size.height - 6, 10, 10);
     }
     
-    //The leftmost indicator, holding an image and a divider
+    // A view to display the leftmost indicator, holding an image and a divider
     private class MainIndicator extends JPanel {
       
         private JPanel divider;
         private boolean selected = false;
         private boolean highlighted = false;
         
+        /**
+         * Constructs a MainIndicator object.
+         *
+         * @param ticket the TicketIndicator to display.
+         */
         public MainIndicator(TicketIndicator ticket) {
             setOpaque(false);
             setLayout(new GridBagLayout());
@@ -165,16 +198,31 @@ public class RouteView extends ListCellView {
             add(divider, constraints);
         }
         
+        /**
+         * Makes the divider visible (when the cell is expanded).
+         *
+         * @param visible the boolean that decides whether the divider is visible.
+         */
         public void setDividerVisible(boolean visible) {
             if (visible) divider.setBackground(Formatter.greyColor());
             else divider.setBackground(new Color(255, 255, 255, 0));
         }
         
+        /**
+         * Sets the view as selected.
+         *
+         * @param selected the boolean that decides whether the view is selected.
+         */
         public void setSelected(boolean selected) {
             this.selected = selected;
             setHighlighted(highlighted);
         }
         
+        /**
+         * Sets the view as highlighted.
+         *
+         * @param highlighted the boolean that decides whether the view is highlighted.
+         */
         public void setHighlighted(boolean highlighted) {
             this.highlighted = highlighted;
             
@@ -186,7 +234,7 @@ public class RouteView extends ListCellView {
         
     }
     
-    //Panel to hold a TicketIndicator and LocationIndicator, representing a move
+    // A view to hold a TicketIndicator and LocationIndicator, representing a Move.
     private class MoveIndicator extends JPanel {
       
         private GridBagConstraints constraints;
@@ -194,6 +242,12 @@ public class RouteView extends ListCellView {
         private JPanel spacer;
         private LocationIndicator location;
         
+        /**
+         * Constructs a new MoveIndicator object.
+         *
+         * @param image the image of the Ticket to be displayed.
+         * @param loc the integer to be displayed alongside the Ticket.
+         */
         public MoveIndicator(BufferedImage image, Integer loc) {
             setOpaque(false);
             setMinimumSize(new Dimension(28, 44));
@@ -211,7 +265,11 @@ public class RouteView extends ListCellView {
             add(location, constraints);
         }
         
-        //Function for re-add panels depending on the highlight state
+        /**
+         * Re-adds panels depending on the highlight state.
+         *
+         * @param highlighted the boolean that decides whether to re-add panels.
+         */
         public void setHighlighted(boolean highlighted) {
             removeAll();
             if (highlighted) {
@@ -224,24 +282,38 @@ public class RouteView extends ListCellView {
             add(location, constraints);
         }
         
+        /**
+         * Sets the view as selected.
+         *
+         * @param selected the boolean that decides whether the view is selected.
+         */ 
         public void setSelected(boolean selected) {
             location.setSelected(selected);
         }
         
     }
     
-    //Panel to display a ticket image
+    // A view to display a ticket image.
     private class TicketIndicator extends AnimatablePanel {
       
         private BufferedImage image;
         
+        /**
+         * Constructs a new TicketIndicator object.
+         *
+         * @param image the image of the Ticket to be displayed.
+         */
         public TicketIndicator(BufferedImage image) {
             setOpaque(false);
             setPreferredSize(new Dimension(20, 14));
             this.image = image;
         }
         
-        //Draw ticket image
+        /**
+         * Draws the Ticket image.
+         *
+         * @param g0 the Graphics object to draw to.
+         */
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;
@@ -254,11 +326,16 @@ public class RouteView extends ListCellView {
         
     }
     
-    //Panel to display number that represents a location
+    // A view to display number that represents a location.
     private class LocationIndicator extends JPanel {
       
         private JLabel label;
         
+        /**
+         * Constructs a new LocationIndicator object.
+         *
+         * @param number the number to be displayed.
+         */
         public LocationIndicator(int number) {
             setPreferredSize(new Dimension(28, 14));
             setOpaque(false);
@@ -271,6 +348,11 @@ public class RouteView extends ListCellView {
             add(label, BorderLayout.NORTH);
         }
         
+        /**
+         * Sets the view as selected.
+         *
+         * @param selected the boolean that decides whether the view is selected.
+         */
         public void setSelected(boolean selected) {
             if (selected) label.setForeground(Color.WHITE);
             else label.setForeground(new Color(100, 100, 100));
@@ -278,12 +360,15 @@ public class RouteView extends ListCellView {
         
     }
     
-    //Holder for an indicator that sits between moves
+    // A view that contains an indicator that sits between Moves.
     private class ArrowHolder extends JPanel {
       
         private Polygon triangle;
         private boolean selected = false;
         
+        /**
+         * Constructs a new ArrowHolder object.
+         */
         public ArrowHolder() {
             setOpaque(false);
             setMinimumSize(new Dimension(8, 10));
@@ -294,10 +379,20 @@ public class RouteView extends ListCellView {
             triangle = new Polygon(xPoly, yPoly, xPoly.length);
         }
         
+        /**
+         * Sets the view as selected.
+         *
+         * @param selected the boolean that decides whether the view is selected.
+         */
         public void setSelected(boolean selected) {
             this.selected = selected;
         }
         
+        /**
+         * Draws the arrow in the view.
+         *
+         * @param g0 the Graphics object to draw to.
+         */
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;
@@ -312,20 +407,33 @@ public class RouteView extends ListCellView {
         
     }
     
-    //Holder for an indicator if there are extra items that cannot be displayed
+    // A view that contains an indicator if there are extra items that cannot be displayed.
     private class DotsHolder extends JPanel {
       
         private boolean selected = false;
         
+        /**
+         * Constructs a new DotsHolder object.
+         */
         public DotsHolder() {
             setOpaque(false);
             setMinimumSize(new Dimension(10, 10));
         }
         
+        /**
+         * Sets the view as selected.
+         *
+         * @param selected the boolean that decides whether the view is selected.
+         */
         public void setSelected(boolean selected) {
             this.selected = selected;
         }
         
+        /**
+         * Draws the dots to the view.
+         *
+         * @param g0 the Graphics object to draw to.
+         */
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;

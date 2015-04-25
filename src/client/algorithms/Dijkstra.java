@@ -51,7 +51,7 @@ public class Dijkstra {
         Map<Node<Integer>, Double> unvisitedNodes = new HashMap<Node<Integer>, Double>();
         Map<Node<Integer>, Double> distances = new HashMap<Node<Integer>, Double>();
         Map<Node<Integer>, Node<Integer>> previousNodes = new HashMap<Node<Integer>, Node<Integer>>();
-        Node<Integer> currentNode = getNode(start);
+        Node<Integer> currentNode = graph.getNode(start);
         
         for (Node<Integer> node : nodes) {
             if (!currentNode.data().equals(node.data())) {
@@ -105,8 +105,8 @@ public class Dijkstra {
         Double currentDistance = distances.get(currentNode);
         for (Edge<Integer, Route> e : edges) {
             //For all neighbours
-            Node<Integer> neighbour = getNode(e.source());
-            if (neighbour.data().equals(currentNode.data())) neighbour = getNode(e.target());
+            Node<Integer> neighbour = graph.getNode(e.source());
+            if (neighbour.data().equals(currentNode.data())) neighbour = graph.getNode(e.target());
             if (unvisitedNodes.get(neighbour) != null) {
                 Route route = e.data();
                 Integer numTickets = tickets.get(route);
@@ -137,20 +137,6 @@ public class Dijkstra {
             }
         }
         return minNode;
-    }
-    
-    // Returns the node in the graph with the given location.
-    // Returns null if there is no node in the graph.
-    // Needed as supplied code is incorrect.
-    // @param id the location of the node to be found.
-    // @return the node in the graph with the given location.
-    private Node<Integer> getNode(Integer id) {
-        for (Node<Integer> node : nodes) {
-            if (node.data().equals(id)) {
-              return node;
-            }
-        }
-        return null;
     }
     
 }

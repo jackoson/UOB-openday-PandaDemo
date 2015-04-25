@@ -97,11 +97,12 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     }
     
     /**
-     * For the constructor for the multiplayer game, we need this:
-     *    - this.guiPlayers = new ArrayList<Colour>();
-     *    - add all AI players to the List
-     *    - model.spectate(this);
-     * This will update the UI when an AI player makes a Move.
+     * Constructs a networked ScotlandYardGame without a game save.
+     *
+     * @param model the ScotlandYardView that controls the game.
+     * @param graphName the path to the graph file.
+     * @param threadCom the ThreadCommunicator object to 
+     * communicate between Threads.
      */
     public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
         try {
@@ -140,6 +141,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
     }
     
+    // Returns the List of GamePlayer objects that contain all
+    // of the information about the players who are currently in the game.
+    // @return the List of GamePlayer objects that contain all 
+    // of the information about the players who are currently in the game.
     private List<GamePlayer> getPlayers() {
         if (players == null) {
             List<GamePlayer> playerList = new ArrayList<GamePlayer>();
@@ -218,7 +223,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     
     /**
      * Returns the Move chosen by the player.
-     * Also updates the views.
+     * Also updates the views for the start of a Move.
      * 
      * @param location the actual location of the player.
      * @param moves the List of valid Moves the player can take.
@@ -270,6 +275,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     
     /**
      * Updates the UI after a move has been made.
+     *
+     * @param move the Move that has been made.
      */
     public void notify(Move move) {
         if (move instanceof MoveTicket) {
@@ -318,6 +325,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // Updates the UI at the start of a turn.
     // @param location the actual locaton of the player.
     // @param player the colour of the player whose turn it is.
+    // @param moves the Set of valid Moves the player can make.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
         updateTickets(player);
         if (player.equals(Colour.Black) && !replaying) {
@@ -331,7 +339,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     }
     
     // Updates the UI at the end of a turn.
-    // @param move the Move that has been chosen by the player.
+    // @param move the Move that has been played.
     private void updateUI(Move move) {
         threadCom.putUpdate("update_log", move);
         updateTickets(move.colour);
@@ -346,35 +354,30 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         wait(kMoveWait);
     }
     
+    // Returns the target of a Move.
+    // @param move the Move for which to return the target.
+    // @return the target of a Move.
     private Integer getTarget(Move move) {
         if (move instanceof MoveTicket) return ((MoveTicket) move).target;
         else if (move instanceof MoveDouble) return ((MoveTicket) ((MoveDouble) move).move2).target;
         else return null;
     }
     
+    // Updates the PlayerTicketView with the current players Tickets.
+    // @param player the player for whom the PlayerTicketView should update.
     private void updateTickets(Colour player) {
         List<Object> newTickets = new ArrayList<Object>();
         newTickets.add(player);
-        Map<Ticket, Integer> tickets = getPlayerTickets(player);
+        Map<Ticket, Integer> tickets = ModelHelper.getTickets(player, model);
         newTickets.add(tickets);
         threadCom.putUpdate("update_tickets", newTickets);
     }
     
-    private Map<Ticket, Integer> getPlayerTickets(Colour player) {
-        Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
-        tickets.put(Ticket.Taxi, model.getPlayerTickets(player, Ticket.Taxi));
-        tickets.put(Ticket.Bus, model.getPlayerTickets(player, Ticket.Bus));
-        tickets.put(Ticket.Underground, model.getPlayerTickets(player, Ticket.Underground));
-        tickets.put(Ticket.Secret, model.getPlayerTickets(player, Ticket.Secret));
-        tickets.put(Ticket.Double, model.getPlayerTickets(player, Ticket.Double));
-        return tickets;
-    }
-    
-    // Pauses the game thread for the specified time in miliseconds.
-    // @param miliseconds the time to pause the game thread for.
-    private void wait(int miliseconds) {
+    // Pauses the game thread for the specified time in milliseconds.
+    // @param milliseconds the time to pause the game thread for.
+    private void wait(int milliseconds) {
         try {
-            Thread.sleep(miliseconds);
+            Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
             System.err.println(e.getStackTrace());
         }

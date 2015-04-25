@@ -83,7 +83,16 @@ public class TimerView extends JPanel implements ActionListener {
     }
     
     /**
-     * Adds the specified ActionListener to recieve when the timer has run out.
+     * Sets the max time for the timer in seconds.
+     *
+     * @param maxTime the max time for the timer.
+     */
+    public void setMaxTime(int maxTime) {
+        this.maxTime = maxTime;
+    }
+    
+    /**
+     * Adds the specified ActionListener to receive when the timer has run out.
      * If listener listener is null, no action is performed.
      * 
      * @param listener the listener to be added to the view.

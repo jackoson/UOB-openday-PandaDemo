@@ -225,12 +225,11 @@ public class FileAccess {
             System.exit(1);
         }
         
-        //Create save folder
+        //Create save folder if it doesn't already exist.
         File dir = new File (jarPath() + "/SavedGames/");
         if (!dir.exists()) {
             try {
                 dir.mkdir();
-                System.err.println(jarPath() + "/SavedGames/");
             } catch (SecurityException e) {
                 System.err.println(e);
             }

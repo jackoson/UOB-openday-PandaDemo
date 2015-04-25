@@ -27,6 +27,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private ThreadCommunicator threadCom;
     private JPanel container;
     
+    private final int kNormalTimer = 260;
+    
     /**
      * Is the entry point for the game.
      *
@@ -102,7 +104,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         if (e.getActionCommand().equals("startGame")) {
             if(validGameName(setUpView.newGameName())) {
                 threadCom = new ThreadCommunicator();
-                beginGame();
+                beginGame(kNormalTimer);
                 newGame();
             } else {
                 JOptionPane.showMessageDialog(null, "Game name must be at least " +
@@ -112,7 +114,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (e.getActionCommand().equals("loadGame")) {
             if (setUpView.loadFilePath() != null) {
                 threadCom = new ThreadCommunicator();
-                beginGame();
+                beginGame(kNormalTimer);
                 loadGame();
             }
         } else if (e.getActionCommand().equals("joinGame")) {
@@ -126,10 +128,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 String hostname = "localhost";
                 //int port = Integer.parseInt(setUpView.joinPort());
                 int port = 8122;
-                
-                //GeneHuntFactory factory = new GeneHuntFactory(this, threadCom);
-                //PlayerClient client = new PlayerClient(hostname, port, studentIds, factory);
-                //Thread.sleep(1000);
+                // Starts the GeneHuntPlayerFactory and PlayerClient on a new Thread.
                 new Thread(new ScotlandYardAIGame(this, threadCom, hostname, port, studentIds)).start();
             } catch (Exception exc) {
                 System.err.println("Error joining game :" + exc);
@@ -150,23 +149,32 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         return (!containsHash) && (!containsBackslash) && (!containsForwardSlash);
     }
     
-    // Starts a new ScotlandYardGame.
-    // Starts the game and the views in new threads.
-    public void beginGame() {
+    /**
+     * Updates the ThreadCommunicator object used by the GameView.
+     * Then displays the GameView and hides the SetUpView.
+     * 
+     * @param timerTime the max time for the Timer in the TimerView.
+     */
+    public void beginGame(int timerTime) {
+        gameView.setTimerMaxTime(timerTime);
         gameView.setThreadCom(threadCom);
         CardLayout cl = (CardLayout) container.getLayout();
         cl.next(container);
         new Thread(this).start();
     }
     
+    /**
+     * Starts a the specified ScotlandYardGame in a new Thread.
+     *
+     * @param game the ScotlandYardGame to be started in a new Thread.
+     */
     public void newAIGame(ScotlandYardGame game) {
-        // Start a new AI game here.
         this.game = game;
         new Thread(game).start();
         
     }
     
-    // Starts a new game in a new Thread.
+    // Starts a new ScotlandYardGame in a new Thread.
     private void newGame() {
         int playerNo = setUpView.newPlayers();
         String gameName = setUpView.newGameName();
@@ -174,13 +182,13 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         new Thread(game).start();
     }
 
-    // Loads a previously played game in a new Thread.
+    // Loads a previously played ScotlandYardGame in a new Thread.
     private void loadGame() {
         game = new ScotlandYardGame(setUpView.loadFilePath(), threadCom);
         new Thread(game).start();
     }
     
-    // Removes the gameview and shows the setup view
+    // Removes the GameView and shows the SetUpView view
     public void endGame() {
         gameView.setThreadCom(null);
         game = null;
@@ -208,7 +216,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     }
     
     // Decodes the id of the update and acts accordingly.
-    // The 'empty loop technique' are so if the List does not only 
+    // The 'empty loop technique' is used so that if the List does not only 
     // contain GamePlayer objects an exception will be thrown near to the cause.
     // @param id the id of the update.
     // @param object the object associated with the id.
@@ -265,7 +273,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             Move move = (Move) object;
             gameView.updateLog(move);
         }
-        
     }
     
     /**

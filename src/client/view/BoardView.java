@@ -69,7 +69,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * @param e the ComponentEvent when the container size changes.
      */
     public void updateDisplay(ComponentEvent e) {
-        //?
         Dimension size = getSize();
         if (scaleFactor != 1.0) scaleFactor = fitScaleFactor(size);
         viewPos = adjustForBounds(viewPos);
@@ -172,7 +171,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     }
     
     /**
-     * Highlists a node or removes highlight if location
+     * Highlights a node or removes highlight if location
      * equals zero.
      *
      * @param location the location of the node to be
@@ -190,11 +189,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      */
     public void zoomToNode(Integer location) {
         Point loc = tree.getNodeLocation(location);
-        zoomToCoordinates(loc.x, loc.y, true);
-    }
-    
-    public void zoomToPlayer(Colour player) {
-        Point loc = locations.get(player);
         zoomToCoordinates(loc.x, loc.y, true);
     }
     
@@ -274,7 +268,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         animators.clear();
     }
     
-    // Zooms the map and centers the coordinates in the view.?
+    // Zooms the map and centers the coordinates in the view.
     // @param xPos the x coordinate to be the center of the view.
     // @param yPos the y coordinate to be the center of the view.
     // @param zoomedIn whether we want to zoom in or out.
@@ -306,6 +300,9 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         boardAnimator = new BoardAnimator(scaleAnimator, xAnimator, yAnimator);
     }
     
+    /**
+     * Updates the position and scaleFactor of the board when it's being animated.
+     */
     private void updateAnimatedBoard() {
         if (boardAnimator == null) return;
         scaleFactor = boardAnimator.scaleAnimator.value();
@@ -313,7 +310,9 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         viewPos.y = boardAnimator.yAnimator.value().intValue();
     }
     
-    //?
+    // Returns the scaleFactor of the map so it fits in the window.
+    // @param size the size of the window.
+    // @return the scaleFactor of the map so it fits in the window.
     private double fitScaleFactor(Dimension size) {
         double mapRatio = mapSize.getWidth() / mapSize.getHeight();
         double viewRatio = size.getWidth() / (size.getHeight() - 40);
@@ -322,7 +321,9 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         else return size.getWidth() / (mapSize.getWidth() - border);//
     }
     
-    //?
+    // Returns an adjusted Point so the map can never be panned off the screen.
+    // @param point the Point to be adjusted.
+    // @return an adjusted Point so the map can never be panned off the screen.
     private Point adjustForBounds(Point point) {
         Dimension size = getSize();
         int xDiff = (int)((mapSize.getWidth() * scaleFactor) - size.getWidth());
@@ -345,18 +346,20 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         return point;
     }
     
-    //?
+    // Returns the scaled version of a pixel coordinate.
+    // @return the scaled version of a pixel coordinate.
     private int scalePoint(int pos) {
-        return (int)((double)pos / scaleFactor) - halfBorder;//
+        return (int)((double)pos / scaleFactor) - halfBorder;
     }
     
-    //?
+    // Returns the unscaled version of a pixel coordinate.
+    // @return the unscaled version of a pixel coordinate.
     private int unscalePoint(int pos) {
-        return (int)((double)(pos + halfBorder) * scaleFactor);//
+        return (int)((double)(pos + halfBorder) * scaleFactor);
     }
     
     /**
-     * Adds the specified ActionListener to recieve when the user clicks on a node.
+     * Adds the specified ActionListener to receive when the user clicks on a node.
      * If listener listener is null, no action is performed.
      * 
      * @param listener the listener to be added to the view.
@@ -419,12 +422,11 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      */
     public void mouseDragged(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            //Scale offset and apply to viewpos
             int offsetX = e.getX() - mouseDownPos.x;
             int offsetY = e.getY() - mouseDownPos.y;
-            viewPos.x = mouseDownViewPos.x - offsetX;//might want to scale viewpos as well
+            viewPos.x = mouseDownViewPos.x - offsetX;
             viewPos.y = mouseDownViewPos.y - offsetY;
-            viewPos = adjustForBounds(viewPos);//?
+            viewPos = adjustForBounds(viewPos);
             repaint();
         }
     }

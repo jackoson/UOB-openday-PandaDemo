@@ -10,6 +10,10 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
+/**
+ * A view to display the game log.
+ */
+
 public class ChatEventView extends JPanel {
   
     private static final long serialVersionUID = 6051734428889451747L;
@@ -21,6 +25,11 @@ public class ChatEventView extends JPanel {
     private int messageCount;
     private Map<Ticket, BufferedImage> images;
     
+    /**
+     * Constructs a new ChatEventView object.
+     *
+     * @param fileAccess the FileAccess object that contains the images.
+     */
     public ChatEventView(FileAccess fileAccess) {
         setLayout(new BorderLayout());
         messageCount = 0;
@@ -55,6 +64,11 @@ public class ChatEventView extends JPanel {
         images = fileAccess.getTicketsSmall();
     }
     
+    /**
+     * Draws the background of the view.
+     *
+     * @param g0 the Graphics object to draw to.
+     */
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -71,6 +85,11 @@ public class ChatEventView extends JPanel {
         g.fillRoundRect(20, 0, size.width-40, size.height+10, 10, 10);
     }
     
+    /**
+     * Adds a message to the view.
+     *
+     * @param move the Move containing the information to be displayed in the message.
+     */
     public void addMessage(Move move) {
         constraints.gridy = messageCount + 1;
         remove(spacer);
@@ -92,10 +111,18 @@ public class ChatEventView extends JPanel {
         vBar.setValue(vBar.getMaximum());
     }
     
+    // A view to display a message.
     private class MessageView extends AnimatablePanel {
       
         private Colour player;
         
+        /**
+         * Constructs a new MessageView object.
+         *
+         * @param player the Colour of the player to whom this message relates.
+         * @param message the message to be displayed.
+         * @param width the width of the message in pixels.
+         */
         public MessageView(Colour player, String message, int width) {
             this.player = player;
             setup();
@@ -112,6 +139,11 @@ public class ChatEventView extends JPanel {
             holder.add(label);
         }
         
+        /**
+         * Constructs a new MessageView object.
+         *
+         * @param move the MoveTicket to be displayed in the message.
+         */
         public MessageView(MoveTicket move) {
             
             Integer target = move.target;
@@ -140,11 +172,17 @@ public class ChatEventView extends JPanel {
             }
         }
         
+        // Sets up the view.
         private void setup() {
             setOpaque(false);
             setLayout(new BorderLayout());
         }
         
+        /**
+         * Draws the circle to the left of the message.
+         *
+         * @param g0 the Graphics object to draw to.
+         */
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;
@@ -158,6 +196,7 @@ public class ChatEventView extends JPanel {
         }
     }
     
+    // A class to style the scroll bars.
     public class ScrollBarUI extends BasicScrollBarUI {
         
         @Override
@@ -193,18 +232,29 @@ public class ChatEventView extends JPanel {
         }
     }
     
-    //Panel to display a ticket image
+    // A view to display a ticket image
     private class TicketIndicator extends AnimatablePanel {
+        
+        private static final long serialVersionUID = 6013008457601185508L;
         
         private BufferedImage image;
         
+        /**
+         * Constructs a new TicketIndicator object.
+         *
+         * @param image the image to be displayed.
+         */
         public TicketIndicator(BufferedImage image) {
             setOpaque(false);
             setPreferredSize(new Dimension(20, 14));
             this.image = image;
         }
         
-        //Draw ticket image
+        /**
+         * Draws the image.
+         *
+         * @param g0 the Graphics object to draw to.
+         */
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;

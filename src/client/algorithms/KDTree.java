@@ -11,6 +11,7 @@ import java.util.*;
  */
 
 public class KDTree {
+  
     boolean debug = false;
   
     private TreeNode treeRoot = null;
@@ -19,7 +20,7 @@ public class KDTree {
     /**
      * Constructs a new KDTree object with the positions in the file passed in.
      * 
-     * @param path the path to the text file containg the pixel positions of 
+     * @param path the path to the text file containing the pixel positions of 
      * the nodes in the map.
      */
     public KDTree(String path) {

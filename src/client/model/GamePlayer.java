@@ -31,6 +31,11 @@ public class GamePlayer {
         this.tickets = tickets;
     }
     
+    /**
+     * Constructs a new GamePlayer object from an existing one.
+     * It clones the existing one so they only share the same
+     * Player and Colour objects.
+     */
     public GamePlayer(GamePlayer player) {
         this.player = player.player();
         this.colour = player.colour();

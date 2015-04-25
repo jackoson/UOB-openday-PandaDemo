@@ -172,19 +172,6 @@ public class ScotlandYardModel extends ScotlandYard {
         if (player.colour().equals(Colour.Black)) return mrXLocation;
         else return player.location();
     }
-    
-    /**
-     * Returns the players true location regardless of 
-     * if it is Mr X.
-     *
-     * @param colour the player colour.
-     * @return the players true location regardless of
-     * if it is Mr X.
-     */
-    public int getTruePlayerLocation(Colour colour) {
-        GamePlayer player = getPlayer(colour);
-        return player.location();
-    }
 
     @Override
     public int getPlayerTickets(Colour colour, Ticket ticket) {

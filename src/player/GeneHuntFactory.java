@@ -28,12 +28,14 @@ public class GeneHuntFactory implements PlayerFactory {
     private ScotlandYardGame gui;
     private ScotlandYardApplication application;
     private ThreadCommunicator threadCom;
+    private GameTree gameTree;
     
     private final int kTimerTime = 15;
 
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom) {
         this.application = application;
         this.threadCom = threadCom;
+        this.gameTree = new GameTree();
         
         typeMap = new HashMap<Colour, PlayerType>();
         typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.GUI);
@@ -57,11 +59,11 @@ public class GeneHuntFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
             case AI:
-                return new GeneHunt(view, graphFilename);
+                return new GeneHunt(view, graphFilename, gameTree);
             case GUI:
                 return gui(view);
             default:
-                return new GeneHunt(view, graphFilename);
+                return new GeneHunt(view, graphFilename, gameTree);
         }
     }
 
@@ -78,6 +80,7 @@ public class GeneHuntFactory implements PlayerFactory {
     public List<Spectator> getSpectators(ScotlandYardView view) {
         List<Spectator> specs = new ArrayList<Spectator>();
         specs.add(gui(view));
+        specs.add(gameTree);
         return specs;
     }
 

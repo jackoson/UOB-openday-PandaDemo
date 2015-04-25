@@ -11,7 +11,7 @@ import java.io.*;
 import java.awt.event.*;
 import javax.swing.Timer;
 
-public class GameTree implements Runnable, ActionListener {
+public class GameTree implements Runnable, ActionListener, Spectator {
     
     private ThreadCommunicator threadCom;
     private Graph<Integer, Route> graph;
@@ -20,7 +20,7 @@ public class GameTree implements Runnable, ActionListener {
     
     private List<Boolean> rounds;
     private Integer round;
-    private GamePlayer currentPlayer;
+    private Colour currentPlayer;
     private List<GamePlayer> players;
     public static final int kMaxDepth = 6;
     private int depth;
@@ -87,7 +87,7 @@ public class GameTree implements Runnable, ActionListener {
             PageRank testPageRank = new PageRank(testGraph);
             testPageRank.iterate(100);
             GameTree gameTree = new GameTree();
-            gameTree.calculateTree(null, testGraph, testPageRank, dijkstra, players, rounds, 0, players.get(0));
+            gameTree.startTree(null, testGraph, testPageRank, dijkstra, players, rounds, 0, players.get(0));
         } catch (Exception e) {
             System.err.println("Error running alpha-beta pruning test :" + e);
             e.printStackTrace();
@@ -101,7 +101,7 @@ public class GameTree implements Runnable, ActionListener {
         this.pageRank = pageRank;
         this.routeFinder = routeFinder;
         this.players = players;
-        this.currentPlayer = currentPlayer;
+        this.currentPlayer = currentPlayer.colour();
         this.rounds = rounds;
         this.round = round;
     }
@@ -111,12 +111,12 @@ public class GameTree implements Runnable, ActionListener {
         
     }
     
-    public void calculateTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
+    public void startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.threadCom = threadCom;
         tree = new GameTree(threadCom, graph, pageRank, routeFinder, players, rounds, round, currentPlayer);
         new Thread(tree).start();
         System.err.println("Timer started");
-        timer = new Timer(300000, this);
+        timer = new Timer(15000, this);
         timer.start();
     }
     
@@ -134,12 +134,12 @@ public class GameTree implements Runnable, ActionListener {
     
     public void run() {
         root = new TreeNode(players, null);
-        iterate = true;//need to stop alphabeta when iterate cahnges
+        iterate = true;//need to stop alphabeta when iterate changes
         moves = new ArrayList<Move>();
         
         int i = 1;
         while (iterate) {
-            double bestScore = alphaBeta(root, round, currentPlayer.colour(), players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            double bestScore = alphaBeta(root, round, currentPlayer, players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             moves = createMoves();
             i++;
         }
@@ -154,6 +154,27 @@ public class GameTree implements Runnable, ActionListener {
             n = n.bestChild;
         }
         return moves;
+    }
+    
+    
+    @Override
+    public void notify(Move move) {
+        System.err.println("Pruning of move " + move + " successful:" + pruneTree(move));
+    }
+    
+    public boolean pruneTree(Move move) {
+        if (root == null) return false;
+        for (TreeNode n : root.children) {
+            if (n.move.equals(move)) {
+                root = n;
+                round++;//?
+                currentPlayer = move.colour;
+                players = n.players;
+                return true;
+            }
+        }
+        return false;
+        
     }
 
     private double alphaBeta(TreeNode node, int round, Colour currentPlayerColour, List<GamePlayer> currentState, int depth, double alpha, double beta) {

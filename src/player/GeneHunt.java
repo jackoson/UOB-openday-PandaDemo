@@ -24,8 +24,9 @@ public class GeneHunt implements Player {
     private GameTree gameTree;
     private List<Move> moveList;
     private ThreadCommunicator threadCom;
+    private boolean first = true;
     
-    public GeneHunt(ScotlandYardView view, String graphFilename) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, GameTree gameTree) {
         //TODO: A better AI makes use of `view` and `graphFilename`.
         try {
             this.threadCom = new ThreadCommunicator();
@@ -34,7 +35,7 @@ public class GeneHunt implements Player {
             this.graph = graphReader.readGraph(graphFilename);
             this.dijkstra = new Dijkstra(graphFilename);
             this.pageRank = new PageRank(graph);
-            this.gameTree = new GameTree();
+            this.gameTree = gameTree;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
             e.printStackTrace();
@@ -46,9 +47,13 @@ public class GeneHunt implements Player {
     @Override
     public Move notify(int location, Set<Move> moves) {
         //TODO: Some clever AI here ...
-        Colour currentPlayer = getCurrentPlayer(moves);
-        List<GamePlayer> players = getPlayers(location, currentPlayer);
-        gameTree.calculateTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(currentPlayer, players));
+        if (first) {
+            Colour currentPlayer = getCurrentPlayer(moves);
+            List<GamePlayer> players = getPlayers(location, currentPlayer);
+            gameTree.startTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(currentPlayer, players));
+            first = false;
+        }
+        
         while (true) {
             try {
                 String id = (String)threadCom.takeEvent();

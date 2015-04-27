@@ -57,11 +57,11 @@ public class GeneHuntFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
             case AI:
-                return new GeneHunt(view, graphFilename);
+                return new GeneHunt(view, graphFilename, threadCom);
             case GUI:
                 return gui(view);
             default:
-                return new GeneHunt(view, graphFilename);
+                return new GeneHunt(view, graphFilename, threadCom);
         }
     }
 

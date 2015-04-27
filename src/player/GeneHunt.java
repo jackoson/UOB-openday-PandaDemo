@@ -24,8 +24,9 @@ public class GeneHunt implements Player {
     private GameTree gameTree;
     private List<Move> moveList;
     private ThreadCommunicator threadCom;
+    private ThreadCommunicator guiThreadCom;
     
-    public GeneHunt(ScotlandYardView view, String graphFilename) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom) {
         //TODO: A better AI makes use of `view` and `graphFilename`.
         try {
             this.threadCom = new ThreadCommunicator();
@@ -35,6 +36,7 @@ public class GeneHunt implements Player {
             this.dijkstra = new Dijkstra(graphFilename);
             this.pageRank = new PageRank(graph);
             this.gameTree = new GameTree();
+            this.guiThreadCom = guiThreadCom;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
             e.printStackTrace();
@@ -46,6 +48,10 @@ public class GeneHunt implements Player {
     @Override
     public Move notify(int location, Set<Move> moves) {
         //TODO: Some clever AI here ...
+        guiThreadCom.putUpdate("reset_timer", true);
+        Colour player = moves.iterator().next().colour;
+        guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayer(player) + "'s Move");
+        updateTickets(player);
         Colour currentPlayer = getCurrentPlayer(moves);
         List<GamePlayer> players = getPlayers(location, currentPlayer);
         gameTree.calculateTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(currentPlayer, players));
@@ -63,6 +69,21 @@ public class GeneHunt implements Player {
             }
         }
         return moveList.get(0);
+    }
+    
+    private String getPlayer(Colour player) {
+        if (player.equals(Colour.Black)) return "Mr X";
+        else return "the " + player.toString() + " Detective";
+    }
+    
+    // Updates the PlayerTicketView with the current players Tickets.
+    // @param player the player for whom the PlayerTicketView should update.
+    private void updateTickets(Colour player) {
+        List<Object> newTickets = new ArrayList<Object>();
+        newTickets.add(player);
+        Map<Ticket, Integer> tickets = ModelHelper.getTickets(player, view);
+        newTickets.add(tickets);
+        guiThreadCom.putUpdate("update_tickets", newTickets);
     }
     
     private Colour getCurrentPlayer(Set<Move> moves) {

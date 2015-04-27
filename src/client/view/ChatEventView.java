@@ -93,9 +93,9 @@ public class ChatEventView extends JPanel {
     public void addMessage(Move move) {
         constraints.gridy = messageCount + 1;
         remove(spacer);
-        if (move instanceof MoveDouble) scrollContainer.add(new MessageView(move.colour, "Mr X played a double move:", scrollContainer.getSize().width - 48) , constraints);
+        if (move instanceof MoveDouble) scrollContainer.add(new MessageView(move.colour, "Mr X played a double move:", 180), constraints);
         else if (move instanceof MoveTicket) scrollContainer.add(new MessageView((MoveTicket) move) , constraints);
-        else if (move instanceof MovePass) scrollContainer.add(new MessageView(move.colour, move.colour + " Detective played a MovePass", scrollContainer.getSize().width - 48), constraints);
+        else if (move instanceof MovePass) scrollContainer.add(new MessageView(move.colour, move.colour + " Detective played a MovePass", 180), constraints);
         messageCount++;
         constraints.gridy = messageCount + 1;
         constraints.fill = GridBagConstraints.BOTH;

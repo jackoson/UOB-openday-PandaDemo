@@ -152,7 +152,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         Set<Colour> winningPlayers = model.getWinningPlayers();
         sendNotification(getWinningMessage(winningPlayers));
         wait(5000);
-        threadCom.putUpdate("end_game", true);
+        if (!aiGame) threadCom.putUpdate("end_game", true);
         threadCom.putUpdate("clear_log", true);
     }
     
@@ -339,13 +339,13 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param moves the Set of valid Moves the player can make.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
         updateTickets(player);
-        if (player.equals(Colour.Black) && !replaying) {
+        if (player.equals(Colour.Black) && !replaying && !aiGame) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
         }
+        threadCom.putUpdate("reset_timer", true);
         threadCom.putUpdate("valid_moves", moves);
         threadCom.putUpdate("zoom_in", location);
-        threadCom.putUpdate("reset_timer", true);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
     }
     
@@ -356,14 +356,16 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         threadCom.putUpdate("update_log", move);
         updateTickets(move.colour);
         threadCom.putUpdate("update_board", move);
-        wait(kAnimationWait);
-        Integer target = getTarget(move);
-        if (!move.colour.equals(Colour.Black)) {
-            threadCom.putUpdate("zoom_in", target);
-            wait(kMoveWait);
+        if (!aiGame) {
+            wait(kAnimationWait);
+            Integer target = getTarget(move);
+            if (!move.colour.equals(Colour.Black)) {
+                threadCom.putUpdate("zoom_in", target);
+                wait(kMoveWait);
+            }
         }
         threadCom.putUpdate("zoom_out", true);
-        wait(kMoveWait);
+        if (!aiGame) wait(kMoveWait);
     }
     
     // Returns the target of a Move.

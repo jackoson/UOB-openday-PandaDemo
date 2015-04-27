@@ -74,8 +74,7 @@ public class JudgeService {
 
         // This sets up a new judge with the given gameId, and that
         // will wait 15000 milliseconds between each move.
-        /*CHANGE BACK TO 15000 ms*/
-        ScotlandYardJudge judge = new ScotlandYardJudge(gameId, 400000, messenger,
+        ScotlandYardJudge judge = new ScotlandYardJudge(gameId, 15000, messenger,
                 game, "resources/graph.txt", locations, tickets);
         judge.initialiseGame();
         judge.interpretMessages();

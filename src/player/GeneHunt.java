@@ -48,13 +48,10 @@ public class GeneHunt implements Player {
     @Override
     public Move notify(int location, Set<Move> moves) {
         //TODO: Some clever AI here ...
-        guiThreadCom.putUpdate("reset_timer", true);
-        Colour player = moves.iterator().next().colour;
-        guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayer(player) + "'s Move");
-        updateTickets(player);
-        Colour currentPlayer = getCurrentPlayer(moves);
-        List<GamePlayer> players = getPlayers(location, currentPlayer);
-        gameTree.calculateTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(currentPlayer, players));
+        Colour player = view.getCurrentPlayer();
+        updateUI(player);
+        List<GamePlayer> players = getPlayers(location, player);
+        gameTree.calculateTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(player, players));
         while (true) {
             try {
                 String id = (String)threadCom.takeEvent();
@@ -71,7 +68,13 @@ public class GeneHunt implements Player {
         return moveList.get(0);
     }
     
-    private String getPlayer(Colour player) {
+    private void updateUI(Colour player) {
+        guiThreadCom.putUpdate("reset_timer", true);
+        guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
+        updateTickets(player);
+    }
+    
+    private String getPlayerMessage(Colour player) {
         if (player.equals(Colour.Black)) return "Mr X";
         else return "the " + player.toString() + " Detective";
     }
@@ -84,11 +87,6 @@ public class GeneHunt implements Player {
         Map<Ticket, Integer> tickets = ModelHelper.getTickets(player, view);
         newTickets.add(tickets);
         guiThreadCom.putUpdate("update_tickets", newTickets);
-    }
-    
-    private Colour getCurrentPlayer(Set<Move> moves) {
-        Move move = moves.iterator().next();
-        return move.colour;
     }
     
     private GamePlayer getCurrentGamePlayer(Colour currentPlayer, List<GamePlayer> players) {

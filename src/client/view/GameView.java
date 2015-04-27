@@ -26,6 +26,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private ChatView chat;
     private ChatEventView eventView;
     private ListView listView;
+    private RoundCounterView roundView;
     private MenuBar bar;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom = null;
@@ -49,6 +50,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         eventView = new ChatEventView(fileAccess);
         ticket = new PlayerTicketView(fileAccess);
         ticket.setActionListener(this);
+        roundView = new RoundCounterView(ModelHelper.getRounds());
         timer = new TimerView();
         timer.setActionListener(this);
         board.setLayout(new BorderLayout());
@@ -62,7 +64,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         jpanel.add(centerPanel, BorderLayout.NORTH);
         board.add(jpanel, BorderLayout.CENTER);
         add(board, BorderLayout.CENTER);
-        bar = new MenuBar(chat, eventView, ticket, timer);
+        bar = new MenuBar(chat, eventView, ticket, roundView, timer);
         board.add(bar, BorderLayout.SOUTH);
     }
     
@@ -230,6 +232,15 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      */
     public void clearLog() {
         eventView.clear();
+    }
+    
+    /**
+     * Sets the current round in the game.
+     *
+     * @param round the round of the game.
+     */
+    public void updateRoundCounter(int round) {
+        roundView.setSelectedRound(round);
     }
     
     /**

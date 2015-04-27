@@ -278,6 +278,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             gameView.updateLog(string);
         } else if (id.equals("clear_log")) {
             gameView.clearLog();
+        } else if (id.equals("update_round")) {
+            Integer roundNo = (Integer) object;
+            gameView.updateRoundCounter(roundNo);
         }
     }
     

@@ -11,6 +11,20 @@ import java.util.*;
 public class ModelHelper {
   
     /**
+     * Returns the List of Booleans determining when Mr X is visible.
+     * Only the advanced version of the game is supported at this time.
+     *
+     * @return the List of Booleans determining when Mr X is visible.
+     */
+    public static List<Boolean> getRounds() {
+        return Arrays.asList(false, false, false, true, false,
+                             false, false, false, true, false,
+                             false, false, false, true, false,
+                             false, false, false, true, false,
+                             false, false, false, false, true);
+    }
+  
+    /**
      * Returns the GamePlayer object of the specified player from a List.
      *
      * @param players the List of GamePlayer objects.

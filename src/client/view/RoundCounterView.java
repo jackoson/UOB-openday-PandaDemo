@@ -1,6 +1,7 @@
 package client.view;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
@@ -20,12 +21,17 @@ class RoundCounterView extends JPanel {
      * @param rounds the List of Booleans deciding when Mr X is visible.
      */
     public RoundCounterView(List<Boolean> rounds) {
+        setLayout(new GridBagLayout());
+        setOpaque(false);
+        setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
+        
         this.selectedView = null;
         this.views = new ArrayList<RoundView>();
         
-        for (Boolean r : rounds) {
-            RoundView roundView  = new RoundView(r);
+        for (int i = 1; i < rounds.size(); i++) {
+            RoundView roundView  = new RoundView(rounds.get(i));
             views.add(roundView);
+            add(roundView);
         }
     }
     
@@ -36,7 +42,7 @@ class RoundCounterView extends JPanel {
      */
     public void setSelectedRound(int round) {
         if (selectedView != null) selectedView.setSelected(false);
-        RoundView v = views.get(round);
+        RoundView v = views.get(round - 1);
         v.setSelected(true);
         selectedView = v;
     }
@@ -53,9 +59,10 @@ class RoundCounterView extends JPanel {
          * @param filled the boolean that decides whether the circle is filled.
          */
         public RoundView(boolean filled) {
+            setOpaque(false);
             this.selected = false;
             this.filled = filled;
-            setPreferredSize(new Dimension(10, 14));
+            setPreferredSize(new Dimension(16, 40));
         }
         
         /**
@@ -63,7 +70,7 @@ class RoundCounterView extends JPanel {
          *
          * @param selected the boolean that decides whether the circle is selected.
          */
-        public setSelected(boolean selected) {
+        public void setSelected(boolean selected) {
             this.selected = selected;
         }
         
@@ -76,12 +83,16 @@ class RoundCounterView extends JPanel {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;
             
-            g.setStroke(new basicStroke(2.0));
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON);
             
-            if (filled) g.fillOval(0, 4, 10, 10);
-            else g.drawOval(1, 5, 8, 8);
+            g.setColor(Color.WHITE);
+            g.setStroke(new BasicStroke(2.0f));
             
-            if (selected) g.drawLine(0, 1, 10, 1);
+            if (filled) g.fillOval(3, 15, 10, 10);
+            else g.drawOval(4, 16, 8, 8);
+            
+            if (selected) g.drawLine(5, 30, 11, 30);
         }
         
     }

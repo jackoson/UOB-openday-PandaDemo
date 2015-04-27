@@ -22,7 +22,7 @@ public class MenuBar extends JPanel {
      * @param ticket the PlayerTicketView to be displayed in the MenuBar.
      * @param timer the TimerView to be displayed in the MenuBar.
      */
-    public MenuBar(ChatView chat, ChatEventView eventView, PlayerTicketView ticket, TimerView timer) {
+    public MenuBar(ChatView chat, ChatEventView eventView, PlayerTicketView ticket, RoundCounterView roundView, TimerView timer) {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(1200, 200));
         setOpaque(false);
@@ -36,7 +36,13 @@ public class MenuBar extends JPanel {
         bar.setPreferredSize(new Dimension(1200, 40));
         
         bar.add(chat, BorderLayout.WEST);
-        bar.add(ticket, BorderLayout.CENTER);
+        
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setOpaque(false);
+        centerPanel.add(ticket, BorderLayout.WEST);
+        centerPanel.add(roundView, BorderLayout.EAST);
+        
+        bar.add(centerPanel, BorderLayout.CENTER);
         bar.add(timer, BorderLayout.EAST);
         add(bar, BorderLayout.SOUTH);
     }

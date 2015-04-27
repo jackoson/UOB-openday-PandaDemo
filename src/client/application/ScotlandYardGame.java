@@ -55,7 +55,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             this.gameName = gameName;
             this.graphName = graphName;
             routeFinder = new Dijkstra(graphName);
-            List<Boolean> rounds = getRounds();
+            List<Boolean> rounds = ModelHelper.getRounds();
             model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
             model.spectate(this);
             int randMrXLocation = randomMrXLocation();
@@ -89,7 +89,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             this.gameName = saveGame.getGameName();
             this.graphName = saveGame.getGraphFileName();
             routeFinder = new Dijkstra(graphName);
-            List<Boolean> rounds = getRounds();
+            List<Boolean> rounds = ModelHelper.getRounds();
             model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
             model.spectate(this);
             players = initialiseGame(saveGame.getMrXLocation(), saveGame.getDetectiveLocations());
@@ -173,17 +173,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         } else {
             return players;
         }
-    }
-    
-    // Returns the List of Booleans determining when Mr X is visible.
-    // Only the advanced version of the game is supported at this time.
-    // @return the List of Booleans determining when Mr X is visible.
-    private List<Boolean> getRounds() {
-        return Arrays.asList(false, false, false, true, false,
-                             false, false, false, true, false,
-                             false, false, false, true, false,
-                             false, false, false, true, false,
-                             false, false, false, false, true);
     }
     
     // Returns the List of players in the game.
@@ -329,6 +318,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param players the List of players in the game.
     private void initialiseViews(List<GamePlayer> players) {
         threadCom.putUpdate("init_views", players);
+        threadCom.putUpdate("update_round", 1);
     }
     
     // Shows a message to the users.
@@ -358,7 +348,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private void updateUI(Move move) {
         threadCom.putUpdate("stop_timer", true);
         threadCom.putUpdate("update_log", move);
-        if (model.getRounds().get(model.getRound())) threadCom.putUpdate("update_log_message", "Mr X has been spotted at location " + model.getPlayerLocation(Colour.Black));
+        if (model.getRounds().get(model.getRound()) && move.colour.equals(Colour.Black)) threadCom.putUpdate("update_log_message", "Mr X has been spotted at location " + model.getPlayerLocation(Colour.Black));
+        threadCom.putUpdate("update_round", model.getRound());
         updateTickets(move.colour);
         threadCom.putUpdate("update_board", move);
         if (!aiGame) {

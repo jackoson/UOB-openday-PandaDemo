@@ -30,7 +30,7 @@ public class GeneHuntFactory implements PlayerFactory {
     private ThreadCommunicator threadCom;
     private GameTree gameTree;
     
-    private final int kTimerTime = 15;
+    private final int kTimerTime = 14;
 
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom) {
         this.application = application;
@@ -59,11 +59,11 @@ public class GeneHuntFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
             case AI:
-                return new GeneHunt(view, graphFilename, gameTree);
+                return new GeneHunt(view, graphFilename, threadCom, gameTree);
             case GUI:
-                return gui(view);
+                return gui(view, gameTree);
             default:
-                return new GeneHunt(view, graphFilename, gameTree);
+                return new GeneHunt(view, graphFilename, threadCom, gameTree);
         }
     }
 
@@ -78,8 +78,7 @@ public class GeneHuntFactory implements PlayerFactory {
     @Override
     public List<Spectator> getSpectators(ScotlandYardView view) {
         List<Spectator> specs = new ArrayList<Spectator>();
-        specs.add(gui(view));
-        specs.add(gameTree);
+        specs.add(gui(view, gameTree));
         return specs;
     }
 
@@ -91,9 +90,9 @@ public class GeneHuntFactory implements PlayerFactory {
     }
 
 
-    private ScotlandYardGame gui(ScotlandYardView view) {
+    private ScotlandYardGame gui(ScotlandYardView view, GameTree gameTree) {
         if (gui == null) {
-            gui = new ScotlandYardGame(view, graphFilename, threadCom);
+            gui = new ScotlandYardGame(view, graphFilename, threadCom, gameTree);
         }
         return gui;
     }

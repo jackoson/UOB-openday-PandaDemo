@@ -217,6 +217,15 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     }
     
     /**
+     * Adds a message to the game log.
+     *
+     * @param string the message to be added to the game log.
+     */
+    public void updateLog(String string) {
+        eventView.addMessage(string);
+    }
+    
+    /**
      * Clears the game log.
      */
     public void clearLog() {

@@ -25,8 +25,9 @@ public class GeneHunt implements Player {
     private List<Move> moveList;
     private ThreadCommunicator threadCom;
     private boolean first = true;
+    private ThreadCommunicator guiThreadCom;
     
-    public GeneHunt(ScotlandYardView view, String graphFilename, GameTree gameTree) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom, GameTree gameTree) {
         //TODO: A better AI makes use of `view` and `graphFilename`.
         try {
             this.threadCom = new ThreadCommunicator();
@@ -36,6 +37,7 @@ public class GeneHunt implements Player {
             this.dijkstra = new Dijkstra(graphFilename);
             this.pageRank = new PageRank(graph);
             this.gameTree = gameTree;
+            this.guiThreadCom = guiThreadCom;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
             e.printStackTrace();
@@ -44,13 +46,15 @@ public class GeneHunt implements Player {
         
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Move notify(int location, Set<Move> moves) {
         //TODO: Some clever AI here ...
+        Colour player = view.getCurrentPlayer();
+        updateUI(player);
         if (first) {
-            Colour currentPlayer = getCurrentPlayer(moves);
-            List<GamePlayer> players = getPlayers(location, currentPlayer);
-            gameTree.startTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(currentPlayer, players));
+            List<GamePlayer> players = getPlayers(location, player);
+            gameTree.startTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(player, players));
             first = false;
         }
         
@@ -67,12 +71,30 @@ public class GeneHunt implements Player {
                 System.err.println(e);
             }
         }
-        return moveList.get(0);
+        Move move = moveList.get(0);
+        gameTree.pruneTree(move);
+        return move;
     }
     
-    private Colour getCurrentPlayer(Set<Move> moves) {
-        Move move = moves.iterator().next();
-        return move.colour;
+    private void updateUI(Colour player) {
+        guiThreadCom.putUpdate("reset_timer", true);
+        guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
+        updateTickets(player);
+    }
+    
+    private String getPlayerMessage(Colour player) {
+        if (player.equals(Colour.Black)) return "Mr X";
+        else return "the " + player.toString() + " Detective";
+    }
+    
+    // Updates the PlayerTicketView with the current players Tickets.
+    // @param player the player for whom the PlayerTicketView should update.
+    private void updateTickets(Colour player) {
+        List<Object> newTickets = new ArrayList<Object>();
+        newTickets.add(player);
+        Map<Ticket, Integer> tickets = ModelHelper.getTickets(player, view);
+        newTickets.add(tickets);
+        guiThreadCom.putUpdate("update_tickets", newTickets);
     }
     
     private GamePlayer getCurrentGamePlayer(Colour currentPlayer, List<GamePlayer> players) {

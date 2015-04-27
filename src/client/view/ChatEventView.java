@@ -86,16 +86,36 @@ public class ChatEventView extends JPanel {
     }
     
     /**
-     * Adds a message to the view.
+     * Adds a new message to the game log.
      *
-     * @param move the Move containing the information to be displayed in the message.
+     * @param string the message to be added.
+     */
+    public void addMessage(String string) {
+        addMessage(new MessageView(Colour.Black, string, 180));
+    }
+    
+    /**
+     * Adds a new Move to the game log.
+     *
+     * @param move the Move to be added.
      */
     public void addMessage(Move move) {
+        MessageView message = null;
+        if (move instanceof MoveDouble) message = new MessageView(move.colour, "Mr X played a double move:", 180);
+        else if (move instanceof MoveTicket) message = new MessageView((MoveTicket) move);
+        else if (move instanceof MovePass) message = new MessageView(move.colour, move.colour + " Detective played a MovePass", 180);
+        addMessage(message);
+    }
+    
+    /**
+     * Adds a new MessageView to the game log.
+     *
+     * @param messageView the MessageView to be added.
+     */
+    private void addMessage(MessageView messageView) {
         constraints.gridy = messageCount + 1;
         remove(spacer);
-        if (move instanceof MoveDouble) scrollContainer.add(new MessageView(move.colour, "Mr X played a double move:", scrollContainer.getSize().width - 48) , constraints);
-        else if (move instanceof MoveTicket) scrollContainer.add(new MessageView((MoveTicket) move) , constraints);
-        else if (move instanceof MovePass) scrollContainer.add(new MessageView(move.colour, move.colour + " Detective played a MovePass", scrollContainer.getSize().width - 48), constraints);
+        scrollContainer.add(messageView, constraints);
         messageCount++;
         constraints.gridy = messageCount + 1;
         constraints.fill = GridBagConstraints.BOTH;

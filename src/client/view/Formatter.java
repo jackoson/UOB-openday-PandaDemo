@@ -71,7 +71,7 @@ public class Formatter {
         if (player.equals(Colour.Green)) return new Color(51, 154, 32);
         if (player.equals(Colour.Yellow)) return new Color(236, 200, 79);
         if (player.equals(Colour.Red)) return new Color(150, 0, 11);
-        if (player.equals(Colour.White)) return new Color(237, 237, 237);
+        if (player.equals(Colour.White)) return new Color(191, 191, 191);
         return null;
     }
     

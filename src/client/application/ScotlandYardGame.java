@@ -3,6 +3,7 @@ package client.application;
 import scotlandyard.*;
 import client.model.*;
 import client.algorithms.*;
+import player.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -28,6 +29,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private boolean firstRound = true;
     private boolean replaying = false;
     private final boolean aiGame;
+    private GameTree gameTree = null;
     
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
@@ -107,7 +109,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * @param threadCom the ThreadCommunicator object to 
      * communicate between Threads.
      */
-    public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
+    public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom, GameTree gameTree) {
         aiGame = true;
         try {
             this.threadCom = threadCom;
@@ -115,6 +117,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             this.routeFinder = new Dijkstra(graphName);
             this.model = (ScotlandYard) model;
             this.fileAccess = new FileAccess();
+            this.gameTree = gameTree;
         } catch (Exception e) {
             System.err.println("Error joining a new game :" + e);
             e.printStackTrace();
@@ -152,7 +155,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         Set<Colour> winningPlayers = model.getWinningPlayers();
         sendNotification(getWinningMessage(winningPlayers));
         wait(5000);
-        threadCom.putUpdate("end_game", true);
+        if (!aiGame) threadCom.putUpdate("end_game", true);
         threadCom.putUpdate("clear_log", true);
     }
     
@@ -281,6 +284,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             }
         }
         if (saveGame != null) saveGame.addMove(move);
+        if (gameTree != null) gameTree.pruneTree(move);
         return move;
     }
     
@@ -339,13 +343,13 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param moves the Set of valid Moves the player can make.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
         updateTickets(player);
-        if (player.equals(Colour.Black) && !replaying) {
+        if (player.equals(Colour.Black) && !replaying && !aiGame) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
         }
+        threadCom.putUpdate("reset_timer", true);
         threadCom.putUpdate("valid_moves", moves);
         threadCom.putUpdate("zoom_in", location);
-        threadCom.putUpdate("reset_timer", true);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
     }
     
@@ -354,16 +358,19 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private void updateUI(Move move) {
         threadCom.putUpdate("stop_timer", true);
         threadCom.putUpdate("update_log", move);
+        if (model.getRounds().get(model.getRound())) threadCom.putUpdate("update_log_message", "Mr X has been spotted at location " + model.getPlayerLocation(Colour.Black));
         updateTickets(move.colour);
         threadCom.putUpdate("update_board", move);
-        wait(kAnimationWait);
-        Integer target = getTarget(move);
-        if (!move.colour.equals(Colour.Black)) {
-            threadCom.putUpdate("zoom_in", target);
-            wait(kMoveWait);
+        if (!aiGame) {
+            wait(kAnimationWait);
+            Integer target = getTarget(move);
+            if (!move.colour.equals(Colour.Black)) {
+                threadCom.putUpdate("zoom_in", target);
+                wait(kMoveWait);
+            }
         }
         threadCom.putUpdate("zoom_out", true);
-        wait(kMoveWait);
+        if (!aiGame) wait(kMoveWait);
     }
     
     // Returns the target of a Move.

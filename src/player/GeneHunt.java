@@ -26,7 +26,7 @@ public class GeneHunt implements Player {
     private ThreadCommunicator threadCom;
     private ThreadCommunicator guiThreadCom;
     
-    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom, GameTree gameTree) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom) {
         //TODO: A better AI makes use of `view` and `graphFilename`.
         try {
             this.threadCom = new ThreadCommunicator();

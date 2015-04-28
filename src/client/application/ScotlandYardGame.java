@@ -29,7 +29,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private boolean firstRound = true;
     private boolean replaying = false;
     private final boolean aiGame;
-    private GameTree gameTree = null;
     
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
@@ -109,7 +108,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * @param threadCom the ThreadCommunicator object to 
      * communicate between Threads.
      */
-    public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom, GameTree gameTree) {
+    public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
         aiGame = true;
         try {
             this.threadCom = threadCom;
@@ -117,7 +116,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             this.routeFinder = new Dijkstra(graphName);
             this.model = (ScotlandYard) model;
             this.fileAccess = new FileAccess();
-            this.gameTree = gameTree;
         } catch (Exception e) {
             System.err.println("Error joining a new game :" + e);
             e.printStackTrace();
@@ -273,7 +271,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             }
         }
         if (saveGame != null) saveGame.addMove(move);
-        if (gameTree != null) gameTree.pruneTree(move);
         return move;
     }
     

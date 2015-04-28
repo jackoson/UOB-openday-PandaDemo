@@ -66,7 +66,7 @@ public class GameTree implements Runnable, ActionListener {
         if (root == null) return false;
         for (TreeNode node : root.getChildren()) {
             if (node.getMove().equals(move)) {
-                node.parent = null;
+                node.setParent(null);
                 root = node;
                 iterationDepth--;
                 return true;

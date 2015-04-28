@@ -11,43 +11,40 @@ import java.io.*;
 import java.awt.event.*;
 import javax.swing.Timer;
 
-public class GameTree implements Runnable, ActionListener {
+public class GameTree implements Runnable {
   
-    private final ThreadCommunicator threadCom;
     public final Graph<Integer, Route> graph;
     public final PageRank pageRank;
     public final Dijkstra dijkstra;
-    private Timer timer;
     
     private final Integer round;
     private final Colour initialPlayer;
     private final List<GamePlayer> initialState;
     
-    private List<Move> generatedMoves;
+    public List<Move> generatedMoves;
     private TreeNode root;
     private int iterationDepth;
     
-    private final int kTurnTime = 13000;
-    
-    public GameTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, 
+    public GameTree(Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
                     List<GamePlayer> initialState) {
-        this.threadCom = threadCom;
         this.graph = graph;
         this.pageRank = pageRank;
         this.dijkstra = dijkstra;
         this.round = round;
         this.initialPlayer = initialPlayer;
         this.initialState = initialState;
-        this.timer = new Timer(kTurnTime, this);
         this.generatedMoves = new ArrayList<Move>();
     }
     
-    public void setupTree() {
-        GameTree gameTree = new GameTree(threadCom, graph, pageRank, dijkstra,
-                                         round, initialPlayer, initialState);
+    public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, 
+                    PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
+                    List<GamePlayer> initialState) {
+        GameTree gameTree = new GameTree(graph, pageRank, dijkstra,
+                                          round, initialPlayer, initialState);
         new Thread(gameTree).start();
-        timer.start();
+        GameTreeHelper helper = new GameTreeHelper(threadCom, gameTree);
+        return helper;
     }
     
     public void run() {
@@ -59,19 +56,6 @@ public class GameTree implements Runnable, ActionListener {
             generatedMoves = generateMoves();
             iterationDepth++;
         }
-    }
-    
-    public boolean pruneTree(Move move) {
-        if (root == null) return false;
-        for (TreeNode node : root.getChildren()) {
-            if (node.getMove().equals(move)) {
-                node.setParent(null);
-                root = node;
-                iterationDepth--;
-                return true;
-            }
-        }
-        return false;
     }
     
     public boolean connectedToTree(TreeNode node) {
@@ -148,16 +132,6 @@ public class GameTree implements Runnable, ActionListener {
         return moves;
     }
     
-    public void startTimer() {
-        timer.restart();
-    }
-    
-    public void actionPerformed(ActionEvent e) {
-        System.err.println("A");
-        timer.stop();
-        threadCom.putEvent("calculated_moves", generatedMoves);
-    }
-    
     private void playMove(List<GamePlayer> players, Move move) {
         if (move instanceof MoveTicket) playMove(players, (MoveTicket) move);
         else if (move instanceof MoveDouble) playMove(players, (MoveDouble) move);
@@ -183,4 +157,43 @@ public class GameTree implements Runnable, ActionListener {
         }
         return newPlayers;
     }
+    
+    static class GameTreeHelper implements ActionListener {
+        
+        private final Timer timer;
+        private final ThreadCommunicator threadCom;
+        private final GameTree gameTree;
+        
+        private final int kTurnTime = 13000;
+        
+        public GameTreeHelper(ThreadCommunicator threadCom, GameTree gameTree) {
+            this.threadCom = threadCom;
+            this.gameTree = gameTree;
+            this.timer = new Timer(kTurnTime, this);
+        }
+        
+        public void startTimer() {
+            timer.restart();
+        }
+        
+        public void actionPerformed(ActionEvent e) {
+            timer.stop();
+            List<Move> moves = gameTree.generatedMoves;
+            threadCom.putEvent("calculated_moves", moves);
+        }
+        public boolean pruneTree(Move move) {
+            if (gameTree.root == null) return false;
+            for (TreeNode node : root.getChildren()) {
+                if (node.getMove().equals(move)) {
+                    node.setParent(null);
+                    root = node;
+                    iterationDepth--;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+    }
+    
 }

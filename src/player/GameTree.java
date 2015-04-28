@@ -30,6 +30,7 @@ public class GameTree implements Runnable, ActionListener {
     private Timer timer;
     private TreeNode root;
     private static final int kKillRecursion = -1;
+    private int iterationDepth;
     
     public static void main(String[] args) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
@@ -116,6 +117,10 @@ public class GameTree implements Runnable, ActionListener {
         this.threadCom = threadCom;
         tree = new GameTree(threadCom, graph, pageRank, routeFinder, players, rounds, round, currentPlayer);
         new Thread(tree).start();
+        start();
+    }
+    
+    public void start() {
         System.err.println("Timer started");
         timer = new Timer(13000, this);
         timer.start();
@@ -137,18 +142,18 @@ public class GameTree implements Runnable, ActionListener {
         iterate = true;//need to stop alphabeta when iterate changes
         moves = new ArrayList<Move>();
         
-        int i = 1;
+        iterationDepth = 1;
         while (iterate) {
-            System.err.println("d" + root.move);
+            //System.err.println("d: " + root.move + "I:" + iterationDepth);
             try {
-                double bestScore = alphaBeta(root, round, currentPlayer, players, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                System.err.println("BEST SCORE:" + bestScore + " AT DEPTH:" + i);
+                double bestScore = alphaBeta(root, round, currentPlayer, players, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                System.err.println("BEST SCORE:" + bestScore + " AT DEPTH:" + iterationDepth);
                 moves = createMoves();
             } catch (Exception e) {
-                System.err.println("Broken dude!");
+                //System.err.println("Broken dude!");
             }
-            i++;
-            if (i > 100) break;
+            iterationDepth++;
+            if (iterationDepth > 100) break;
         }
     }
     
@@ -168,19 +173,32 @@ public class GameTree implements Runnable, ActionListener {
         System.err.println("Not null" + move);
         if (move.colour.equals(Colour.Black)) {
             tree.round++;//?
+            
         }
         for (TreeNode n : tree.root.children) {
-            System.err.println("Children:" + n.move + " Target:" + move);
-            if (n.move.equals(move)) {
+            System.err.println("ChildreCn:" + n.getMove() + " Target:" + move);
+        }
+        for (TreeNode n : tree.root.children) {
+            //System.err.println("Children:" + n.move + " Target:" + move);
+            if (n.getMove().equals(move)) {
                 n.parent = null;
                 tree.root = n;
-                System.err.println("NEW ROOOOOOOOOT:" + tree.root.move);
+                for (TreeNode m : tree.root.children) {
+                    System.err.println("ChildrenA:" + m.getMove() + " Target:" + move);
+                }
+                System.err.println("NEW ROOOOOOOOOT:" + tree.root.getMove());
+                System.err.println("current PLayer:" + tree.currentPlayer + "New Player: " + ModelHelper.getNextPlayer(tree.players, ModelHelper.getPlayerOfColour(tree.players, tree.currentPlayer)).colour());
                 tree.currentPlayer = move.colour;
                 tree.players = n.players;
+                tree.iterationDepth--;
+                System.err.println("I! " + tree.iterationDepth);
+                System.err.println("AAcurrent PLayer:" + tree.currentPlayer + "New Player: " + ModelHelper.getNextPlayer(tree.players, ModelHelper.getPlayerOfColour(tree.players, tree.currentPlayer)).colour());
                 return true;
             }
         }
-        System.err.println("Pruning of move " + move + " unsuccesful");
+        for (TreeNode n : tree.root.children) {
+            System.err.println("ChildrenB:" + n.getMove() + " Target:" + move);
+        }
         return false;
         
     }
@@ -197,34 +215,35 @@ public class GameTree implements Runnable, ActionListener {
     }
 
     private double alphaBeta(TreeNode node, int round, Colour currentPlayerColour, List<GamePlayer> currentState, int depth, double alpha, double beta) throws Exception {
-        
-        if (!conectedToTree(node)) {System.err.println("N"); throw new Exception();}
-        else System.err.println("Y:" + depth);
+        //System.err.println("Currentplayer:" + currentPlayerColour + "Depth: " + depth);
+        if (!conectedToTree(node)) {throw new Exception();}
         
         GamePlayer currentPlayer = ModelHelper.getPlayerOfColour(currentState, currentPlayerColour);
         if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
-            double score = node.score(currentPlayer, round);
+            double score = node.score();
             return score;
         }
-        List<TreeNode> children = new ArrayList<TreeNode>();
-        
+        List<TreeNode> children = node.children;
         boolean maximising = false;
         if (currentPlayer.colour().equals(Colour.Black)) maximising = true;
-        if (depth == 1) {
+        if (children == null) {
+            children = new ArrayList<TreeNode>();
             //Create new layer
             Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
-                TreeNode newNode = new TreeNode(clonedPlayers, move, node);
-                node.addChild(newNode);
+                TreeNode newNode = new TreeNode(clonedPlayers, move, node, currentPlayer, round); //May be incorrect round or currentplayer
+                children.add(newNode);
             }
+            //Set children
+            node.setChildren(children);
         }
+        if(children.size() == 0) return 0.0;//? + or - infinity based on who it is?
         // Advance the game.  
         if (maximising) round++;
         currentPlayer = ModelHelper.getNextPlayer(currentState, currentPlayer);
-        //Get children
-        children = node.children;
+        //System.err.println("CHILDREN: " + children.size() + "Depth: " + depth);
         if (maximising) {
             // We are on a maximising node.
             Double v = Double.NEGATIVE_INFINITY;
@@ -310,6 +329,8 @@ public class GameTree implements Runnable, ActionListener {
     private class TreeNode {
         
         public final List<GamePlayer> players;
+        public final GamePlayer currentPlayer;
+        public final int round;
         public static final double kMultiplier = 1.0;
         public static final double kMax = 10.0;
         public static final double kMin = -10.0;
@@ -320,18 +341,20 @@ public class GameTree implements Runnable, ActionListener {
         public TreeNode bestChild = null;
         private Move move;
         
-        public TreeNode(List<GamePlayer> players, Move move, TreeNode parent) {
+        public TreeNode(List<GamePlayer> players, Move move, TreeNode parent, GamePlayer currentPlayer, int round) {
             this.players = players;
+            this.currentPlayer = currentPlayer;
+            this.round = round;
             this.move = move;
-            this.children = new ArrayList<TreeNode>();
+            this.children = null;
             this.parent = parent;
         }
         
-        public void addChild(TreeNode child) {
-            children.add(child);
+        public void setChildren(List<TreeNode> children) {
+            this.children = children;
         }
         
-        public double getScore(GamePlayer currentPlayer, int round) {
+        public double getScore() {
             if (score == null) score = score(currentPlayer, round);
             return score;
         }
@@ -373,7 +396,7 @@ public class GameTree implements Runnable, ActionListener {
             avgDetPageRank = avgDetPageRank * (Math.pow(avgDetDistance, 2) / 50);
             mrXPageRank = mrXPageRank * (Math.pow(avgDetDistance, 2) / 100);
             double score = avgDetDistance;//?add in pagerank
-            System.err.println("avgDist" + avgDetDistance + "num" + (players.size()));
+            //System.err.println("avgDist" + avgDetDistance + "num" + (players.size()));
             return score;
         }
         

@@ -56,7 +56,7 @@ public class GeneHunt implements Player {
             List<GamePlayer> players = getPlayers(location, player);
             gameTree.startTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(player, players));
             first = false;
-        }
+        } else gameTree.start();
         
         while (true) {
             try {

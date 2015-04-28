@@ -15,6 +15,7 @@ public class GamePlayer {
     private Colour colour;
     private Integer location;
     private Map<Ticket, Integer> tickets;
+    private Integer hashCode = null;
     
     /**
      * Constructs a new GamePlayer object.
@@ -128,6 +129,43 @@ public class GamePlayer {
         else ticketCount--;
         tickets.remove(ticket);
         tickets.put(ticket, ticketCount);
+    }
+    
+    /**
+     * Returns true if these objects contain the same data.
+     *
+     * @param obj the object to be checked for equality.
+     * @return true if these objects contain the same data.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof GamePlayer)) return false;
+        GamePlayer g = (GamePlayer) obj;
+        boolean equal = true;
+        equal &= this.colour().equals(g.colour());
+        equal &= this.location() == g.location();
+        equal &= this.tickets().equals(g.tickets());
+        return equal;
+    }
+    
+    /**
+     * Returns a hash code for this object.
+     *
+     * @return a hash code for this object.
+     */
+    @Override
+    public int hashCode() {
+        //Valid for tickets up to 1789569
+        if (hashCode != null) return hashCode;
+        int colorIndex = Arrays.asList(Colour.values()).indexOf(colour());
+        int ticketCount = 0;
+        
+        for (Integer v : tickets.values()) {
+            ticketCount += v;
+        }
+        
+        hashCode = (colorIndex * 357913941) + (location * 1789569) + ticketCount;
+        return hashCode;
     }
     
 }

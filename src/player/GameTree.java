@@ -26,7 +26,7 @@ public class GameTree implements Runnable {
     private TreeNode root;
     private int iterationDepth;
     
-    private static GameTree.GameTreeHelper helper;
+    private static GameTree.GameTreeHelper helper = null;
     
     public GameTree(Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
@@ -43,6 +43,7 @@ public class GameTree implements Runnable {
     public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
                     List<GamePlayer> initialState) {
+        if (helper != null) helper.stop();
         GameTree gameTree = new GameTree(graph, pageRank, dijkstra,
                                           round, initialPlayer, initialState);
         new Thread(gameTree).start();
@@ -54,13 +55,28 @@ public class GameTree implements Runnable {
         return helper;
     }
     
+    public void setRoot(TreeNode root) {
+        this.root = root;
+    }
+    
+    public TreeNode getRoot() {
+        return root;
+    }
+    
+    public void decrementIterationDepth() {
+        iterationDepth--;
+    }
+    
     public void run() {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
         while (iterate) {
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            System.err.println("Best" + bestScore);
             generatedMoves = generateMoves();
+            System.err.println("Best" + bestScore);
+            for (Move m : generatedMoves) {
+                System.err.println("Move: " + m);
+            }
             iterationDepth++;
         }
     }
@@ -77,8 +93,8 @@ public class GameTree implements Runnable {
     private double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
         /** Check if node is in tree, if not return the worst case for this node. **/
         if (!connectedToTree(node)) {
-            if (node.getPlayer().equals(Colour.Black)) return Double.NEGATIVE_INFINITY;
-            else return Double.POSITIVE_INFINITY;
+            if (node.getPlayer().equals(Colour.Black)) {System.err.println("ALPHA-N"); return Double.NEGATIVE_INFINITY;}
+            else { System.err.println("ALPHA"); return Double.POSITIVE_INFINITY;}
         }
         if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
                             node.getPlayer(), graph, node.getRound()).size() != 0)) {
@@ -89,6 +105,7 @@ public class GameTree implements Runnable {
         if (node.getChildren().size() == 0) node = addChildren(node, maximising);
         if (maximising) {
             Double v = Double.NEGATIVE_INFINITY;
+            System.err.println("Children: " + node.getChildren().size());
             for (TreeNode child : node.getChildren()) {
                 double newValue = alphaBeta(child, depth - 1, alpha, beta);
                 if (newValue > v) {
@@ -98,9 +115,11 @@ public class GameTree implements Runnable {
                 if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
+            System.err.println("V: " + v);
             return v;
         } else {
             Double v = Double.POSITIVE_INFINITY;
+            System.err.println("ChildrenN: " + node.getChildren().size());
             for (TreeNode child : node.getChildren()) {
                 double newValue = alphaBeta(child, depth - 1, alpha, beta);
                 if (newValue < v) {
@@ -110,6 +129,7 @@ public class GameTree implements Runnable {
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
+            System.err.println("VN: " + v);
             return v;
         }
     }
@@ -165,11 +185,12 @@ public class GameTree implements Runnable {
         return newPlayers;
     }
     
-    static class GameTreeHelper implements ActionListener {
+    public static class GameTreeHelper implements ActionListener, Runnable {
         
         private final Timer timer;
         private final ThreadCommunicator threadCom;
         private final GameTree gameTree;
+        private Move move = null;
         
         private final int kTurnTime = 13000;
         
@@ -192,13 +213,24 @@ public class GameTree implements Runnable {
             List<Move> moves = gameTree.generatedMoves;
             threadCom.putEvent("calculated_moves", moves);
         }
+        
+        public void setMove(Move move) {
+            this.move = move;
+        }
+        
+        public void run() {
+            if (move != null) pruneTree(move);
+            move = null;
+        }
+        
         public boolean pruneTree(Move move) {
-            if (gameTree.root == null) return false;
-            for (TreeNode node : root.getChildren()) {
+            if (gameTree.getRoot() == null) return false;
+            for (TreeNode node : gameTree.root.getChildren()) {
                 if (node.getMove().equals(move)) {
                     node.setParent(null);
-                    root = node;
-                    iterationDepth--;
+                    gameTree.setRoot(node);
+                    gameTree.decrementIterationDepth();
+                    System.err.println("PRUNE" + node.getMove());
                     return true;
                 }
             }

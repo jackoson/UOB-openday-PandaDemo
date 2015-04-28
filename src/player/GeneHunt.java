@@ -71,9 +71,19 @@ public class GeneHunt implements Player {
                 System.err.println(e);
             }
         }
-        Move move = moveList.get(0);
-        //gameTree.pruneTree(move);
-        GameTree.getGameTreeHelper().stop();
+        Move move = null;
+        for (Move m : moveList) {
+            if (m.colour.equals(view.getCurrentPlayer())) move = m;
+        }
+        System.err.println("Provided move");
+        if (move == null) {
+            move = moves.iterator().next();
+            System.err.println("Bad stuffs has happened.");
+        }
+        gameTreeHelper.setMove(move);
+        //new Thread(gameTreeHelper).start();
+        gameTreeHelper.stop();
+        gameTreeHelper = null;
         return move;
     }
     

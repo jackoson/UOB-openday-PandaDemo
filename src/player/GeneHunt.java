@@ -21,10 +21,9 @@ public class GeneHunt implements Player {
     private Graph<Integer, Route> graph;
     private Dijkstra dijkstra;
     private PageRank pageRank;
-    private GameTree gameTree;
+    private GameTree gameTree = null;
     private List<Move> moveList;
     private ThreadCommunicator threadCom;
-    private boolean first = true;
     private ThreadCommunicator guiThreadCom;
     
     public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom, GameTree gameTree) {
@@ -36,7 +35,6 @@ public class GeneHunt implements Player {
             this.graph = graphReader.readGraph(graphFilename);
             this.dijkstra = new Dijkstra(graphFilename);
             this.pageRank = new PageRank(graph);
-            this.gameTree = gameTree;
             this.guiThreadCom = guiThreadCom;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
@@ -52,11 +50,11 @@ public class GeneHunt implements Player {
         //TODO: Some clever AI here ...
         Colour player = view.getCurrentPlayer();
         updateUI(player);
-        if (first) {
+        if (gameTree == null) {
             List<GamePlayer> players = getPlayers(location, player);
-            gameTree.startTree(threadCom, graph, pageRank, dijkstra, players, view.getRounds(), view.getRound(), getCurrentGamePlayer(player, players));
-            first = false;
-        } else gameTree.start();
+            gameTree = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
+        }
+        gameTree.startTimer();
         
         while (true) {
             try {
@@ -95,13 +93,6 @@ public class GeneHunt implements Player {
         Map<Ticket, Integer> tickets = ModelHelper.getTickets(player, view);
         newTickets.add(tickets);
         guiThreadCom.putUpdate("update_tickets", newTickets);
-    }
-    
-    private GamePlayer getCurrentGamePlayer(Colour currentPlayer, List<GamePlayer> players) {
-        for (GamePlayer player : players) {
-            if (player.colour().equals(currentPlayer)) return player;
-        }
-        return null;
     }
     
     private List<GamePlayer> getPlayers(int location, Colour currentPlayer) {

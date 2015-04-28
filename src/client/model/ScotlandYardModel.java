@@ -163,7 +163,7 @@ public class ScotlandYardModel extends ScotlandYard {
     //Check for winners
     @Override
     public Set<Colour> getWinningPlayers() {
-        return ModelHelper.getWinningPlayers(players, currentPlayer, graph, rounds, roundCounter);
+        return ModelHelper.getWinningPlayers(players, currentPlayer.colour(), graph, roundCounter);
     }
 
     @Override

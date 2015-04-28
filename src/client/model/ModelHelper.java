@@ -61,11 +61,11 @@ public class ModelHelper {
      * @param round the current round of the game.
      * @return the Set of players who have won the game.
      */
-    public static Set<Colour> getWinningPlayers(List<GamePlayer> players, GamePlayer currentPlayer, Graph<Integer, Route> graph, List<Boolean> rounds, Integer round) {
+    public static Set<Colour> getWinningPlayers(List<GamePlayer> players, Colour currentPlayer, Graph<Integer, Route> graph, Integer round) {
         Set<Colour> winners = new HashSet<Colour>();
         if (detectivesNoValidMoves(players, graph) || players.size() == 1
-            || (round >= (rounds.size() - 1)
-                && currentPlayer.colour().equals(Colour.Black))) {
+            || (round >= (getRounds().size() - 1)
+                && currentPlayer.equals(Colour.Black))) {
                 winners.add(Colour.Black);
             } else if (onMrX(players) || validMoves(players.get(0), players, graph).size() == 0) {
                 for (GamePlayer player : players) {

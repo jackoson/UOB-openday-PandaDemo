@@ -28,14 +28,12 @@ public class GeneHuntFactory implements PlayerFactory {
     private ScotlandYardGame gui;
     private ScotlandYardApplication application;
     private ThreadCommunicator threadCom;
-    private GameTree gameTree;
     
     private final int kTimerTime = 14;
 
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom) {
         this.application = application;
         this.threadCom = threadCom;
-        this.gameTree = new GameTree();
         
         typeMap = new HashMap<Colour, PlayerType>();
         typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
@@ -59,11 +57,11 @@ public class GeneHuntFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
             case AI:
-                return new GeneHunt(view, graphFilename, threadCom, gameTree);
+                return new GeneHunt(view, graphFilename, threadCom);
             case GUI:
-                return gui(view, gameTree);
+                return gui(view);
             default:
-                return new GeneHunt(view, graphFilename, threadCom, gameTree);
+                return new GeneHunt(view, graphFilename, threadCom);
         }
     }
 
@@ -78,7 +76,7 @@ public class GeneHuntFactory implements PlayerFactory {
     @Override
     public List<Spectator> getSpectators(ScotlandYardView view) {
         List<Spectator> specs = new ArrayList<Spectator>();
-        specs.add(gui(view, gameTree));
+        specs.add(gui(view));
         return specs;
     }
 
@@ -90,9 +88,9 @@ public class GeneHuntFactory implements PlayerFactory {
     }
 
 
-    private ScotlandYardGame gui(ScotlandYardView view, GameTree gameTree) {
+    private ScotlandYardGame gui(ScotlandYardView view) {
         if (gui == null) {
-            gui = new ScotlandYardGame(view, graphFilename, threadCom, gameTree);
+            gui = new ScotlandYardGame(view, graphFilename, threadCom);
         }
         return gui;
     }

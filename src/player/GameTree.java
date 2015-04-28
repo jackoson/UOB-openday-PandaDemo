@@ -22,8 +22,11 @@ public class GameTree implements Runnable {
     private final List<GamePlayer> initialState;
     
     public List<Move> generatedMoves;
+    public boolean iterate = true;
     private TreeNode root;
     private int iterationDepth;
+    
+    private static GameTree.GameTreeHelper helper;
     
     public GameTree(Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
@@ -43,14 +46,18 @@ public class GameTree implements Runnable {
         GameTree gameTree = new GameTree(graph, pageRank, dijkstra,
                                           round, initialPlayer, initialState);
         new Thread(gameTree).start();
-        GameTreeHelper helper = new GameTreeHelper(threadCom, gameTree);
+        helper = new GameTreeHelper(threadCom, gameTree);
+        return helper;
+    }
+    
+    public static GameTreeHelper getGameTreeHelper() {
         return helper;
     }
     
     public void run() {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
-        while (true) {
+        while (iterate) {
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             System.err.println("Best" + bestScore);
             generatedMoves = generateMoves();
@@ -170,6 +177,10 @@ public class GameTree implements Runnable {
             this.threadCom = threadCom;
             this.gameTree = gameTree;
             this.timer = new Timer(kTurnTime, this);
+        }
+        
+        public void stop() {
+            gameTree.iterate = false;
         }
         
         public void startTimer() {

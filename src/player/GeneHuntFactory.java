@@ -84,6 +84,7 @@ public class GeneHuntFactory implements PlayerFactory {
     public void finish() {
         if (gui != null && application != null) {
             application.endGame();
+            GameTree.getGameTreeHelper().stop();
         }
     }
 

@@ -17,7 +17,7 @@ public class GameTree implements Runnable, ActionListener {
     public final Graph<Integer, Route> graph;
     public final PageRank pageRank;
     public final Dijkstra dijkstra;
-    private final Timer timer;
+    private Timer timer;
     
     private final Integer round;
     private final Colour initialPlayer;
@@ -43,13 +43,11 @@ public class GameTree implements Runnable, ActionListener {
         this.generatedMoves = new ArrayList<Move>();
     }
     
-    public static GameTree startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, 
-                    PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
-                    List<GamePlayer> initialState) {
+    public void setupTree() {
         GameTree gameTree = new GameTree(threadCom, graph, pageRank, dijkstra,
-                                          round, initialPlayer, initialState);
+                                         round, initialPlayer, initialState);
         new Thread(gameTree).start();
-        return gameTree;
+        timer.start();
     }
     
     public void run() {
@@ -57,6 +55,7 @@ public class GameTree implements Runnable, ActionListener {
         iterationDepth = 1;
         while (true) {
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            System.err.println("Best" + bestScore);
             generatedMoves = generateMoves();
             iterationDepth++;
         }
@@ -125,6 +124,7 @@ public class GameTree implements Runnable, ActionListener {
     }
     
     private TreeNode addChildren(TreeNode root, boolean maximising) {
+        //System.err.println("Add Child");
         int nextRound = root.getRound();
         if (maximising) nextRound++;
         Colour nextPlayer = ModelHelper.getNextPlayer(root.getState(), ModelHelper.getPlayerOfColour(root.getState(), root.getPlayer())).colour();
@@ -153,6 +153,7 @@ public class GameTree implements Runnable, ActionListener {
     }
     
     public void actionPerformed(ActionEvent e) {
+        System.err.println("A");
         timer.stop();
         threadCom.putEvent("calculated_moves", generatedMoves);
     }

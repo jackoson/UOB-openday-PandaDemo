@@ -15,7 +15,7 @@ public class TreeNode {
     private final GameTree gameTree;
     private List<TreeNode> children;
     private TreeNode bestChild = null;
-    private Double score;
+    private Double score = null;
     
     public static final double kMultiplier = 1.0;
     public static final double kMax = 10.0;
@@ -81,7 +81,7 @@ public class TreeNode {
         //TODO: Implement the score function.
         Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(currentState, currentPlayer, gameTree.graph, round);
         if (winningPlayers.contains(Colour.Black)) return Double.POSITIVE_INFINITY;
-        else if (winningPlayers.size() == 0) return Double.NEGATIVE_INFINITY;
+        else if (winningPlayers.size() != 0) return Double.NEGATIVE_INFINITY;
         int mrXLocation = currentState.get(0).location();
         if (mrXLocation == 0) mrXLocation = 1;
         double mrXPageRank = gameTree.pageRank.getPageRank(mrXLocation);

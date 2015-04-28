@@ -72,6 +72,7 @@ public class GeneHunt implements Player {
         }
         Move move = moveList.get(0);
         //gameTree.pruneTree(move);
+        GameTree.getGameTreeHelper().stop();
         return move;
     }
     

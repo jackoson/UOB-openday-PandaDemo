@@ -11,6 +11,10 @@ import java.io.*;
 import java.awt.event.*;
 import javax.swing.Timer;
 
+/**
+ * A class to implement a game tree that runs continuously throughout the game and uses iterative depth search to provide the best Moves.
+ */
+
 public class GameTree implements Runnable, ActionListener {
     
     private ThreadCommunicator threadCom;
@@ -31,6 +35,11 @@ public class GameTree implements Runnable, ActionListener {
     private TreeNode root;
     private static final int kKillRecursion = -1;
     
+    /**
+     * An entry point to test the game tree.
+     *
+     * @param args the Array of commandline arguments.
+     */
     public static void main(String[] args) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
         Colour[] colours = Colour.values();
@@ -75,11 +84,7 @@ public class GameTree implements Runnable, ActionListener {
         yellowDetTickets.put(Ticket.Secret, 0);
         players.add(new GamePlayer(null, colours[4], 157, yellowDetTickets));
         
-        List<Boolean> rounds = Arrays.asList(false, false, false, true, false,
-                                             false, false, false, true, false,
-                                             false, false, false, true, false,
-                                             false, false, false, true, false,
-                                             false, false, false, false, true);
+        List<Boolean> rounds = ModelHelper.getRounds();
         
         try {
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
@@ -96,6 +101,18 @@ public class GameTree implements Runnable, ActionListener {
         }
     }
     
+    /**
+     * Constructs a new GameTree object.
+     *
+     * @param threadCom the ThreadCommunicator object to post the moves to.
+     * @param graph the Graph associated with the game.
+     * @param pageRank the PageRank object containing the PageRanks of the Graph.
+     * @param routeFinder the Dijkstra object used to calculate the distance between nodes.
+     * @param players the List of GamePlayers in the game.
+     * @param rounds the List of Booleans which decide when Mr X is visible.
+     * @param round the current round in the game.
+     * @param currentPlayer the current player in the game.
+     */
     public GameTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.threadCom = threadCom;
         this.graph = graph;
@@ -107,11 +124,23 @@ public class GameTree implements Runnable, ActionListener {
         this.round = round;
     }
     
-    public GameTree() {
-        //To run a game tree
-        
-    }
+    /**
+     * Constructs an empty GameTree object.
+     */
+    public GameTree() {}
     
+    /**
+     * Starts a new game tree.
+     *
+     * @param threadCom the ThreadCommunicator object to post the moves to.
+     * @param graph the Graph associated with the game.
+     * @param pageRank the PageRank object containing the PageRanks of the Graph.
+     * @param routeFinder the Dijkstra object used to calculate the distance between nodes.
+     * @param players the List of GamePlayers in the game.
+     * @param rounds the List of Booleans which decide when Mr X is visible.
+     * @param round the current round in the game.
+     * @param currentPlayer the current player in the game.
+     */
     public void startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, PageRank pageRank, Dijkstra routeFinder, List<GamePlayer> players, List<Boolean> rounds, Integer round, GamePlayer currentPlayer) {
         this.threadCom = threadCom;
         tree = new GameTree(threadCom, graph, pageRank, routeFinder, players, rounds, round, currentPlayer);
@@ -125,11 +154,6 @@ public class GameTree implements Runnable, ActionListener {
         timer.stop();
         moves = tree.moves;
         if (threadCom != null) threadCom.putEvent("calculated_moves", moves);
-        else {
-            for (Move m : moves) {
-                System.err.println(m);
-            }
-        }
     }
     
     public void run() {
@@ -180,7 +204,7 @@ public class GameTree implements Runnable, ActionListener {
                 return true;
             }
         }
-        System.err.println("Pruning of move " + move + " unsuccesful");
+        System.err.println("Pruning of move " + move + " unsuccessful");
         return false;
         
     }
@@ -197,7 +221,6 @@ public class GameTree implements Runnable, ActionListener {
     }
 
     private double alphaBeta(TreeNode node, int round, Colour currentPlayerColour, List<GamePlayer> currentState, int depth, double alpha, double beta) throws Exception {
-        
         if (!conectedToTree(node)) {System.err.println("N"); throw new Exception();}
         else System.err.println("Y:" + depth);
         

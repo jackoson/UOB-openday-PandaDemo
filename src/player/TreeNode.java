@@ -81,7 +81,7 @@ public class TreeNode {
         //TODO: Implement the score function.
         Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(currentState, currentPlayer, gameTree.graph, round);
         if (winningPlayers.contains(Colour.Black)) return Double.POSITIVE_INFINITY;
-        else if (winningPlayers.size() == 0) return Double.NEGATIVE_INFINITY;
+        else if (winningPlayers.size() != 0) return Double.NEGATIVE_INFINITY;
         int mrXLocation = currentState.get(0).location();
         if (mrXLocation == 0) mrXLocation = 1;
         double mrXPageRank = gameTree.pageRank.getPageRank(mrXLocation);

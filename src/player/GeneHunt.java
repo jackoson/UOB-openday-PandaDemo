@@ -21,7 +21,7 @@ public class GeneHunt implements Player {
     private Graph<Integer, Route> graph;
     private Dijkstra dijkstra;
     private PageRank pageRank;
-    private GameTree gameTree = null;
+    private GameTree.GameTreeHelper gameTreeHelper = null;
     private List<Move> moveList;
     private ThreadCommunicator threadCom;
     private ThreadCommunicator guiThreadCom;
@@ -35,6 +35,7 @@ public class GeneHunt implements Player {
             this.graph = graphReader.readGraph(graphFilename);
             this.dijkstra = new Dijkstra(graphFilename);
             this.pageRank = new PageRank(graph);
+            this.pageRank.iterate(100);
             this.guiThreadCom = guiThreadCom;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
@@ -50,11 +51,11 @@ public class GeneHunt implements Player {
         //TODO: Some clever AI here ...
         Colour player = view.getCurrentPlayer();
         updateUI(player);
-        if (gameTree == null) {
+        if (gameTreeHelper == null) {
             List<GamePlayer> players = getPlayers(location, player);
-            gameTree = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
+            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
         }
-        gameTree.startTimer();
+        gameTreeHelper.startTimer();
         
         while (true) {
             try {
@@ -70,7 +71,7 @@ public class GeneHunt implements Player {
             }
         }
         Move move = moveList.get(0);
-        gameTree.pruneTree(move);
+        //gameTree.pruneTree(move);
         return move;
     }
     

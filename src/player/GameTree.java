@@ -25,6 +25,7 @@ public class GameTree implements Runnable, ActionListener {
     
     private List<Move> generatedMoves;
     private TreeNode root;
+    private int iterationDepth;
     
     private final int kTurnTime = 13000;
     
@@ -53,7 +54,7 @@ public class GameTree implements Runnable, ActionListener {
     
     public void run() {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
-        int iterationDepth = 1;
+        iterationDepth = 1;
         while (true) {
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             generatedMoves = generateMoves();
@@ -62,6 +63,15 @@ public class GameTree implements Runnable, ActionListener {
     }
     
     public boolean pruneTree(Move move) {
+        if (root == null) return false;
+        for (TreeNode node : root.getChildren()) {
+            if (node.getMove().equals(move)) {
+                node.parent = null;
+                root = node;
+                iterationDepth--;
+                return true;
+            }
+        }
         return false;
     }
     

@@ -148,6 +148,7 @@ public class GameTree implements Runnable, ActionListener {
             try {
                 double bestScore = alphaBeta(root, round, currentPlayer, players, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
                 System.err.println("BEST SCORE:" + bestScore + " AT DEPTH:" + iterationDepth);
+                printTree(root, 0);
                 moves = createMoves();
             } catch (Exception e) {
                 //System.err.println("Broken dude!");
@@ -168,15 +169,26 @@ public class GameTree implements Runnable, ActionListener {
         return moves;
     }
     
+    public void printTree(TreeNode n, int d) {
+        if (n != null) {
+        System.err.println("N: " + d  + ", " + n.getMove());
+        for (TreeNode c : n.children) {
+            System.err.println(n.children.size());
+            printTree(c, d + 1);
+        }
+        }
+    }
+    
     public boolean pruneTree(Move move) {
         if (tree.root == null) return false;
-        System.err.println("Not null" + move);
+        printTree(tree.root, 0);
+        //System.err.println("Not null" + move);
         if (move.colour.equals(Colour.Black)) {
             tree.round++;//?
             
         }
         for (TreeNode n : tree.root.children) {
-            System.err.println("ChildreCn:" + n.getMove() + " Target:" + move);
+            //System.err.println("ChildreCn:" + n.getMove() + " Target:" + move);
         }
         for (TreeNode n : tree.root.children) {
             //System.err.println("Children:" + n.move + " Target:" + move);
@@ -184,20 +196,22 @@ public class GameTree implements Runnable, ActionListener {
                 n.parent = null;
                 tree.root = n;
                 for (TreeNode m : tree.root.children) {
-                    System.err.println("ChildrenA:" + m.getMove() + " Target:" + move);
+                    //System.err.println("ChildrenA:" + m.getMove() + " Target:" + move);
                 }
-                System.err.println("NEW ROOOOOOOOOT:" + tree.root.getMove());
-                System.err.println("current PLayer:" + tree.currentPlayer + "New Player: " + ModelHelper.getNextPlayer(tree.players, ModelHelper.getPlayerOfColour(tree.players, tree.currentPlayer)).colour());
+                //System.err.println("NEW ROOOOOOOOOT:" + tree.root.getMove());
+                //System.err.println("current PLayer:" + tree.currentPlayer + "New Player: " + ModelHelper.getNextPlayer(tree.players, ModelHelper.getPlayerOfColour(tree.players, tree.currentPlayer)).colour());
                 tree.currentPlayer = move.colour;
                 tree.players = n.players;
                 tree.iterationDepth--;
-                System.err.println("I! " + tree.iterationDepth);
-                System.err.println("AAcurrent PLayer:" + tree.currentPlayer + "New Player: " + ModelHelper.getNextPlayer(tree.players, ModelHelper.getPlayerOfColour(tree.players, tree.currentPlayer)).colour());
+                //System.err.println("I! " + tree.iterationDepth);
+                //System.err.println("AAcurrent PLayer:" + tree.currentPlayer + "New Player: " + ModelHelper.getNextPlayer(tree.players, ModelHelper.getPlayerOfColour(tree.players, tree.currentPlayer)).colour());
+                printTree(tree.root, 0);
                 return true;
             }
         }
+        
         for (TreeNode n : tree.root.children) {
-            System.err.println("ChildrenB:" + n.getMove() + " Target:" + move);
+            //System.err.println("ChildrenB:" + n.getMove() + " Target:" + move);
         }
         return false;
         
@@ -220,7 +234,7 @@ public class GameTree implements Runnable, ActionListener {
         
         GamePlayer currentPlayer = ModelHelper.getPlayerOfColour(currentState, currentPlayerColour);
         if (depth == 0 || (ModelHelper.getWinningPlayers(currentState, currentPlayer, graph, rounds, round).size() > 0)) {
-            double score = node.score();
+            double score = node.score(currentPlayer, round);
             return score;
         }
         List<TreeNode> children = node.children;
@@ -230,10 +244,11 @@ public class GameTree implements Runnable, ActionListener {
             children = new ArrayList<TreeNode>();
             //Create new layer
             Set<Move> validMoves = ModelHelper.validMoves(currentPlayer, currentState, graph);
+            //System.err.println("Parent: " + currentPlayerColour + "First Move: " + validMoves.iterator().next());
             for (Move move : validMoves) {
                 List<GamePlayer> clonedPlayers = cloneList(currentState);
                 playMove(clonedPlayers, move);
-                TreeNode newNode = new TreeNode(clonedPlayers, move, node, currentPlayer, round); //May be incorrect round or currentplayer
+                TreeNode newNode = new TreeNode(clonedPlayers, move, node);
                 children.add(newNode);
             }
             //Set children
@@ -329,8 +344,6 @@ public class GameTree implements Runnable, ActionListener {
     private class TreeNode {
         
         public final List<GamePlayer> players;
-        public final GamePlayer currentPlayer;
-        public final int round;
         public static final double kMultiplier = 1.0;
         public static final double kMax = 10.0;
         public static final double kMin = -10.0;
@@ -341,10 +354,8 @@ public class GameTree implements Runnable, ActionListener {
         public TreeNode bestChild = null;
         private Move move;
         
-        public TreeNode(List<GamePlayer> players, Move move, TreeNode parent, GamePlayer currentPlayer, int round) {
+        public TreeNode(List<GamePlayer> players, Move move, TreeNode parent) {
             this.players = players;
-            this.currentPlayer = currentPlayer;
-            this.round = round;
             this.move = move;
             this.children = null;
             this.parent = parent;
@@ -354,7 +365,7 @@ public class GameTree implements Runnable, ActionListener {
             this.children = children;
         }
         
-        public double getScore() {
+        public double getScore(GamePlayer currentPlayer, int round) {
             if (score == null) score = score(currentPlayer, round);
             return score;
         }

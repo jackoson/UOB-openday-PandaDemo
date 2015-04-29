@@ -34,15 +34,6 @@
 
 \begin{document}
 \maketitle
-\section{Transitional Issues}
-The update to the project files part-way through the project (when we switched to the new scotlandyard package) caused a significant lag ($\sim$10s) when starting a new game. We tracked this down to the Page Rank algorithm, specifically the iterate() method which is called 100 times at the beginning of a game. In order to see clearly where the problem was we used the System.nanoTime() method to find the time each line of the method took.\\
-\includegraphics[width = 8cm]{iterate}
-\includegraphics[width = 8cm]{sumPageRanks}\\
-\\
-Clearly then, the issue is with the getEdges() method in the Graph file. We believe this is because of the change from using Lists to Sets. The cost of iterating over a Set, it seems, is far greater than doing the same for a List as illustrated at http://javacodegeeks.com/2010/08/java-best-practices-vector-arraylist.html.\\
-\\
-To fix this we created a map on itilialisation which maps a node number to its edges. This means we only need to iterate over the Set once and the result is a significant speed increase.\\
-\includegraphics[width = 14cm]{comparison}
 \section{Project Schematic}
 \includegraphics[width = 17cm]{mvp_schematic}\\
 As our project grew it became important to organise our code. To achieve this we came up with the above project structure. You can clearly see the separation of the model and the views.
@@ -96,6 +87,17 @@ This means we do not get the full 15 seconds to compute the move for Mr X on the
 \\
 The most annoying thing with this bug is that it is intermittent and we believe this to be because Java is not a real-time programming language and is therefore highly dependent on OS scheduling, so this will contribute to the time not being consistent and hence this is what we think is the real cause of the issue and the only way to get around it in the standard edition of Java is to use a ScheduledExecutorService or a custom Timer.
 We first spent a lot of time trying to figure out where our AI was going wrong before we realised it was actually a problem with the server/Java creating a bit of frustration.
+\section{Transitional Issues}
+The update to the project files part-way through the project (when we switched to the new scotlandyard package) caused a significant lag ($\sim$10s) when starting a new game. We tracked this down to the Page Rank algorithm, specifically the iterate() method which is called 100 times at the beginning of a game. In order to see clearly where the problem was we used the System.nanoTime() method to find the time each line of the method took.\\
+\includegraphics[width = 8cm]{iterate}
+\includegraphics[width = 8cm]{sumPageRanks}\\
+\\
+Clearly then, the issue is with the getEdges() method in the Graph file. We believe this is because of the change from using Lists to Sets. The cost of iterating over a Set, it seems, is far greater than doing the same for a List as illustrated at http://javacodegeeks.com/2010/08/java-best-practices-vector-arraylist.html.\\
+\\
+To fix this we created a map on itilialisation which maps a node number to its edges. This means we only need to iterate over the Set once and the result is a significant speed increase.\\
+\centerline{
+\includegraphics[width = 14cm]{comparison}\\
+}
 \section{Documentation}
 We have fully commented our code to the JavaDoc specifications and have generated the html, you can find it in the docs/Documentation/JavaDocs folder.
 \end{document}

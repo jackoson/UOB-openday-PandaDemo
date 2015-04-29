@@ -7,7 +7,7 @@
 \usepackage{pgfplots}
 
 
-\title{Scotland Yard}
+\title{Scotland Yard AI}
 \author{Julian Loscombe and Ben Milne}
 
 \begin{document}
@@ -62,7 +62,7 @@ To score our game state we use to main sources of information, the PageRank of t
 \end{tikzpicture}
 \end{figure}
 \subsection{Threads}
-Because we have multiple threads acting on our game tree at the same time we have had a smörgåsbord of difficult to trace errors. To fix this we have
+Because we have multiple threads acting on our game tree at the same time we have had a smorgasbord of difficult to trace errors. To fix this we have ...
 \subsection{Iterative Depth Search}
 Because we have a strict time limit in order to make our move and the initial conditions change the complexity of the game tree, we have decided to use an iterative depth search, updating the best move on each iteration and simply grabbing the one that is available when the time limit is approaching.
 \subsection{Pruning}

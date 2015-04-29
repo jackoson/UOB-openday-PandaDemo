@@ -27,9 +27,7 @@ public class GameTree implements Runnable {
     private int iterationDepth;
     
     private static GameTree.GameTreeHelper helper = null;
-    
-    private static final Double kExitCode = -404;
-    
+
     public GameTree(Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
                     List<GamePlayer> initialState) {
@@ -41,7 +39,14 @@ public class GameTree implements Runnable {
         this.initialState = initialState;
     }
     
-    public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, 
+    /**
+     * Static function to create a GameTree and a GameTreeHelper 
+     * and start the relevant threads.
+     *
+     * @param tickets the players tickets.
+     * @return the new GameHelper object.
+     */
+    public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph,
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
                     List<GamePlayer> initialState) {
         if (helper != null) helper.stop();
@@ -52,34 +57,67 @@ public class GameTree implements Runnable {
         return helper;
     }
     
+    /**
+     * Returns the GameTreeHelper object.
+     *
+     * @return the GameTreeHelper object.
+     */
     public static GameTreeHelper getGameTreeHelper() {
         return helper;
     }
     
+    /**
+     * Sets the tree root.
+     *
+     * @param the tree root.
+     */
     public void setRoot(TreeNode root) {
         this.root = root;
     }
     
+    /**
+     * Returns the tree root.
+     *
+     * @return the tree root.
+     */
     public TreeNode getRoot() {
         return root;
     }
     
+    
+    /**
+     * Decrements the iterationDepth variable.
+     *
+     */
     public void decrementIterationDepth() {
         iterationDepth--;
     }
     
+    
+    /**
+     * Sets the tree root.
+     *
+     * @param the tree root.
+     */
     public void run() {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
         while (iterate) {
             oldRoot = root;
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            if (bestScore != GameTree.kExitCode) helper.setMoves(generateMoves());
+            helper.setMoves(generateMoves());
             System.err.println("Best score " + bestScore);
             iterationDepth++;
+            if (root.getRound() > 24) break;
         }
     }
     
+    
+    /**
+     * Returns true if the node parameter is in the current tree, false otherwise.
+     *
+     * @param the node to be checked.
+     */
     public boolean connectedToTree(TreeNode node) {
         while (node != null) {
             if (node.equals(root)) return true;
@@ -88,7 +126,7 @@ public class GameTree implements Runnable {
         return false;
     }
 
-    
+    //Performs the alpha-beta algorithm to identify the node with the best score
     private double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
         if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
                             node.getPlayer(), graph, node.getRound()).size() != 0)) {
@@ -129,6 +167,7 @@ public class GameTree implements Runnable {
                     v = newValue;
                     node.setBestChild(child);
                 }
+                
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
@@ -136,18 +175,18 @@ public class GameTree implements Runnable {
         }
     }
     
-    private TreeNode addChildren(TreeNode root, boolean maximising) {
-        int nextRound = root.getRound();
+    private TreeNode addChildren(TreeNode parent, boolean maximising) {
+        int nextRound = parent.getRound();
         if (maximising) nextRound++;
-        Colour nextPlayer = ModelHelper.getNextPlayer(root.getState(), ModelHelper.getPlayerOfColour(root.getState(), root.getPlayer())).colour();
-        Set<Move> validMoves = ModelHelper.validMoves(ModelHelper.getPlayerOfColour(root.getState(), 
-                                                      root.getPlayer()), root.getState(), graph);
+        Colour nextPlayer = ModelHelper.getNextPlayer(parent.getState(), ModelHelper.getPlayerOfColour(parent.getState(), parent.getPlayer())).colour();
+        Set<Move> validMoves = ModelHelper.validMoves(ModelHelper.getPlayerOfColour(parent.getState(),
+                                                      parent.getPlayer()), parent.getState(), graph);
         for (Move move : validMoves) {
-            List<GamePlayer> clonedState = cloneList(root.getState());
+            List<GamePlayer> clonedState = cloneList(parent.getState());
             playMove(clonedState, move);
-            root.addChild(new TreeNode(root, clonedState, nextPlayer, nextRound, move, this));
+            parent.addChild(new TreeNode(parent, clonedState, nextPlayer, nextRound, move, this));
         }
-        return root;
+        return parent;
     }
     
     private List<Move> generateMoves() {

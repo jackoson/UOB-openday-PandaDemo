@@ -21,12 +21,14 @@ public class GameTree implements Runnable {
     private final Colour initialPlayer;
     private final List<GamePlayer> initialState;
     
-    public List<Move> generatedMoves;
     public boolean iterate = true;
+    private TreeNode oldRoot;
     private TreeNode root;
     private int iterationDepth;
     
     private static GameTree.GameTreeHelper helper = null;
+    
+    private static final Double kExitCode = -404;
     
     public GameTree(Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
@@ -37,7 +39,6 @@ public class GameTree implements Runnable {
         this.round = round;
         this.initialPlayer = initialPlayer;
         this.initialState = initialState;
-        this.generatedMoves = new ArrayList<Move>();
     }
     
     public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph, 
@@ -71,12 +72,10 @@ public class GameTree implements Runnable {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
         while (iterate) {
+            oldRoot = root;
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            generatedMoves = generateMoves();
-            System.err.println("Best" + bestScore);
-            for (Move m : generatedMoves) {
-                System.err.println("Move: " + m);
-            }
+            if (bestScore != GameTree.kExitCode) helper.setMoves(generateMoves());
+            System.err.println("Best score " + bestScore);
             iterationDepth++;
         }
     }
@@ -91,11 +90,6 @@ public class GameTree implements Runnable {
 
     
     private double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
-        /** Check if node is in tree, if not return the worst case for this node. **/
-        if (!connectedToTree(node)) {
-            if (node.getPlayer().equals(Colour.Black)) {System.err.println("ALPHA-N"); return Double.NEGATIVE_INFINITY;}
-            else { System.err.println("ALPHA"); return Double.POSITIVE_INFINITY;}
-        }
         if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
                             node.getPlayer(), graph, node.getRound()).size() != 0)) {
             return node.getScore();
@@ -105,8 +99,13 @@ public class GameTree implements Runnable {
         if (node.getChildren().size() == 0) node = addChildren(node, maximising);
         if (maximising) {
             Double v = Double.NEGATIVE_INFINITY;
-            System.err.println("Children: " + node.getChildren().size());
             for (TreeNode child : node.getChildren()) {
+                /** Check if node is in tree, if not return the worst case for the root node. **/
+                if (node != oldRoot && !connectedToTree(node)) {
+                    if (oldRoot.getPlayer().equals(Colour.Black)) return Double.NEGATIVE_INFINITY;
+                    else return Double.POSITIVE_INFINITY;
+                }
+              
                 double newValue = alphaBeta(child, depth - 1, alpha, beta);
                 if (newValue > v) {
                     v = newValue;
@@ -115,12 +114,16 @@ public class GameTree implements Runnable {
                 if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
-            System.err.println("V: " + v);
             return v;
         } else {
             Double v = Double.POSITIVE_INFINITY;
-            System.err.println("ChildrenN: " + node.getChildren().size());
             for (TreeNode child : node.getChildren()) {
+                /** Check if node is in tree, if not return the worst case for the root node. **/
+                if (node != oldRoot && !connectedToTree(node)) {
+                    if (oldRoot.getPlayer().equals(Colour.Black)) return Double.NEGATIVE_INFINITY;
+                    else return Double.POSITIVE_INFINITY;
+                }
+                
                 double newValue = alphaBeta(child, depth - 1, alpha, beta);
                 if (newValue < v) {
                     v = newValue;
@@ -129,13 +132,11 @@ public class GameTree implements Runnable {
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
-            System.err.println("VN: " + v);
             return v;
         }
     }
     
     private TreeNode addChildren(TreeNode root, boolean maximising) {
-        //System.err.println("Add Child");
         int nextRound = root.getRound();
         if (maximising) nextRound++;
         Colour nextPlayer = ModelHelper.getNextPlayer(root.getState(), ModelHelper.getPlayerOfColour(root.getState(), root.getPlayer())).colour();
@@ -190,6 +191,7 @@ public class GameTree implements Runnable {
         private final Timer timer;
         private final ThreadCommunicator threadCom;
         private final GameTree gameTree;
+        public List<Move> moves;
         private Move move = null;
         
         private final int kTurnTime = 13000;
@@ -210,12 +212,15 @@ public class GameTree implements Runnable {
         
         public void actionPerformed(ActionEvent e) {
             timer.stop();
-            List<Move> moves = gameTree.generatedMoves;
             threadCom.putEvent("calculated_moves", moves);
         }
         
         public void setMove(Move move) {
             this.move = move;
+        }
+        
+        public void setMoves(List<Move> moves) {
+            this.moves = moves;
         }
         
         public void run() {
@@ -225,12 +230,13 @@ public class GameTree implements Runnable {
         
         public boolean pruneTree(Move move) {
             if (gameTree.getRoot() == null) return false;
+            
             for (TreeNode node : gameTree.root.getChildren()) {
                 if (node.getMove().equals(move)) {
                     node.setParent(null);
                     gameTree.setRoot(node);
                     gameTree.decrementIterationDepth();
-                    System.err.println("PRUNE" + node.getMove());
+                    System.err.println("PRUNED using " + node.getMove());
                     return true;
                 }
             }

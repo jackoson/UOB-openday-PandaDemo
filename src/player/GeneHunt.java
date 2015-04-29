@@ -53,7 +53,6 @@ public class GeneHunt implements Player {
         updateUI(player);
         if (gameTreeHelper == null) {
             List<GamePlayer> players = getPlayers(location, player);
-
             gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
         }
         gameTreeHelper.startTimer();
@@ -75,15 +74,14 @@ public class GeneHunt implements Player {
         for (Move m : moveList) {
             if (m.colour.equals(view.getCurrentPlayer())) move = m;
         }
-        System.err.println("Provided move");
         if (move == null) {
             move = moves.iterator().next();
             System.err.println("Bad stuffs has happened.");
         }
         gameTreeHelper.setMove(move);
-        //new Thread(gameTreeHelper).start();
-        gameTreeHelper.stop();
-        gameTreeHelper = null;
+        new Thread(gameTreeHelper).start();
+        //gameTreeHelper.stop();
+        //gameTreeHelper = null;
         return move;
     }
     

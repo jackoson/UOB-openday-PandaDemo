@@ -70,7 +70,12 @@ public class Dijkstra {
         //Search through the graph
         while (unvisitedNodes.size() > 0) {
             currentNode = minDistance(distances, unvisitedNodes);
+            try {
             if (currentNode.data().equals(destination)) break;
+            } catch (Exception e) {
+                System.err.println("Dijkstra: " + currentNode + "   :   " + currentNode.data() + "   :   " + destination);
+                System.err.println(e);
+            }
             unvisitedNodes.remove(currentNode);
             
             step(graph, distances, unvisitedNodes, currentNode, previousNodes, tickets);

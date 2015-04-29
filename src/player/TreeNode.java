@@ -191,6 +191,7 @@ public class TreeNode {
         score += ((pageRankRatio - 1) * kPageRankInfluence) * score;
         
         if ((closestDistance < 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score += 2;//Need to adjust if we change things
+        //System.err.println("Move:" + move + "Score: " + score);
         return score;
     } 
     

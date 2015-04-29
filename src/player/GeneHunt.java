@@ -6,6 +6,7 @@ import client.application.*;
 import client.model.*;
 
 import java.util.*;
+import java.awt.event.*;
 
 /**
  * The RandomPlayer class is an example of a very simple AI that
@@ -15,7 +16,7 @@ import java.util.*;
  * list of valid moves. The return value is the desired move,
  * which must be one from the list.
  */
-public class GeneHunt implements Player {
+public class GeneHunt implements Player, ActionListener {
     
     private ScotlandYardView view;
     private Graph<Integer, Route> graph;
@@ -57,11 +58,16 @@ public class GeneHunt implements Player {
             List<GamePlayer> players = getPlayers(location, player);
             gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
             move = moves.iterator().next();
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         }
         if (move == null) {
             System.err.println("Time: " + (System.nanoTime() - startTime));
             startTime = System.nanoTime();
-            gameTreeHelper.startTimer();
+            gameTreeHelper.startTimer(this);
         
             while (true) {
                 try {
@@ -93,6 +99,14 @@ public class GeneHunt implements Player {
         System.err.println("TimeC: " + (System.nanoTime() - startTime));
         startTime = System.nanoTime();
         return move;
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().equals("game_tree_crashed")) {
+            Colour player = view.getCurrentPlayer();
+            List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
+            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
+        }
     }
     
     private void updateUI(Colour player) {

@@ -5,7 +5,30 @@
 \usetikzlibrary{automata,positioning}
 \usepackage{graphicx}
 \usepackage{pgfplots}
+\usepackage{listings}
+\usepackage{color}
 
+\definecolor{comments}{rgb}{0,0.5,0.5}
+\definecolor{typeWord}{rgb}{0.5,0,1}
+\definecolor{number}{rgb}{1,0.5,0}
+\definecolor{string}{rgb}{0.5,0.5,0.5}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\color{number},
+  commentstyle=\color{comments},
+  stringstyle=\color{string},
+  keywordstyle=\color{typeWord},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4
+}
 
 \title{Scotland Yard AI}
 \author{Julian Loscombe and Ben Milne}
@@ -15,31 +38,29 @@
 \section{Game Tree}
 We have set up our game tree to use Alpha - Beta pruning in order to increase the depth that we can search to in the allotted time. In doing so we reduced the time to get to depth 4 from ???ms to ??? ms. In addition we are removing the double and secret moves from the game tree to further reduce the time to move through the trees. This is important because below a depth 6 search we would not even be considering some detectives moves when deciding what to do. A higher search depth also allows us to make mores with much greater foresight, something that is the hallmark of a competent player.
 \subsection{Scoring}
-To score our game state we use to main sources of information, the PageRank of the detectives' locations vs Mr X's location and the average (minimum?) distance between the detectives and Mr X using Dijkstras. We weight the PageRanks influence depending on Dijkstras because if the detectives are close, it is much more important to widen that distance than to get to an opportunistic node. In theory simply using Dijkstra would be sufficient as it itself uses PageRank, however, as the depth to which we can search is limited, using PageRank directly gives us some indication of advantageous positions.\\
-\\
+To score our game state we use three main sources of information, the ratio between the PageRank of the detectives' locations and Mr X's location, the ratio between the value of the detectives and MrX's tickets, and the average distance between the detectives and Mr X (using Dijkstra's Algorithm). We consider the average distance to be the most important factor and as such its influence is weighted much higher than the other two. Because it is particularly important to avoid very small distances we use a root function to transform the distance score so that is is much steeper when Mr X is close to being caught. We then normalise the ratios around 0 and apply them to the distance score as below:
+\begin{lstlisting}
+double score = (10 * Math.pow(detDistance, 0.5));
+        score += ((ticketRatio - 1) * kTicketInfluence) * score;
+        score += ((pageRankRatio - 1) * kPageRankInfluence) * score;
+\end{lstlisting}
+This ensures that the average ratio will have no effect on the score and that when the distance is very small it's main objective is to increase that distance. We also added a special case to boost secret move scores when the distance was very small. The below graph illustrates part of the score function.
+
 \begin{figure}[!h]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
     axis lines = left,
-    xlabel = {Dijkstra score},
-    ylabel = {PageRank},
+    xlabel = {Detective Distance},
+    ylabel = {Score},
 ]
-%Below the red parabola is defined
-\addplot [
-    domain=0:10, 
-    samples=100, 
-    color=gray,
-]
-{x};
-\addlegendentry{Dijkstra}
 %Below the red parabola is defined
 \addplot [
     domain=0:10, 
     samples=100, 
     color=black,
 ]
-{(x^2.8)/40};
+{(1-1)*x + (1-1)*x + 10*x^0.5};
 \addlegendentry{Multipler}
 %Below the red parabola is defined
 \addplot [
@@ -47,16 +68,16 @@ To score our game state we use to main sources of information, the PageRank of t
     samples=100, 
     color=red,
 ]
-{((x^2.8)/40)*0.7};
-\addlegendentry{Minimum value}
+{(2-1)*x + (1-1)*x + 10*x^0.5};
+\addlegendentry{Large ticket ration}
 %Here the blue parabloa is defined
 \addplot [
     domain=0:10, 
     samples=100, 
     color=blue,
     ]
-    {((x^2.8)/40)*2.7};
-\addlegendentry{Maximum value}
+    {(0.2-1)*x + (1-1)*x + 10*x^0.5};
+\addlegendentry{Small ticket ratio}
  
 \end{axis}
 \end{tikzpicture}

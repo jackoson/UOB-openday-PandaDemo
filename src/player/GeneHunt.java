@@ -6,16 +6,13 @@ import client.application.*;
 import client.model.*;
 
 import java.util.*;
+import java.awt.event.*;
 
 /**
- * The RandomPlayer class is an example of a very simple AI that
- * makes a random move from the given set of moves. Since the
- * RandomPlayer implements Player, the only required method is
- * notify(), which takes the location of the player and the
- * list of valid moves. The return value is the desired move,
- * which must be one from the list.
+ * A class that uses a GameTree to make it a useful AI, it channels it's inner Gene Hunt to make the best Moves.
  */
-public class GeneHunt implements Player {
+ 
+public class GeneHunt implements Player, ActionListener {
     
     private ScotlandYardView view;
     private Graph<Integer, Route> graph;
@@ -26,8 +23,14 @@ public class GeneHunt implements Player {
     private ThreadCommunicator threadCom;
     private ThreadCommunicator guiThreadCom;
     
+    /**
+     * Constructs a new GeneHunt AI object.
+     *
+     * @param view the ScotlandYardView that contains information about the game.
+     * @param graphFilename the path to the file that contains the Graph.
+     * @param guiThreadCom the ThreadCommunicator object to communicate with the Event handling thread (GUI thread).
+     */
     public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom) {
-        //TODO: A better AI makes use of `view` and `graphFilename`.
         try {
             this.threadCom = new ThreadCommunicator();
             this.view = view;
@@ -45,10 +48,16 @@ public class GeneHunt implements Player {
         
     }
 
+    /**
+     * Returns the Move chosen by the game tree.
+     *
+     * @param location the location of the player.
+     * @param moves the Set of valid Moves for the player.
+     * @return the Move chosen by the game tree.
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Move notify(int location, Set<Move> moves) {
-        //TODO: Some clever AI here ...
         Colour player = view.getCurrentPlayer();
         updateUI(player);
         Move move = null;
@@ -63,7 +72,9 @@ public class GeneHunt implements Player {
             }
         }
         if (move == null) {
-            gameTreeHelper.startTimer();
+            System.err.println("Time: " + (System.nanoTime() - startTime));
+            startTime = System.nanoTime();
+            gameTreeHelper.startTimer(this);
             while (true) {
                 try {
                     String id = (String)threadCom.takeEvent();
@@ -90,12 +101,30 @@ public class GeneHunt implements Player {
         return move;
     }
     
+    /**
+     * Called when the game tree crashes and needs to be restarted.
+     *
+     * @param e the ActionEvent containing information about what object created it.
+     */
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().equals("game_tree_crashed")) {
+            Colour player = view.getCurrentPlayer();
+            List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
+            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
+        }
+    }
+    
+    // Updates the UI at the start of an AI move.
+    // @param player the player whose turn it is.
     private void updateUI(Colour player) {
         guiThreadCom.putUpdate("reset_timer", true);
         guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
         updateTickets(player);
     }
     
+    // Returns the correct message for the specified player.
+    // @param player the player whose message should be returned.
+    // @return the correct message for the specified player.
     private String getPlayerMessage(Colour player) {
         if (player.equals(Colour.Black)) return "Mr X";
         else return "the " + player.toString() + " Detective";
@@ -111,6 +140,10 @@ public class GeneHunt implements Player {
         guiThreadCom.putUpdate("update_tickets", newTickets);
     }
     
+    // Returns the List of GamePlayer objects for the current game state.
+    // @param location the location of the current player.
+    // @param currentPlayer the Colour of the current player.
+    // @return the List of GamePlayer objects for the current game state.
     private List<GamePlayer> getPlayers(int location, Colour currentPlayer) {
         List<Colour> players = view.getPlayers();
         List<GamePlayer> gamePlayers = new ArrayList<GamePlayer>();

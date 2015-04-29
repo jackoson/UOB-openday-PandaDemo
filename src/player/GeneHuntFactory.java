@@ -14,11 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The GeneHuntFactory is a PlayerFactory that
- * creates a series of Gene Hunt players. By default it assigns
- * Gene Hunt to be Mr X and all other players are controlled by the
- * GUI.
+ * A class to create both AI and GUI players. By default it makes only Mr X an AI player and everyone else a GUI player.
  */
+ 
 public class GeneHuntFactory implements PlayerFactory {
     protected Map<Colour, PlayerType> typeMap;
 
@@ -31,6 +29,12 @@ public class GeneHuntFactory implements PlayerFactory {
     
     private final int kTimerTime = 14;
 
+    /**
+     * Constructs a new GeneHuntFactory object.
+     *
+     * @param application the ScotlandYardApplication that has started the game.
+     * @param threadCom the ThreadCommunicator object to communicate with the Event handling thread (GUI Thread).
+     */
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom) {
         this.application = application;
         this.threadCom = threadCom;
@@ -46,6 +50,14 @@ public class GeneHuntFactory implements PlayerFactory {
         graphFilename = "resources/graph.txt";
     }
 
+    /**
+     * Constructs a new GeneHuntFactory object.
+     *
+     * @param application the ScotlandYardApplication that has started the game.
+     * @param threadCom the ThreadCommunicator object to communicate with the Event handling thread (GUI Thread).
+     * @param typeMap the Map that decides who should be AI players and who should be GUI players.
+     * @param graphFilename the path to the file containing the Graph.
+     */
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom, Map<Colour, PlayerType> typeMap, String graphFilename) {
         this.application = application;
         this.threadCom = threadCom;
@@ -53,6 +65,14 @@ public class GeneHuntFactory implements PlayerFactory {
         this.graphFilename = graphFilename;
     }
 
+    /**
+     * Returns the correct Player for the specified player in the game.
+     *
+     * @param colour the Colour of the player in the game.
+     * @param view the ScotlandYardView containing information about the game.
+     * @param graphFilename the path to the file containing the Graph.
+     * @return the correct Player for the specified player in the game.
+     */
     @Override
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
@@ -65,6 +85,10 @@ public class GeneHuntFactory implements PlayerFactory {
         }
     }
 
+    /**
+     * Called when the game is ready.
+     * Updates the UI to start the game.
+     */
     @Override
     public void ready() {
         if (gui != null && application != null) {
@@ -73,6 +97,12 @@ public class GeneHuntFactory implements PlayerFactory {
         }
     }
 
+    /**
+     * Returns a List of Spectators of the game.
+     * The only spectator is the GUI.
+     *
+     * @return a List of Spectators of the game.
+     */
     @Override
     public List<Spectator> getSpectators(ScotlandYardView view) {
         List<Spectator> specs = new ArrayList<Spectator>();
@@ -80,6 +110,10 @@ public class GeneHuntFactory implements PlayerFactory {
         return specs;
     }
 
+    /**
+     * Called when the game ends.
+     * Updates the UI to end the game.
+     */
     @Override
     public void finish() {
         if (gui != null && application != null) {
@@ -88,7 +122,12 @@ public class GeneHuntFactory implements PlayerFactory {
         }
     }
 
-
+    /**
+     * Returns the GUI associated with the game.
+     *
+     * @param view the ScotlandYardView that contains the information about the game.
+     * @return the GUI associated with the game.
+     */
     private ScotlandYardGame gui(ScotlandYardView view) {
         if (gui == null) {
             gui = new ScotlandYardGame(view, graphFilename, threadCom);

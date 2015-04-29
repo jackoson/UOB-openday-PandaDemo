@@ -346,13 +346,11 @@ public class GameTree implements Runnable {
         // @return true if pruning the GameTree is successful.
         private boolean pruneTree(Move move) {
             if (gameTree.getRoot() == null) return false;
-            
             for (TreeNode node : gameTree.root.getChildren()) {
                 if (node.getMove().equals(move)) {
                     node.setParent(null);
                     gameTree.setRoot(node);
                     gameTree.resetIterationDepth();
-                    System.err.println("PRUNED using " + node.getMove());
                     gameTree.setPrune(true);
                     return true;
                 }

@@ -177,8 +177,7 @@ public class TreeNode {
     // @return the score for this node.
     private double score() {
         Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(currentState, currentPlayer, gameTree.graph, round);
-        if (winningPlayers.contains(Colour.Black)) {System.err.println("Mr X has won in this state - " + winningPlayers); return Double.POSITIVE_INFINITY;}
-        else if (winningPlayers.size() != 0) {System.err.println("Detectives have won in this state - " + winningPlayers); return Double.NEGATIVE_INFINITY;}
+        if (winningPlayers.contains(Colour.Black)) return Double.POSITIVE_INFINITY;
         GamePlayer mrX = currentState.get(0);
         int mrXLocation = mrX.location();
         if (mrXLocation <= 0) mrXLocation = 1;

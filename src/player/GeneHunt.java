@@ -72,8 +72,6 @@ public class GeneHunt implements Player, ActionListener {
             }
         }
         if (move == null) {
-            System.err.println("Time: " + (System.nanoTime() - startTime));
-            startTime = System.nanoTime();
             gameTreeHelper.startTimer(this);
             while (true) {
                 try {

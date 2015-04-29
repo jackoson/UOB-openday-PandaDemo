@@ -72,11 +72,6 @@ public class ModelHelper {
                     if (!player.colour().equals(Colour.Black)) winners.add(player.colour());
                 }
             }
-        //System.err.println("DetNoValid" + detectivesNoValidMoves(players, graph));
-        //System.err.println("PlayersSize" + players.size());
-        //System.err.println("RoundBig" + (round >= (getRounds().size() - 1) && currentPlayer.equals(Colour.Black)));
-        //System.err.println("OnMrX" + onMrX(players));
-        //System.err.println("ValidMoves" + validMoves(players.get(0), players, graph).size());
         return winners;
     }
     

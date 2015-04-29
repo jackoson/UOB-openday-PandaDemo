@@ -106,9 +106,8 @@ public class GameTree implements Runnable {
             oldRoot = root;
             double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             helper.setMoves(generateMoves());
-            System.err.println("Best score " + bestScore);
             iterationDepth++;
-            if (root.getRound() > 24) break;
+            if (root.getRound() > 24) { System.out.println("Finished Game Tree"); break; }
         }
     }
     
@@ -152,6 +151,7 @@ public class GameTree implements Runnable {
                 if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
+            if (node.equals(root)) System.err.println("Best score " + bestScore + " root player - " + node.getPlayer());
             return v;
         } else {
             Double v = Double.POSITIVE_INFINITY;
@@ -171,6 +171,7 @@ public class GameTree implements Runnable {
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
+            if (node.equals(root)) System.err.println("Best score " + bestScore + " root player - " + node.getPlayer());
             return v;
         }
     }
@@ -267,7 +268,7 @@ public class GameTree implements Runnable {
             move = null;
         }
         
-        public boolean pruneTree(Move move) {
+        private boolean pruneTree(Move move) {
             if (gameTree.getRoot() == null) return false;
             
             for (TreeNode node : gameTree.root.getChildren()) {
@@ -279,6 +280,7 @@ public class GameTree implements Runnable {
                     return true;
                 }
             }
+            System.out.println("Not pruned");
             return false;
         }
         

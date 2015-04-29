@@ -85,14 +85,14 @@ This ensures that the average ratio will have no effect on the score and that wh
 \end{tikzpicture}
 \end{figure}
 \subsection{Pruning}
-We are hoping to keep the tree running throughout the game in order to use the work we have already done to extend the depth we are able to reach. Clearly though, we must prune branches that are made impossible by the game advancing in order to make any real progress. We achieve this by setting the root of the tree to be the node containing the last played move, thus making unneeded nodes unreachable. However, what if we are currently in one of those pruned branches? We would waste time evaluating nodes that are unnecessary. So, to avoid this, we perform a quick when we enter our alphabeta() function to see if we have pruned and break out if this is the case
+Our game keeps the tree running throughout the game in order to use the work we have already done to extend the depth we are able to reach. In order to do this though, we must prune branches that are made impossible by the game advancing in order to make any real progress. We achieve this by setting the root of the tree to be the node containing the last played move, thus making unneeded nodes unreachable. However, what if we are currently in one of those pruned branches? We would waste time evaluating nodes that are unnecessary. So, to avoid this, we perform a quick when we enter our alphabeta() function to see if we have pruned and break out if this is the case. The results of the pruning extends our search depth a few levels after which it reaches an equilibrium between the moves being pruned and the expanding search tree.
 \begin{figure}[h!]
   \centering
   	\includegraphics[width = 17cm]{TreePruning}\\
   \caption{After making move A, we can prune all other moves and their subsequent moves.}
 \end{figure}
 \section{Results}
-The AI we have produced has very promising results and does make smart moves. However, we are still coming up against erro
+The AI we have produced has very promising results and does make smart moves. However, we are still commonly coming up against errors which we believe are a result of threading issues. This means that they are very difficult to debug and in retrospect we believe that given the short amount of time provided, it would have been wise to keep our tree simple and focus on reaching to greater search depths. This would mean that we could consider moves further ahead, something that is the hallmark of a good player.
 \end{document}
 
 

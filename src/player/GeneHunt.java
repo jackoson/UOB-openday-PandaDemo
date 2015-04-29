@@ -52,41 +52,44 @@ public class GeneHunt implements Player {
         long startTime = System.nanoTime();
         Colour player = view.getCurrentPlayer();
         updateUI(player);
+        Move move = null;
         if (gameTreeHelper == null) {
             List<GamePlayer> players = getPlayers(location, player);
             gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
-        }
-        System.err.println("Time: " + (System.nanoTime() - startTime));
-        startTime = System.nanoTime();
-        gameTreeHelper.startTimer();
-        
-        while (true) {
-            try {
-                String id = (String)threadCom.takeEvent();
-                Object object = threadCom.takeEvent();
-                if (id.equals("calculated_moves")) {
-                    moveList = (List<Move>) object;
-                    for (Move m : moveList);
-                    break;
-                }
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-        System.err.println("TimeB: " + (System.nanoTime() - startTime));
-        startTime = System.nanoTime();
-        Move move = null;
-        for (Move m : moveList) {
-            if (m.colour.equals(view.getCurrentPlayer())) move = m;
+            move = moves.iterator().next();
         }
         if (move == null) {
-            move = moves.iterator().next();
-            System.err.println("Bad stuffs has happened.");
+            System.err.println("Time: " + (System.nanoTime() - startTime));
+            startTime = System.nanoTime();
+            gameTreeHelper.startTimer();
+        
+            while (true) {
+                try {
+                    String id = (String)threadCom.takeEvent();
+                    Object object = threadCom.takeEvent();
+                    if (id.equals("calculated_moves")) {
+                        moveList = (List<Move>) object;
+                        for (Move m : moveList);
+                        break;
+                    }
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+            }
+            System.err.println("TimeB: " + (System.nanoTime() - startTime));
+            startTime = System.nanoTime();
+            for (Move m : moveList) {
+                if (m.colour.equals(view.getCurrentPlayer())) move = m;
+            }
+            if (move == null) {
+                move = moves.iterator().next();
+                System.err.println("Bad stuffs has happened.");
+            }
         }
         gameTreeHelper.setMove(move);
-        //new Thread(gameTreeHelper).start();
-        gameTreeHelper.stop();
-        gameTreeHelper = null;
+        new Thread(gameTreeHelper).start();
+        //gameTreeHelper.stop();
+        //gameTreeHelper = null;
         System.err.println("TimeC: " + (System.nanoTime() - startTime));
         startTime = System.nanoTime();
         return move;

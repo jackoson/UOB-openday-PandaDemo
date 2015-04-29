@@ -1,0 +1,75 @@
+% !TEX TS-program = xelatex
+\documentclass[a4paper, 12pt]{article}
+\usepackage{hyperref}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{listings}
+\usepackage{fontspec}
+\setmonofont{Menlo}
+\title{Animatable Panel}
+\author{Julian Loscombe and Ben Milne}
+
+\lstdefinestyle{customc}{
+  frame=leftline,
+  framesep=10pt,
+  xleftmargin=30pt,
+  language=Java,
+  basicstyle=\scriptsize\ttfamily,
+  tabsize =4,
+}
+
+\lstset{escapechar=@,style=customc}
+
+
+\begin{document}
+\maketitle 
+\section{Overview}
+AnimatablePanel is a class to assist with animation when dealing with panels. It adds a number of animatable properties to the standard JPanel class and provides a simpler mechanism for animating more arbitrary values, for example, when drawing in paintComponent().
+\section{Panel animation}
+Currently AnimatablePanel allows you to animate the preferred size of a panel and its background color including the alpha component. The appropriate methods are respectfully:\\
+\begin{lstlisting}
+setPreferredsize(Dimension size, Double duration)
+setBackground(Color background, Double duration)
+\end{lstlisting}
+\section{Animator}
+AnimatablePanel uses a helper class, Animator to produce the desired animation. This acts on a single Double value and increments it between an initial value and a target value over a duration. You can create extra Animator objects from outside the AnimatablePanel class to animate arbitrary values by calling createAnimator(). For example, if we wanted to make a circle which is drawn in paintComponent() expand when we call a method we would do something like:\\
+\begin{lstlisting}
+private class CustomPanel extends AnimatablePanel {
+	AnimatablePanel.Animator radiusAnimator;
+	
+	public void growCircle() {
+		//Create a new Animator with specified values
+		radiusAnimator = createAnimator(0.0, 20.0, 0.5);
+	}
+	
+	...
+	
+	public void paintComponent(Graphics g0) {
+		Double r;
+		...
+		//Draw using the animated value
+		if (radiusAnimator != null) r = radiusAnimator.value();
+		g.fillOval(x - r, y - r, r * 2, r * 2);
+	}
+}
+\end{lstlisting}
+\pagebreak
+\section{Easing}
+You can change the easing of an animation by specifying an argument of type AnimationEase in the animation call.\\
+\begin{lstlisting}
+setPreferredsize(Dimension size, Double duration, AnimationEase ease)
+setBackground(Color background, Double duration, AnimationEase ease)
+\end{lstlisting}
+This is an enumeration with values:\\
+\begin{lstlisting}
+AnimationEase.LINEAR
+AnimationEase.EASE_IN
+AnimationEase.EASE_OUT
+AnimationEase.EASE_IN_OUT
+\end{lstlisting}
+If no easing is set then the default is LINEAR. All easings are cubic and you can find nice examples of what each means at www.easings.net.\\
+\section{Notifications}
+It can be useful to know when an animation has begun or finished and so Animatable panel contains two methods that you can override to be notified when such events occur. These are: \begin{lstlisting}
+animationsBegun()
+animationsCompleted()
+\end{lstlisting}
+\end{document}

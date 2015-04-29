@@ -24,7 +24,11 @@ public class RandomPlayer implements Player {
     @Override
     public Move notify(int location, Set<Move> moves) {
         //TODO: Some clever AI here ...
-
+        try {
+            Thread.sleep(14000);
+        } catch (Exception e) {
+            
+        }
         int choice = new Random().nextInt(moves.size());
         for (Move move : moves) {
             if (choice == 0) {

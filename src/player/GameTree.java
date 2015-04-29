@@ -233,7 +233,7 @@ public class GameTree implements Runnable {
         public List<Move> moves;
         private Move move = null;
         
-        private final int kTurnTime = 13000;
+        private final int kTurnTime = 10000;
         
         public GameTreeHelper(ThreadCommunicator threadCom, GameTree gameTree) {
             this.threadCom = threadCom;

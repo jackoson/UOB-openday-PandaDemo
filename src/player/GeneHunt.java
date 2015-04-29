@@ -49,6 +49,7 @@ public class GeneHunt implements Player {
     @Override
     public Move notify(int location, Set<Move> moves) {
         //TODO: Some clever AI here ...
+        long startTime = System.nanoTime();
         Colour player = view.getCurrentPlayer();
         updateUI(player);
         if (gameTreeHelper == null) {
@@ -56,6 +57,8 @@ public class GeneHunt implements Player {
 
             gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
         }
+        System.err.println("Time: " + (System.nanoTime() - startTime));
+        startTime = System.nanoTime();
         gameTreeHelper.startTimer();
         
         while (true) {
@@ -71,11 +74,13 @@ public class GeneHunt implements Player {
                 System.err.println(e);
             }
         }
+        System.err.println("TimeB: " + (System.nanoTime() - startTime));
+        startTime = System.nanoTime();
         Move move = null;
         for (Move m : moveList) {
             if (m.colour.equals(view.getCurrentPlayer())) move = m;
         }
-        System.err.println("Provided move");
+        System.err.println("Provided move: " + moves.contains(move));
         if (move == null) {
             move = moves.iterator().next();
             System.err.println("Bad stuffs has happened.");
@@ -84,6 +89,8 @@ public class GeneHunt implements Player {
         //new Thread(gameTreeHelper).start();
         gameTreeHelper.stop();
         gameTreeHelper = null;
+        System.err.println("TimeC: " + (System.nanoTime() - startTime));
+        startTime = System.nanoTime();
         return move;
     }
     

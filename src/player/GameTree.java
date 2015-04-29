@@ -55,6 +55,7 @@ public class GameTree implements Runnable {
                                           round, initialPlayer, initialState);
         new Thread(gameTree).start();
         helper = new GameTreeHelper(threadCom, gameTree);
+        System.err.println("Created tree");
         return helper;
     }
     
@@ -246,7 +247,7 @@ public class GameTree implements Runnable {
         }
         
         public void stop() {
-            gameTree.iterate = false;
+            gameTree.stop();
         }
         
         public void startTimer(ActionListener listener) {
@@ -274,7 +275,6 @@ public class GameTree implements Runnable {
         
         public boolean pruneTree(Move move) {
             if (gameTree.getRoot() == null) return false;
-            
             for (TreeNode node : gameTree.root.getChildren()) {
                 if (node.getMove().equals(move)) {
                     node.setParent(null);

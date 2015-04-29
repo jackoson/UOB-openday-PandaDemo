@@ -159,7 +159,6 @@ public class TreeNode {
         //TODO: Implement the score function.
         Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(currentState, currentPlayer, gameTree.graph, round);
         if (winningPlayers.contains(Colour.Black)) {System.err.println("SCORE-N"); return Double.POSITIVE_INFINITY;}
-        else if (winningPlayers.size() != 0) {System.err.println("SCORE"); return Double.NEGATIVE_INFINITY;}
         GamePlayer mrX = currentState.get(0);
         int mrXLocation = mrX.location();
         if (mrXLocation <= 0) mrXLocation = 1;
@@ -191,7 +190,6 @@ public class TreeNode {
         score += ((pageRankRatio - 1) * kPageRankInfluence) * score;
         
         if ((closestDistance < 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score += 2;//Need to adjust if we change things
-        //System.err.println("Move:" + move + "Score: " + score);
         return score;
     } 
     

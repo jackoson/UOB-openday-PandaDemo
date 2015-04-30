@@ -112,6 +112,13 @@ public class TreeNode {
     }
     
     /**
+     * Removes all of the children associated with this node.
+     */
+    public void removeChildren() {
+        children = new ArrayList<TreeNode>();
+    }
+    
+    /**
      * Returns the score associated with this node.
      *
      * @return the score associated with this node.

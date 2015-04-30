@@ -23,6 +23,8 @@ public class GeneHunt implements Player, ActionListener {
     private ThreadCommunicator threadCom;
     private ThreadCommunicator guiThreadCom;
     
+    private final int kTurnTime = 14000;
+    
     /**
      * Constructs a new GeneHunt AI object.
      *
@@ -63,40 +65,25 @@ public class GeneHunt implements Player, ActionListener {
         Move move = null;
         if (gameTreeHelper == null) {
             List<GamePlayer> players = getPlayers(location, player);
-            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
+            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
             move = moves.iterator().next();
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                System.err.println("Could not wait in GeneHunt.");
-            }
         }
         if (move == null) {
-            gameTreeHelper.startTimer(this);
-            while (true) {
-                try {
-                    String id = (String)threadCom.takeEvent();
-                    Object object = threadCom.takeEvent();
-                    if (id.equals("calculated_moves")) {
-                        moveList = (List<Move>) object;
-                        for (Move m : moveList);
-                        break;
-                    }
-                } catch (Exception e) {
-                    System.err.println(e);
-                }
-            }
-            for (Move m : moveList) {
-                if (m.colour.equals(view.getCurrentPlayer())) move = m;
-            }
-            if (move == null) {
-                move = moves.iterator().next();
-                System.err.println("Bad stuffs has happened.");
-            }
+            wait(kTurnTime);
+            move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
+            if (move == null) move = moves.iterator().next();
         }
         gameTreeHelper.setMove(move);
         new Thread(gameTreeHelper).start();
         return move;
+    }
+    
+    private void wait(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            System.err.println("Interrupted while waiting in GeneHunt.");
+        }
     }
     
     /**
@@ -108,7 +95,7 @@ public class GeneHunt implements Player, ActionListener {
         if (e.getActionCommand().equals("game_tree_crashed")) {
             Colour player = view.getCurrentPlayer();
             List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
-            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players);
+            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
         }
     }
     

@@ -26,7 +26,6 @@ public class GameTree implements Runnable {
     private final List<GamePlayer> initialState;
     
     public boolean iterate = true;
-    private TreeNode oldRoot;
     private TreeNode root;
     private int iterationDepth;
     private boolean prune = false;
@@ -69,12 +68,12 @@ public class GameTree implements Runnable {
      */
     public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph,
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
-                    List<GamePlayer> initialState) {
+                    List<GamePlayer> initialState, ActionListener listener) {
         if (helper != null) helper.stop();
         GameTree gameTree = new GameTree(graph, pageRank, dijkstra,
                                           round, initialPlayer, initialState);
         new Thread(gameTree).start();
-        helper = new GameTreeHelper(threadCom, gameTree);
+        helper = new GameTreeHelper(gameTree, listener);
         return helper;
     }
     
@@ -105,15 +104,6 @@ public class GameTree implements Runnable {
     }
     
     /**
-     * Sets the tree root.
-     *
-     * @param the tree root.
-     */
-    public void setRoot(TreeNode root) {
-        this.root = root;
-    }
-    
-    /**
      * Returns the tree root.
      *
      * @return the tree root.
@@ -124,10 +114,10 @@ public class GameTree implements Runnable {
     
     
     /**
-     * Resets the iterationDepth variable.
+     * Decrements the iterationDepth variable.
      */
-    public void resetIterationDepth() {
-        iterationDepth = 0;
+    public void decrementIterationDepth() {
+        iterationDepth--;
     }
     
     
@@ -138,12 +128,11 @@ public class GameTree implements Runnable {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
         while (iterate) {
-            oldRoot = root;
             Double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            if (bestScore != null) helper.setMoves(generateMoves());
+            System.err.println("Best score " + bestScore + " depth - " + iterationDepth);
             prune = false;
             iterationDepth++;
-            if (root.getRound() > 24) break;
+            if (iterationDepth > (24 * 6)) break;
         }
         System.err.println("Game tree stopped.");
     }
@@ -175,7 +164,6 @@ public class GameTree implements Runnable {
                 if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
-            if (node.equals(root)) System.err.println("Best score " + bestScore + " root player - " + node.getPlayer());
             return v;
         } else {
             Double v = Double.POSITIVE_INFINITY;
@@ -190,7 +178,6 @@ public class GameTree implements Runnable {
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
-            if (node.equals(root)) System.err.println("Best score " + bestScore + " root player - " + node.getPlayer());
             return v;
         }
     }
@@ -215,14 +202,13 @@ public class GameTree implements Runnable {
     
     // Returns the List of Moves that the game tree has calculated.
     // @return the List of Moves that the game tree has calculated.
-    private List<Move> generateMoves() {
-        List<Move> moves = new ArrayList<Move>();
+    private Move generateMove(int round, Colour colour) {
         TreeNode n = root.getBestChild();
         while (n != null) {
-            moves.add(n.getMove());
+            if (n.getRound() == round && n.getPlayer().equals(colour)) return n.getMove();
             n = n.getBestChild();
         }
-        return moves;
+        return null;
     }
     
     // Plays the specified Move in the specified game state.
@@ -264,16 +250,11 @@ public class GameTree implements Runnable {
     }
     
     // A class to help prune the GameTree when a Move is played.
-    public static class GameTreeHelper implements ActionListener, Runnable {
+    public static class GameTreeHelper implements Runnable {
         
-        private final Timer timer;
-        private final ThreadCommunicator threadCom;
         private final GameTree gameTree;
-        public List<Move> moves;
         private Move move = null;
         private ActionListener listener;
-        
-        private final int kTurnTime = 10000;
         
         /**
          * Constructs a new GameTreeHelper object.
@@ -281,10 +262,9 @@ public class GameTree implements Runnable {
          * @param threadCom the ThreadCommunicator object to put the generated Moves onto.
          * @param gameTree the GameTree to whom this GameTreeHelper helps.
          */
-        public GameTreeHelper(ThreadCommunicator threadCom, GameTree gameTree) {
-            this.threadCom = threadCom;
+        public GameTreeHelper(GameTree gameTree, ActionListener listener) {
             this.gameTree = gameTree;
-            this.timer = new Timer(kTurnTime, this);
+            this.listener = listener;
         }
         
         /**
@@ -295,27 +275,6 @@ public class GameTree implements Runnable {
         }
         
         /**
-         * Starts the Timer for kTurnTime.
-         *
-         * @param listener the ActionListener to notify if the GameTree crashes.
-         */
-        public void startTimer(ActionListener listener) {
-            this.listener = listener;
-            timer.restart();
-        }
-        
-        /**
-         * Called when the Timer runs out.
-         *
-         * @param e the ActionEvent containing the information about the 
-         * object which called this listener.
-         */
-        public void actionPerformed(ActionEvent e) {
-            timer.stop();
-            threadCom.putEvent("calculated_moves", moves);
-        }
-        
-        /**
          * Sets the Move to be pruned.
          *
          * @param move the Move to be pruned.
@@ -323,14 +282,14 @@ public class GameTree implements Runnable {
         public void setMove(Move move) {
             this.move = move;
         }
-        
+
         /**
-         * Sets the List of Moves generated by the GameTree.
+         * Returns the suggested Move selected by the game tree.
          *
-         * @param moves the List of Moves generated by the GameTree.
+         * @return the suggested Move selected by the game tree.
          */
-        public void setMoves(List<Move> moves) {
-            this.moves = moves;
+        public Move getSuggestedMove(int round, Colour player) {
+            return gameTree.generateMove(round, player);
         }
         
         /**
@@ -345,15 +304,21 @@ public class GameTree implements Runnable {
         // @param move the Move to be pruned.
         // @return true if pruning the GameTree is successful.
         private boolean pruneTree(Move move) {
-            if (gameTree.getRoot() == null) return false;
-            for (TreeNode node : gameTree.root.getChildren()) {
-                if (node.getMove().equals(move)) {
-                    node.setParent(null);
-                    gameTree.setRoot(node);
-                    gameTree.resetIterationDepth();
-                    gameTree.setPrune(true);
-                    return true;
+            TreeNode root = gameTree.getRoot();
+            if (root == null) return false;
+            while (root != null) {
+                for (TreeNode node : root.getChildren()) {
+                    if (node.getMove().equals(move)) {
+                        root.removeChildren();
+                        root.addChild(node);
+                        root.setBestChild(node);
+                        gameTree.decrementIterationDepth();
+                        gameTree.setPrune(true);
+                        System.out.println("Pruned tree with - " + move);
+                        return true;
+                    }
                 }
+                root = root.getBestChild();
             }
             //Restart game tree
             gameTree.stop();

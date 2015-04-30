@@ -121,13 +121,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             try {
                 threadCom = new ThreadCommunicator();
                 
-                //String idString = setUpView.joinUsername();
-                String idString = "ab1234 cd5678 ab1234 cd5678 ab1234 cd5678";
+                String idString = setUpView.joinUsername();
                 List<String> studentIds = Arrays.asList(idString.split(" "));
-                //String hostname = setUpView.joinIP();
-                String hostname = "localhost";
-                //int port = Integer.parseInt(setUpView.joinPort());
-                int port = 8122;
+                String hostname = setUpView.joinIP();
+                int port = Integer.parseInt(setUpView.joinPort());
                 // Starts the GeneHuntPlayerFactory and PlayerClient on a new Thread.
                 new Thread(new ScotlandYardAIGame(this, threadCom, hostname, port, studentIds)).start();
             } catch (Exception exc) {

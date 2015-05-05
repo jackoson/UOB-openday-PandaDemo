@@ -17,6 +17,8 @@ import javax.swing.Timer;
 
 public class GameTree implements Runnable {
   
+    static ForkJoinPool pool = new ForkJoinPool();
+  
     public final Graph<Integer, Route> graph;
     public final PageRank pageRank;
     public final Dijkstra dijkstra;
@@ -28,7 +30,7 @@ public class GameTree implements Runnable {
     public boolean iterate = true;
     private TreeNode root;
     private int iterationDepth;
-    private boolean prune = false;
+    private static boolean prune = false;
     
     private static GameTree.GameTreeHelper helper = null;
 
@@ -78,20 +80,11 @@ public class GameTree implements Runnable {
     }
     
     /**
-     * Sets the prune boolean which tells the alpha-beta function to exit.
-     *
-     * @param prune the boolean which tells the alpha-beta function to exit.
-     */
-    public void setPrune(boolean prune) {
-        this.prune = prune;
-    }
-    
-    /**
      * Stops the game tree.
      */
     public void stop() {
         iterate = false;
-        prune = true;
+        GameTree.prune = true;
     }
     
     /**
@@ -112,14 +105,12 @@ public class GameTree implements Runnable {
         return root;
     }
     
-    
     /**
      * Decrements the iterationDepth variable.
      */
     public void decrementIterationDepth() {
         iterationDepth--;
     }
-    
     
     /**
      * Starts a new game tree.
@@ -128,34 +119,126 @@ public class GameTree implements Runnable {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
         while (iterate) {
-            Double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            //Double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            Double bestScore = pool.invoke(new AlphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+            pool = new ForkJoinPool();
             System.err.println("Best score " + bestScore + " depth - " + iterationDepth);
-            prune = false;
+            GameTree.prune = false;
             iterationDepth++;
             if (iterationDepth > (24 * 6)) break;
         }
         System.err.println("Game tree stopped.");
     }
-
-    // Performs the alpha-beta algorithm to identify the node with the best score
-    // @param node the current node the algorithm is searching.
-    // @param depth the current depth the algorithm is searching.
-    // @param alpha the current alpha value.
-    // @param beta the current beta value.
-    // @return the best score from the game tree.
-    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
-        if (prune) return null;
-        if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
-                            node.getPlayer(), graph, node.getRound()).size() != 0)) {
-            return node.getScore();
+    
+    // A class to perform the Alpha-Beta MiniMax algorithm.
+    // When it gets to depth 1, it computes the score of the first child
+    // node, if this doesn't cause a Beta cut-off, it calculates the scores
+    // of all other children in parallel.
+    class AlphaBeta extends RecursiveTask<Double> {
+        
+        private TreeNode node;
+        private int depth;
+        private Double alpha;
+        private Double beta;
+        
+        public AlphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
+            this.node = node;
+            this.depth = depth;
+            this.alpha = alpha;
+            this.beta = beta;
         }
-        boolean maximising = false;
-        if (node.getPlayer().equals(Colour.Black)) maximising = true;
-        if (node.getChildren().size() == 0) node = addChildren(node, maximising);
-        if (maximising) {
+        
+        protected Double compute() {
+            if (GameTree.prune) return null;
+            if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
+                            node.getPlayer(), graph, node.getRound()).size() != 0)) {
+                return node.getScore();
+            }
+            boolean maximising = false;
+            if (node.getPlayer().equals(Colour.Black)) maximising = true;
+            if (node.getChildren().size() == 0) node = addChildren(node, maximising);
+            
+            if (depth == 1) {
+                if (maximising) {
+                    return maxInParallel();
+                } else {
+                    return minInParallel();
+                }
+            } else {
+                if (maximising) {
+                    return max();
+                } else {
+                    return min();
+                }
+            }
+        }
+        
+        private Double maxInParallel() {
+            Double v = Double.NEGATIVE_INFINITY;
+            List<TreeNode> children = node.getChildren();
+            Double newValue = new AlphaBeta(children.get(0), depth - 1, alpha, beta).compute();
+            if (newValue == null) return null;
+            if (newValue > v) {
+                v = newValue;
+                node.setBestChild(children.get(0));
+            }
+            if (v >= beta) return v;
+            alpha = Math.max(alpha, v);
+            
+            List<RecursiveTask<Double>> forks = forkTasks(children);
+            for (int i = 1; i < children.size() - 1; i++) {
+                Double forkValue = forks.get(i - 1).join();
+                if (forkValue == null) return null;
+                if (forkValue > v) {
+                    v = forkValue;
+                    node.setBestChild(children.get(i));
+                }
+                if (v >= beta) break;
+                alpha = Math.max(alpha, v);
+            }
+            return v;
+        }
+        
+        private Double minInParallel() {
+            Double v = Double.POSITIVE_INFINITY;
+            List<TreeNode> children = node.getChildren();
+            Double newValue = new AlphaBeta(children.get(0), depth - 1, alpha, beta).compute();
+            if (newValue == null) return null;
+            if (newValue < v) {
+                v = newValue;
+                node.setBestChild(children.get(0));
+            }   
+            if (v <= alpha) return v;
+            beta = Math.min(beta, v);
+            
+            List<RecursiveTask<Double>> forks = forkTasks(children);
+            for (int i = 1; i < children.size() - 1; i++) {
+                Double forkValue = forks.get(i - 1).join();
+                if (forkValue == null) return null;
+                if (forkValue < v) {
+                    v = forkValue;
+                    node.setBestChild(children.get(i));
+                }
+                if (v <= alpha) break;
+                alpha = Math.min(beta, v);
+            }
+            return v;
+        }
+        
+        private List<RecursiveTask<Double>> forkTasks(List<TreeNode> children) {
+            List<RecursiveTask<Double>> forks = new ArrayList<RecursiveTask<Double>>();
+            for (int i = 1; i < children.size() - 1; i++) {
+                AlphaBeta alphaBeta = new AlphaBeta(children.get(1), depth - 1, alpha, beta);
+                forks.add(alphaBeta);
+                alphaBeta.fork();
+            }
+            return forks;
+        }
+        
+        private Double max() {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
+                Double newValue = new AlphaBeta(child, depth - 1, alpha, beta).compute();
                 if (newValue == null) return null;
                 if (newValue > v) {
                     v = newValue;
@@ -165,10 +248,12 @@ public class GameTree implements Runnable {
                 alpha = Math.max(alpha, v);
             }
             return v;
-        } else {
+        }
+        
+        private Double min() {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
+                Double newValue = new AlphaBeta(child, depth - 1, alpha, beta).compute();
                 if (newValue == null) return null;
                 if (newValue < v) {
                     v = newValue;
@@ -180,6 +265,7 @@ public class GameTree implements Runnable {
             }
             return v;
         }
+        
     }
     
     // Adds all children to a specified node.
@@ -313,7 +399,7 @@ public class GameTree implements Runnable {
                         root.addChild(node);
                         root.setBestChild(node);
                         gameTree.decrementIterationDepth();
-                        gameTree.setPrune(true);
+                        GameTree.prune = true;
                         System.out.println("Pruned tree with - " + move);
                         return true;
                     }

@@ -59,7 +59,7 @@
   </target>
   
   <target name="client" depends="jargui">
-    <java fork="true" jar="${jar.dir}/${client_jar}.jar" />
+    <java fork="true" jar="${jar.dir}/${client_jar}.jar" maxmemory="4096m" />
   </target>
   
 

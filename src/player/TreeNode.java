@@ -184,7 +184,7 @@ public class TreeNode {
     // @return the score for this node.
     private double score() {
         Set<Colour> winningPlayers = ModelHelper.getWinningPlayers(currentState, currentPlayer, gameTree.graph, round);
-        if (winningPlayers.contains(Colour.Black)) return Double.POSITIVE_INFINITY;
+        //if (winningPlayers.contains(Colour.Black)) return Double.POSITIVE_INFINITY;
         GamePlayer mrX = currentState.get(0);
         int mrXLocation = mrX.location();
         if (mrXLocation <= 0) mrXLocation = 1;

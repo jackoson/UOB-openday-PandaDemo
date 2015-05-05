@@ -3,7 +3,7 @@ package client.model;
 import scotlandyard.*;
 
 import java.util.*;
-import java.io.Serializable;
+import java.util.concurrent.*;
 
 /**
  * A class that contains all the information about a particular player.
@@ -41,7 +41,7 @@ public class GamePlayer {
         this.player = player.player();
         this.colour = player.colour();
         this.location = new Integer(player.location());
-        Map<Ticket, Integer> ticketMap = new HashMap<Ticket, Integer>();
+        Map<Ticket, Integer> ticketMap = new ConcurrentHashMap<Ticket, Integer>();
         for (Map.Entry<Ticket, Integer> entry : player.tickets().entrySet()) {
             ticketMap.put(entry.getKey(), new Integer(entry.getValue()));
         }

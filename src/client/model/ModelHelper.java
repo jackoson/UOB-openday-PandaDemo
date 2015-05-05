@@ -3,6 +3,7 @@ package client.model;
 import scotlandyard.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * A class to perform certain operations used by both the game model and the AI.
@@ -252,7 +253,7 @@ public class ModelHelper {
      * @return the Map of Tickets for a specified player.
      */
     public static Map<Ticket, Integer> getTickets(Colour player, ScotlandYardView model) {
-        Map<Ticket, Integer> tickets = new HashMap<Ticket, Integer>();
+        Map<Ticket, Integer> tickets = new ConcurrentHashMap<Ticket, Integer>();
         tickets.put(Ticket.Taxi, model.getPlayerTickets(player, Ticket.Taxi));
         tickets.put(Ticket.Bus, model.getPlayerTickets(player, Ticket.Bus));
         tickets.put(Ticket.Underground, model.getPlayerTickets(player, Ticket.Underground));

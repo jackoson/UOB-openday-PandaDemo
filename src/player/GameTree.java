@@ -118,8 +118,7 @@ public class GameTree implements Runnable {
     public void run() {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
-        while (iterate) {
-            //Double bestScore = alphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        while (true) {
             Double bestScore = pool.invoke(new AlphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
             pool = new ForkJoinPool();
             System.err.println("Best score " + bestScore + " depth - " + iterationDepth);
@@ -128,6 +127,45 @@ public class GameTree implements Runnable {
             if (iterationDepth > (24 * 6)) break;
         }
         System.err.println("Game tree stopped.");
+    }
+    
+    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
+        if (prune) return null;
+        if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(),
+                                                         node.getPlayer(), graph, node.getRound()).size() != 0)) {
+            return node.getScore();
+        }
+        boolean maximising = false;
+        if (node.getPlayer().equals(Colour.Black)) maximising = true;
+        if (node.getChildren().size() == 0) node = addChildren(node, maximising);
+        if (maximising) {
+            Double v = Double.NEGATIVE_INFINITY;
+            for (TreeNode child : node.getChildren()) {
+                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
+                if (newValue == null) return null;
+                if (newValue > v) {
+                    v = newValue;
+                    node.setBestChild(child);
+                }
+                if (v >= beta) break;
+                alpha = Math.max(alpha, v);
+            }
+            return v;
+        } else {
+            Double v = Double.POSITIVE_INFINITY;
+            for (TreeNode child : node.getChildren()) {
+                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
+                if (newValue == null) return null;
+                if (newValue < v) {
+                    v = newValue;
+                    node.setBestChild(child);
+                }
+                
+                if (v <= alpha) break;
+                beta = Math.min(beta, v);
+            }
+            return v;
+        }
     }
     
     // A class to perform the Alpha-Beta MiniMax algorithm.

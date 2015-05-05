@@ -91,6 +91,14 @@ Our game keeps the tree running throughout the game in order to use the work we 
   	\includegraphics[width = 17cm]{TreePruning}\\
   \caption{After making move A, we can prune all other moves and their subsequent moves.}
 \end{figure}
+\section{Threading}
+\begin{figure}[h!]
+  \centering
+  	\includegraphics[width = 17cm]{TreePruning}\\
+  \caption{After making move A, we can prune all other moves and their subsequent moves.}
+  \includegraphics[width = 17cm]{TreePruning}\\
+  \caption{After making move A, we can prune all other moves and their subsequent moves.}
+\end{figure}
 \section{Results}
 The AI we have produced has very promising results and does make smart moves. However, we are still commonly coming up against errors which we believe are a result of threading issues. This means that they are very difficult to debug and in retrospect we believe that given the short amount of time provided, it would have been wise to keep our tree simple and focus on reaching to greater search depths. This would mean that we could consider moves further ahead, something that is the hallmark of a good player.
 \end{document}

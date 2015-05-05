@@ -265,7 +265,7 @@ public class GameTree implements Runnable {
         private List<RecursiveTask<Double>> forkTasks(List<TreeNode> children) {
             List<RecursiveTask<Double>> forks = new ArrayList<RecursiveTask<Double>>();
             for (int i = 1; i < children.size() - 1; i++) {
-                AlphaBeta alphaBeta = new AlphaBeta(children.get(1), depth - 1, alpha, beta);
+                AlphaBeta alphaBeta = new AlphaBeta(children.get(i), depth - 1, alpha, beta);
                 forks.add(alphaBeta);
                 alphaBeta.fork();
             }

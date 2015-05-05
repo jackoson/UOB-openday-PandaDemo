@@ -12,7 +12,7 @@ import java.awt.event.*;
  * A class that uses a GameTree to make it a useful AI, it channels it's inner Gene Hunt to make the best Moves.
  */
  
-public class GeneHunt implements Player, Spectator, ActionListener {
+public class GeneHunt implements Player, ActionListener {
     
     private ScotlandYardView view;
     private Graph<Integer, Route> graph;
@@ -70,15 +70,6 @@ public class GeneHunt implements Player, Spectator, ActionListener {
         gameTreeHelper.setMove(move);
         new Thread(gameTreeHelper).start();
         return move;
-    }
-    
-    public void notify(Move move) {
-        if (!move.colour.equals(Colour.Black)) {
-            if (gameTreeHelper != null) {
-                gameTreeHelper.setMove(move);
-                new Thread(gameTreeHelper).start();
-            }
-        }
     }
     
     private void wait(int milliseconds) {

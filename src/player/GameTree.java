@@ -59,7 +59,6 @@ public class GameTree implements Runnable {
      * Static function to create a GameTree and a GameTreeHelper 
      * and start the relevant threads.
      *
-     * @param threadCom the ThreadCommunicator object to put the Moves on after an iteration of the game tree.
      * @param graph the Graph associated with the game.
      * @param pageRank the PageRank object associated with the game.
      * @param dijkstra the Dijkstra object associated with the game.
@@ -68,7 +67,7 @@ public class GameTree implements Runnable {
      * @param initialState the List of GamePlayer objects representing the current state of the game.
      * @return the new GameTreeHelper object.
      */
-    public static GameTreeHelper startTree(ThreadCommunicator threadCom, Graph<Integer, Route> graph,
+    public static GameTreeHelper startTree(Graph<Integer, Route> graph,
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
                     List<GamePlayer> initialState, ActionListener listener) {
         if (helper != null) helper.stop();
@@ -383,8 +382,8 @@ public class GameTree implements Runnable {
         /**
          * Constructs a new GameTreeHelper object.
          *
-         * @param threadCom the ThreadCommunicator object to put the generated Moves onto.
          * @param gameTree the GameTree to whom this GameTreeHelper helps.
+         * @param listener the ActionListener to notify if the game tree stops.
          */
         public GameTreeHelper(GameTree gameTree, ActionListener listener) {
             this.gameTree = gameTree;

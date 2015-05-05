@@ -46,11 +46,11 @@ public class JudgeService {
 
 
         Map<Colour, Integer> locations = new HashMap<Colour, Integer>();
-        locations.put(Colour.Red,    1);
-        locations.put(Colour.Blue,   18);
+        locations.put(Colour.Red,    56);
+        locations.put(Colour.Blue,   12);
         locations.put(Colour.Green,  57);
-        locations.put(Colour.Black,  14);
-        locations.put(Colour.White,  24);
+        locations.put(Colour.Black,  186);
+        locations.put(Colour.White,  106);
         locations.put(Colour.Yellow, 22);
 
         Map<Colour, Map<Ticket, Integer>> tickets = new HashMap<Colour, Map<Ticket, Integer>>();
@@ -74,7 +74,7 @@ public class JudgeService {
 
         // This sets up a new judge with the given gameId, and that
         // will wait 15000 milliseconds between each move.
-        ScotlandYardJudge judge = new ScotlandYardJudge(gameId, 1000000, messenger,
+        ScotlandYardJudge judge = new ScotlandYardJudge(gameId, 15000, messenger,
                 game, "resources/graph.txt", locations, tickets);
         judge.initialiseGame();
         judge.interpretMessages();

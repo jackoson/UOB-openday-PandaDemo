@@ -29,6 +29,7 @@ public class RandomPlayerFactory implements PlayerFactory {
 
     protected List<Spectator> spectators;
     Gui gui;
+    GeneHunt ai;
 
     public RandomPlayerFactory() {
         typeMap = new HashMap<Colour, PlayerType>();
@@ -56,11 +57,11 @@ public class RandomPlayerFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String mapFilename) {
         switch (typeMap.get(colour)) {
             case AI:
-                return new RandomPlayer(view, mapFilename);
+                return ai(view, mapFilename);
             case GUI:
                 return gui(view);
             default:
-                return new RandomPlayer(view, mapFilename);
+                return ai(view, mapFilename);
         }
     }
 
@@ -71,16 +72,21 @@ public class RandomPlayerFactory implements PlayerFactory {
 
     @Override
     public List<Spectator> getSpectators(ScotlandYardView view) {
-        List<Spectator> specs = new ArrayList<Spectator>();
-        specs.add(gui(view));
-        return specs;
+        return spectators;
     }
 
     @Override
     public void finish() {
         if (gui != null) gui.update();
     }
-
+    
+    private GeneHunt ai(ScotlandYardView view, String mapFilename) {
+        if (ai == null) {
+            ai = new GeneHunt(view, mapFilename, null);
+            spectators.add(ai);
+        }
+        return ai;
+    }
 
     private Gui gui(ScotlandYardView view) {
         System.out.println("GUI");

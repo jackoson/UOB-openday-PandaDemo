@@ -163,8 +163,8 @@ public class TreeNode {
         if (t.equals(Ticket.Taxi)) return 1.0 * count;
         if (t.equals(Ticket.Bus)) return 2.0 * count;
         if (t.equals(Ticket.Underground)) return 4.0 * count;
-        if (t.equals(Ticket.Secret)) return 7.0 * count;
-        if (t.equals(Ticket.Double)) return 10.0 * count;
+        if (t.equals(Ticket.Secret)) return 14.0 * count;
+        if (t.equals(Ticket.Double)) return 20.0 * count;
         return 0.0;
         
     }
@@ -215,7 +215,10 @@ public class TreeNode {
         score += ((ticketRatio - 1) * kTicketInfluence) * score;
         score += ((pageRankRatio - 1) * kPageRankInfluence) * score;
         
-        if ((closestDistance < 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score += 2;//Need to adjust if we change things
+        if ((closestDistance < 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score *= 2;//Need to adjust if we change things
+        if ((closestDistance >= 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score /= 2;//Need to adjust if we change things
+        if ((closestDistance < 3) && (move instanceof MoveDouble)) score*= 2;//Need to adjust if we change things
+        if ((closestDistance >= 3) && (move instanceof MoveDouble)) score /= 2;//Need to adjust if we change things
         return score;
     } 
     

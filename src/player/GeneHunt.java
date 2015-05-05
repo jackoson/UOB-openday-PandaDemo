@@ -12,7 +12,7 @@ import java.awt.event.*;
  * A class that uses a GameTree to make it a useful AI, it channels it's inner Gene Hunt to make the best Moves.
  */
  
-public class GeneHunt implements Player, ActionListener {
+public class GeneHunt implements Player, Spectator, ActionListener {
     
     private ScotlandYardView view;
     private Graph<Integer, Route> graph;
@@ -20,10 +20,9 @@ public class GeneHunt implements Player, ActionListener {
     private PageRank pageRank;
     private GameTree.GameTreeHelper gameTreeHelper = null;
     private List<Move> moveList;
-    private ThreadCommunicator threadCom;
     private ThreadCommunicator guiThreadCom;
     
-    private final int kTurnTime = 1000000;
+    private final int kTurnTime = 10000;
     
     /**
      * Constructs a new GeneHunt AI object.
@@ -34,7 +33,6 @@ public class GeneHunt implements Player, ActionListener {
      */
     public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom) {
         try {
-            this.threadCom = new ThreadCommunicator();
             this.view = view;
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
             this.graph = graphReader.readGraph(graphFilename);
@@ -57,25 +55,30 @@ public class GeneHunt implements Player, ActionListener {
      * @param moves the Set of valid Moves for the player.
      * @return the Move chosen by the game tree.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Move notify(int location, Set<Move> moves) {
         Colour player = view.getCurrentPlayer();
-        updateUI(player);
+        if (guiThreadCom != null) updateUI(player);
         Move move = null;
         if (gameTreeHelper == null) {
             List<GamePlayer> players = getPlayers(location, player);
-            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
-            //move = moves.iterator().next();
+            gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
         }
-        if (move == null) {
-            wait(kTurnTime);
-            move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
-            if (move == null) move = moves.iterator().next();
-        }
+        wait(kTurnTime);
+        move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
+        if (move == null) move = moves.iterator().next();
         gameTreeHelper.setMove(move);
         new Thread(gameTreeHelper).start();
         return move;
+    }
+    
+    public void notify(Move move) {
+        if (!move.colour.equals(Colour.Black)) {
+            if (gameTreeHelper != null) {
+                gameTreeHelper.setMove(move);
+                new Thread(gameTreeHelper).start();
+            }
+        }
     }
     
     private void wait(int milliseconds) {
@@ -95,7 +98,7 @@ public class GeneHunt implements Player, ActionListener {
         if (e.getActionCommand().equals("game_tree_crashed")) {
             Colour player = view.getCurrentPlayer();
             List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
-            gameTreeHelper = GameTree.startTree(threadCom, graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
+            gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
         }
     }
     

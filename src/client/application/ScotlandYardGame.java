@@ -285,6 +285,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * @param move the Move that has been made.
      */
     public void notify(Move move) {
+        threadCom.putUpdate("stop_timer", true);
         if (move instanceof MoveTicket) {
             updateUI(move);
         } else if (move instanceof MoveDouble) {

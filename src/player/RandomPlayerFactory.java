@@ -29,6 +29,7 @@ public class RandomPlayerFactory implements PlayerFactory {
 
     protected List<Spectator> spectators;
     Gui gui;
+    GeneHunt ai;
 
     public RandomPlayerFactory() {
         typeMap = new HashMap<Colour, PlayerType>();
@@ -80,7 +81,6 @@ public class RandomPlayerFactory implements PlayerFactory {
     public void finish() {
         if (gui != null) gui.update();
     }
-
 
     private Gui gui(ScotlandYardView view) {
         System.out.println("GUI");

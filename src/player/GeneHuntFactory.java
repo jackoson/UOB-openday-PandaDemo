@@ -27,7 +27,7 @@ public class GeneHuntFactory implements PlayerFactory {
     private ScotlandYardApplication application;
     private ThreadCommunicator threadCom;
     
-    private final int kTimerTime = 1000;
+    private final int kTimerTime = 10;
 
     /**
      * Constructs a new GeneHuntFactory object.

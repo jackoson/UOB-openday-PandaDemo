@@ -288,7 +288,10 @@ public class GameTree implements Runnable {
     private Move generateMove(int round, Colour colour) {
         TreeNode n = root.getBestChild();
         while (n != null) {
-            if (n.getRound() == round && n.getPlayer().equals(colour)) return n.getMove();
+            if (n.getRound() == round && n.getPlayer().equals(colour)) {
+                n = n.getBestChild();
+                if (n != null) return n.getMove();
+            }
             n = n.getBestChild();
         }
         return null;

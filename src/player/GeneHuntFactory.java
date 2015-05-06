@@ -24,6 +24,7 @@ public class GeneHuntFactory implements PlayerFactory {
 
     private String graphFilename;
     private ScotlandYardGame gui;
+    private GeneHunt ai;
     private ScotlandYardApplication application;
     private ThreadCommunicator threadCom;
     
@@ -77,7 +78,7 @@ public class GeneHuntFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
         switch (typeMap.get(colour)) {
             case AI:
-                return new GeneHunt(view, graphFilename, threadCom);
+                return ai(view, graphFilename, threadCom);
             case GUI:
                 return gui(view);
             default:
@@ -120,6 +121,13 @@ public class GeneHuntFactory implements PlayerFactory {
             application.endGame();
             GameTree.getGameTreeHelper().stop();
         }
+    }
+    
+    private GeneHunt ai(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom) {
+        if (ai == null) {
+            ai = new GeneHunt(view, graphFilename, threadCom);
+        }
+        return ai;
     }
 
     /**

@@ -57,11 +57,11 @@ public class RandomPlayerFactory implements PlayerFactory {
     public Player player(Colour colour, ScotlandYardView view, String mapFilename) {
         switch (typeMap.get(colour)) {
             case AI:
-                return new RandomPlayer(view, mapFilename);
+                return ai(view, mapFilename);
             case GUI:
                 return gui(view);
             default:
-                return new RandomPlayer(view, mapFilename);
+                return ai(view, mapFilename);
         }
     }
 
@@ -80,6 +80,13 @@ public class RandomPlayerFactory implements PlayerFactory {
     @Override
     public void finish() {
         if (gui != null) gui.update();
+    }
+    
+    private GeneHunt ai(ScotlandYardView view, String mapFilename) {
+        if (ai == null) {
+            ai = new GeneHunt(view, mapFilename, null);
+        }
+        return ai;
     }
 
     private Gui gui(ScotlandYardView view) {

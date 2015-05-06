@@ -5,10 +5,7 @@ import scotlandyard.Colour;
 import scotlandyard.Ticket;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The JudgeService uses a judge that decides which
@@ -46,12 +43,20 @@ public class JudgeService {
 
 
         Map<Colour, Integer> locations = new HashMap<Colour, Integer>();
-        locations.put(Colour.Red,    56);
-        locations.put(Colour.Blue,   12);
-        locations.put(Colour.Green,  57);
-        locations.put(Colour.Black,  186);
-        locations.put(Colour.White,  106);
-        locations.put(Colour.Yellow, 22);
+
+        List<Integer> mrXStart = Arrays.asList(35, 45, 51, 71, 78, 104, 106, 132, 127, 146, 166, 170, 172);
+        Collections.shuffle(mrXStart);
+        List<Integer> detStart = Arrays.asList(26, 34, 50, 53, 91, 94, 103, 112, 117, 13, 123, 138, 141, 155, 174, 29);
+        Collections.shuffle(detStart);
+
+
+        locations.put(Colour.Black, mrXStart.get(0));
+
+        locations.put(Colour.Red,    detStart.get(0));
+        locations.put(Colour.Blue,   detStart.get(1));
+        locations.put(Colour.Green,  detStart.get(2));
+        locations.put(Colour.White,  detStart.get(3));
+        locations.put(Colour.Yellow, detStart.get(4));
 
         Map<Colour, Map<Ticket, Integer>> tickets = new HashMap<Colour, Map<Ticket, Integer>>();
         tickets.put(Colour.Red,    getTickets(false));

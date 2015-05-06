@@ -128,45 +128,6 @@ public class GameTree implements Runnable {
         System.err.println("Game tree stopped.");
     }
     
-    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
-        if (prune) return null;
-        if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(),
-                                                         node.getPlayer(), graph, node.getRound()).size() != 0)) {
-            return node.getScore();
-        }
-        boolean maximising = false;
-        if (node.getPlayer().equals(Colour.Black)) maximising = true;
-        if (node.getChildren().size() == 0) node = addChildren(node, maximising);
-        if (maximising) {
-            Double v = Double.NEGATIVE_INFINITY;
-            for (TreeNode child : node.getChildren()) {
-                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
-                if (newValue == null) return null;
-                if (newValue > v) {
-                    v = newValue;
-                    node.setBestChild(child);
-                }
-                if (v >= beta) break;
-                alpha = Math.max(alpha, v);
-            }
-            return v;
-        } else {
-            Double v = Double.POSITIVE_INFINITY;
-            for (TreeNode child : node.getChildren()) {
-                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
-                if (newValue == null) return null;
-                if (newValue < v) {
-                    v = newValue;
-                    node.setBestChild(child);
-                }
-                
-                if (v <= alpha) break;
-                beta = Math.min(beta, v);
-            }
-            return v;
-        }
-    }
-    
     // A class to perform the Alpha-Beta MiniMax algorithm.
     // When it gets to depth 1, it computes the score of the first child
     // node, if this doesn't cause a Beta cut-off, it calculates the scores
@@ -187,14 +148,13 @@ public class GameTree implements Runnable {
         
         protected Double compute() {
             if (GameTree.prune) return null;
-            if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
-                            node.getPlayer(), graph, node.getRound()).size() != 0)) {
+            if (depth == 0) {
                 return node.getScore();
             }
             boolean maximising = false;
             if (node.getPlayer().equals(Colour.Black)) maximising = true;
             if (node.getChildren().size() == 0) node = addChildren(node, maximising);
-            
+            if (node.getChildren().size() == 0) return node.getScore();
             if (depth == 1) {
                 if (maximising) {
                     return maxInParallel();
@@ -303,73 +263,73 @@ public class GameTree implements Runnable {
             return v;
         }
         
-    }
-    
-    // Adds all children to a specified node.
-    // @param parent the node to add children to.
-    // @param maximising the boolean which decides whether the new nodes are maximising.
-    // @return the node with children added.
-    private TreeNode addChildren(TreeNode parent, boolean maximising) {
-        int nextRound = parent.getRound();
-        if (maximising) nextRound++;
-        Colour nextPlayer = ModelHelper.getNextPlayer(parent.getState(), ModelHelper.getPlayerOfColour(parent.getState(), parent.getPlayer())).colour();
-        Set<Move> validMoves = ModelHelper.validMoves(ModelHelper.getPlayerOfColour(parent.getState(),
-                                                      parent.getPlayer()), parent.getState(), graph);
-        for (Move move : validMoves) {
-            List<GamePlayer> clonedState = cloneList(parent.getState());
-            playMove(clonedState, move);
-            parent.addChild(new TreeNode(parent, clonedState, nextPlayer, nextRound, move, this));
+        // Adds all children to a specified node.
+        // @param parent the node to add children to.
+        // @param maximising the boolean which decides whether the new nodes are maximising.
+        // @return the node with children added.
+        private TreeNode addChildren(TreeNode parent, boolean maximising) {
+            int nextRound = parent.getRound();
+            if (maximising) nextRound++;
+            Colour nextPlayer = ModelHelper.getNextPlayer(parent.getState(), ModelHelper.getPlayerOfColour(parent.getState(), parent.getPlayer())).colour();
+            Set<Move> validMoves = ModelHelper.validMoves(ModelHelper.getPlayerOfColour(parent.getState(),
+                                                          parent.getPlayer()), parent.getState(), graph);
+            for (Move move : validMoves) {
+                List<GamePlayer> clonedState = cloneList(parent.getState());
+                playMove(clonedState, move);
+                parent.addChild(new TreeNode(parent, clonedState, nextPlayer, nextRound, move, this));
+            }
+            return parent;
         }
-        return parent;
-    }
-    
-    // Returns the List of Moves that the game tree has calculated.
-    // @return the List of Moves that the game tree has calculated.
-    private Move generateMove(int round, Colour colour) {
-        TreeNode n = root.getBestChild();
-        while (n != null) {
-            if (n.getRound() == round && n.getPlayer().equals(colour)) return n.getMove();
-            n = n.getBestChild();
+        
+        // Returns the List of Moves that the game tree has calculated.
+        // @return the List of Moves that the game tree has calculated.
+        private Move generateMove(int round, Colour colour) {
+            TreeNode n = root.getBestChild();
+            while (n != null) {
+                if (n.getRound() == round && n.getPlayer().equals(colour)) return n.getMove();
+                n = n.getBestChild();
+            }
+            return null;
         }
-        return null;
-    }
-    
-    // Plays the specified Move in the specified game state.
-    // @param players the specified game state.
-    // @param move the specified Move.
-    private void playMove(List<GamePlayer> players, Move move) {
-        if (move instanceof MoveTicket) playMove(players, (MoveTicket) move);
-        else if (move instanceof MoveDouble) playMove(players, (MoveDouble) move);
-    }
-    
-    // Plays the specified Move in the specified game state.
-    // @param players the specified game state.
-    // @param move the specified Move.
-    private void playMove(List<GamePlayer> players, MoveTicket move) {
-        GamePlayer player = ModelHelper.getPlayerOfColour(players, move.colour);
-        player.setLocation(move.target);
-        player.removeTicket(move.ticket);
-    }
-    
-    // Plays the specified Move in the specified game state.
-    // @param players the specified game state.
-    // @param move the specified Move.
-    private void playMove(List<GamePlayer> players, MoveDouble move) {
-        playMove(players, move.move1);
-        playMove(players, move.move2);
-        GamePlayer player = ModelHelper.getPlayerOfColour(players, move.colour);
-        player.removeTicket(Ticket.Double);
-    }
-    
-    // Returns a List of GamePlayers that is an identical copy of the List passed in.
-    // @param players the List of GamePlayers to clone.
-    // @return a List of GamePlayers that is an identical copy of the List passed in.
-    private List<GamePlayer> cloneList(List<GamePlayer> players) {
-        List<GamePlayer> newPlayers = new ArrayList<GamePlayer>();
-        for (GamePlayer player : players) {
-            newPlayers.add(new GamePlayer(player));
+        
+        // Plays the specified Move in the specified game state.
+        // @param players the specified game state.
+        // @param move the specified Move.
+        private void playMove(List<GamePlayer> players, Move move) {
+            if (move instanceof MoveTicket) playMove(players, (MoveTicket) move);
+            else if (move instanceof MoveDouble) playMove(players, (MoveDouble) move);
         }
-        return newPlayers;
+        
+        // Plays the specified Move in the specified game state.
+        // @param players the specified game state.
+        // @param move the specified Move.
+        private void playMove(List<GamePlayer> players, MoveTicket move) {
+            GamePlayer player = ModelHelper.getPlayerOfColour(players, move.colour);
+            player.setLocation(move.target);
+            player.removeTicket(move.ticket);
+        }
+        
+        // Plays the specified Move in the specified game state.
+        // @param players the specified game state.
+        // @param move the specified Move.
+        private void playMove(List<GamePlayer> players, MoveDouble move) {
+            playMove(players, move.move1);
+            playMove(players, move.move2);
+            GamePlayer player = ModelHelper.getPlayerOfColour(players, move.colour);
+            player.removeTicket(Ticket.Double);
+        }
+        
+        // Returns a List of GamePlayers that is an identical copy of the List passed in.
+        // @param players the List of GamePlayers to clone.
+        // @return a List of GamePlayers that is an identical copy of the List passed in.
+        private List<GamePlayer> cloneList(List<GamePlayer> players) {
+            List<GamePlayer> newPlayers = new ArrayList<GamePlayer>();
+            for (GamePlayer player : players) {
+                newPlayers.add(new GamePlayer(player));
+            }
+            return newPlayers;
+        }
+        
     }
     
     // A class to help prune the GameTree when a Move is played.

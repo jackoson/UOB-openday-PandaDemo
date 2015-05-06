@@ -33,7 +33,7 @@ public class GameTree implements Runnable {
     private static boolean prune = false;
     
     private static GameTree.GameTreeHelper helper = null;
-
+    
     /**
      * Constructs a new GameTree object.
      *
@@ -121,7 +121,7 @@ public class GameTree implements Runnable {
         while (true) {
             Double bestScore = pool.invoke(new AlphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
             pool = new ForkJoinPool();
-            System.err.println("Best score " + bestScore + " depth - " + iterationDepth);
+            System.err.println("Best score: " + bestScore + " depth: " + iterationDepth);
             GameTree.prune = false;
             iterationDepth++;
             if (iterationDepth > (24 * 6)) break;
@@ -129,44 +129,6 @@ public class GameTree implements Runnable {
         System.err.println("Game tree stopped.");
     }
     
-    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
-        if (prune) return null;
-        if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(),
-                                                         node.getPlayer(), graph, node.getRound()).size() != 0)) {
-            return node.getScore();
-        }
-        boolean maximising = false;
-        if (node.getPlayer().equals(Colour.Black)) maximising = true;
-        if (node.getChildren().size() == 0) node = addChildren(node, maximising);
-        if (maximising) {
-            Double v = Double.NEGATIVE_INFINITY;
-            for (TreeNode child : node.getChildren()) {
-                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
-                if (newValue == null) return null;
-                if (newValue > v) {
-                    v = newValue;
-                    node.setBestChild(child);
-                }
-                if (v >= beta) break;
-                alpha = Math.max(alpha, v);
-            }
-            return v;
-        } else {
-            Double v = Double.POSITIVE_INFINITY;
-            for (TreeNode child : node.getChildren()) {
-                Double newValue = alphaBeta(child, depth - 1, alpha, beta);
-                if (newValue == null) return null;
-                if (newValue < v) {
-                    v = newValue;
-                    node.setBestChild(child);
-                }
-                
-                if (v <= alpha) break;
-                beta = Math.min(beta, v);
-            }
-            return v;
-        }
-    }
     
     // A class to perform the Alpha-Beta MiniMax algorithm.
     // When it gets to depth 1, it computes the score of the first child
@@ -188,14 +150,13 @@ public class GameTree implements Runnable {
         
         protected Double compute() {
             if (GameTree.prune) return null;
-            if (depth == 0 || (ModelHelper.getWinningPlayers(node.getState(), 
-                            node.getPlayer(), graph, node.getRound()).size() != 0)) {
+            if (depth == 0) {
                 return node.getScore();
             }
             boolean maximising = false;
             if (node.getPlayer().equals(Colour.Black)) maximising = true;
             if (node.getChildren().size() == 0) node = addChildren(node, maximising);
-            
+            if (node.getChildren().size() == 0) return node.getScore();
             if (depth == 1) {
                 if (maximising) {
                     return maxInParallel();
@@ -266,7 +227,7 @@ public class GameTree implements Runnable {
         private List<RecursiveTask<Double>> forkTasks(List<TreeNode> children) {
             List<RecursiveTask<Double>> forks = new ArrayList<RecursiveTask<Double>>();
             for (int i = 1; i < children.size() - 1; i++) {
-                AlphaBeta alphaBeta = new AlphaBeta(children.get(1), depth - 1, alpha, beta);
+                AlphaBeta alphaBeta = new AlphaBeta(children.get(i), depth - 1, alpha, beta);
                 forks.add(alphaBeta);
                 alphaBeta.fork();
             }
@@ -328,10 +289,13 @@ public class GameTree implements Runnable {
     // @return the List of Moves that the game tree has calculated.
     private Move generateMove(int round, Colour colour) {
         TreeNode n = root.getBestChild();
+        System.err.println("Generate: "+ round + "  Colour: " + colour);
         while (n != null) {
+            System.err.println("While: "+ n.getRound() + "  Colour: " + n.getPlayer());
             if (n.getRound() == round && n.getPlayer().equals(colour)) return n.getMove();
             n = n.getBestChild();
         }
+        System.err.println("Problem Generating move: " + colour);
         return null;
     }
     

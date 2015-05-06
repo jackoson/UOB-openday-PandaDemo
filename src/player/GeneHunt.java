@@ -23,7 +23,7 @@ public class GeneHunt implements Player, ActionListener {
     private ThreadCommunicator threadCom;
     private ThreadCommunicator guiThreadCom;
     
-    private final int kTurnTime = 1000000;
+    private final int kTurnTime = 10000;
     
     /**
      * Constructs a new GeneHunt AI object.
@@ -70,9 +70,11 @@ public class GeneHunt implements Player, ActionListener {
         }
         if (move == null) {
             wait(kTurnTime);
+            System.err.println("MOVE: " + view.getRound() + "  Player: " + view.getCurrentPlayer());
             move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
-            if (move == null) move = moves.iterator().next();
+            if (move == null) {move = moves.iterator().next(); System.err.println("M: " + move);}
         }
+        System.err.println("ENDMOVE: " + move);
         gameTreeHelper.setMove(move);
         new Thread(gameTreeHelper).start();
         return move;

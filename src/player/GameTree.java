@@ -115,16 +115,13 @@ public class GameTree implements Runnable {
      * Starts a new game tree.
      */
     public void run() {
+        System.err.println("Starting tree");
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
-        iterationDepth = 1;
-        while (true) {
+        iterationDepth = 5;
             Double bestScore = pool.invoke(new AlphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
             pool = new ForkJoinPool();
             System.err.println("Best score: " + bestScore + " depth: " + iterationDepth);
             GameTree.prune = false;
-            iterationDepth++;
-            if (iterationDepth > (24 * 6)) break;
-        }
         System.err.println("Game tree stopped.");
     }
     
@@ -288,8 +285,10 @@ public class GameTree implements Runnable {
     private Move generateMove(int round, Colour colour) {
         TreeNode n = root.getBestChild();
         while (n != null) {
-            System.err.println("Round: "+ round + " NRound: " + n.getRound() + " Color: " + colour + " NColor: " + n.getPlayer() + " Move: " + n.getMove());
-            if (n.getRound() == round && n.getPlayer().equals(colour)) return n.getMove();
+            if (n.getRound() == round && n.getPlayer().equals(colour)) {
+                n = n.getBestChild();
+                if (n != null) return n.getMove();
+            }
             n = n.getBestChild();
         }
         System.err.println("NULL");

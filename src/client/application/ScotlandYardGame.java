@@ -271,11 +271,11 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             }
         }
         if (saveGame != null) saveGame.addMove(move);
-        GameTree.GameTreeHelper helper = GameTree.getGameTreeHelper();
+        /*GameTree.GameTreeHelper helper = GameTree.getGameTreeHelper();
         if (helper != null) {
             helper.setMove(move);
             new Thread(helper).start();
-        }
+        }*/
         return move;
     }
     

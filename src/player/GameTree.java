@@ -286,12 +286,16 @@ public class GameTree implements Runnable {
     // Returns the List of Moves that the game tree has calculated.
     // @return the List of Moves that the game tree has calculated.
     private Move generateMove(int round, Colour colour) {
+        Colour[] colours = Colour.values();
+        int i = 0;
+        for (; i < colours.length; i++) {
+            if (colours[i].equals(colour)) break;
+        }
+        Colour player = colours[i + 1];
+        
         TreeNode n = root.getBestChild();
         while (n != null) {
-            if (n.getRound() == round && n.getPlayer().equals(colour)) {
-                n = n.getBestChild();
-                if (n != null) return n.getMove();
-            }
+            if (n.getRound() == (round + 1) && n.getPlayer().equals(player)) return n.getMove();
             n = n.getBestChild();
         }
         return null;

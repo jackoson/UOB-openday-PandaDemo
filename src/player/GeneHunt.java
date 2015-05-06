@@ -65,8 +65,8 @@ public class GeneHunt implements Player, ActionListener {
             gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
         }
         wait(kTurnTime);
-        System.out.println("Current Player - " + view.getCurrentPlayer());
         move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
+        System.out.println(move);
         if (move == null) move = moves.iterator().next();
         gameTreeHelper.setMove(move);
         new Thread(gameTreeHelper).start();

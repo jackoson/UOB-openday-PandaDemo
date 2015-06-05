@@ -29,6 +29,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private JPanel container;
     
     private final int kNormalTimer = 260;
+    private final int kDemoTime = 20;
     
     /**
      * Is the entry point for the game.
@@ -80,7 +81,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         if (DEBUG){//?
             threadCom = new ThreadCommunicator();
             demo = true;
-            beginGame(20);
+            beginGame(kDemoTime);
             newGame();
         }
     }
@@ -124,7 +125,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             try {
                 threadCom = new ThreadCommunicator();
                 demo = true;
-                beginGame(20);
+                beginGame(kDemoTime);
                 newGame();
                 
                 /*String idString = setUpView.joinUsername();
@@ -210,7 +211,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
             threadCom = new ThreadCommunicator();
             demo = true;
-            beginGame(20);
+            beginGame(kDemoTime);
             newGame();
         }
     }

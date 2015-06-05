@@ -4,12 +4,14 @@ import scotlandyard.*;
 import client.algorithms.*;
 import client.application.*;
 import client.model.*;
+import client.view.Formatter;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
 import java.awt.event.*;
 import javax.swing.Timer;
+import java.awt.Color;
 
 /**
  * A class that implements a game tree using Alpha-Beta pruning.
@@ -22,6 +24,7 @@ public class GameTree implements Runnable {
     public final Graph<Integer, Route> graph;
     public final PageRank pageRank;
     public final Dijkstra dijkstra;
+    public final ThreadCommunicator threadCom;
     
     private final Integer round;
     private final Colour initialPlayer;
@@ -46,13 +49,14 @@ public class GameTree implements Runnable {
      */
     public GameTree(Graph<Integer, Route> graph, 
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
-                    List<GamePlayer> initialState) {
+                    List<GamePlayer> initialState, ThreadCommunicator threadCom) {
         this.graph = graph;
         this.pageRank = pageRank;
         this.dijkstra = dijkstra;
         this.round = round;
         this.initialPlayer = initialPlayer;
         this.initialState = initialState;
+        this.threadCom = threadCom;
     }
     
     /**
@@ -69,10 +73,10 @@ public class GameTree implements Runnable {
      */
     public static GameTreeHelper startTree(Graph<Integer, Route> graph,
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
-                    List<GamePlayer> initialState, ActionListener listener) {
+                    List<GamePlayer> initialState, ActionListener listener, ThreadCommunicator threadCom) {
         if (helper != null) helper.stop();
         GameTree gameTree = new GameTree(graph, pageRank, dijkstra,
-                                          round, initialPlayer, initialState);
+                                          round, initialPlayer, initialState, threadCom);
         new Thread(gameTree).start();
         helper = new GameTreeHelper(gameTree, listener);
         return helper;
@@ -174,6 +178,7 @@ public class GameTree implements Runnable {
         private Double maxInParallel() {
             Double v = Double.NEGATIVE_INFINITY;
             List<TreeNode> children = node.getChildren();
+            if (iterate) updateUI(children.get(0));
             Double newValue = new AlphaBeta(children.get(0), depth - 1, alpha, beta).compute();
             if (newValue == null) return null;
             if (newValue > v) {
@@ -185,6 +190,7 @@ public class GameTree implements Runnable {
             
             List<RecursiveTask<Double>> forks = forkTasks(children);
             for (int i = 1; i < children.size() - 1; i++) {
+                if (iterate) updateUI(children.get(i));
                 Double forkValue = forks.get(i - 1).join();
                 if (forkValue == null) return null;
                 if (forkValue > v) {
@@ -200,6 +206,7 @@ public class GameTree implements Runnable {
         private Double minInParallel() {
             Double v = Double.POSITIVE_INFINITY;
             List<TreeNode> children = node.getChildren();
+            if (iterate) updateUI(children.get(0));
             Double newValue = new AlphaBeta(children.get(0), depth - 1, alpha, beta).compute();
             if (newValue == null) return null;
             if (newValue < v) {
@@ -211,6 +218,7 @@ public class GameTree implements Runnable {
             
             List<RecursiveTask<Double>> forks = forkTasks(children);
             for (int i = 1; i < children.size() - 1; i++) {
+                if (iterate) updateUI(children.get(i));
                 Double forkValue = forks.get(i - 1).join();
                 if (forkValue == null) return null;
                 if (forkValue < v) {
@@ -236,6 +244,7 @@ public class GameTree implements Runnable {
         private Double max() {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
+                if (iterate) updateUI(child);
                 Double newValue = new AlphaBeta(child, depth - 1, alpha, beta).compute();
                 if (newValue == null) return null;
                 if (newValue > v) {
@@ -251,6 +260,7 @@ public class GameTree implements Runnable {
         private Double min() {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
+                if (iterate) updateUI(child);
                 Double newValue = new AlphaBeta(child, depth - 1, alpha, beta).compute();
                 if (newValue == null) return null;
                 if (newValue < v) {
@@ -262,6 +272,42 @@ public class GameTree implements Runnable {
                 beta = Math.min(beta, v);
             }
             return v;
+        }
+        
+        private void updateUI(TreeNode child) {
+            List<Integer> locations = new ArrayList<Integer>();
+            Integer loc = getLocation(node.getMove());
+            if (loc != null) locations.add(loc);
+            Move move = child.getMove();
+            if (move instanceof MoveTicket) {
+              Integer loc2 = getLocation(move);
+              if (loc2 != null) locations.add(loc2);
+            } else if (move instanceof MoveDouble) {
+              Integer loc3 = getLocation(((MoveDouble) move).move1);
+              Integer loc4 = getLocation(((MoveDouble) move).move2);
+              if (loc3 != null && loc4 != null) {
+                  locations.add(loc3);
+                  locations.add(loc4);
+              }
+            }
+            Color color = Formatter.colorForPlayer(move.colour);
+            if (locations.size() > 1) {
+                Object[] objects = new Object[2];
+                objects[0] = locations;
+                objects[1] = color;
+                threadCom.putUpdate("add_route", objects);
+            }
+        }
+        
+        private Integer getLocation(Move move) {
+            if (move instanceof MoveTicket) {
+                return ((MoveTicket) move).target;
+            } else if (move instanceof MoveDouble) {
+                MoveTicket moveTicket = (MoveTicket) ((MoveDouble) move).move2;
+                return moveTicket.target;
+            } else {
+                return null;
+            }
         }
         
     }

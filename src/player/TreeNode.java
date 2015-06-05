@@ -213,7 +213,8 @@ public class TreeNode {
         score += ((ticketRatio - 1) * kTicketInfluence) * score;
         score += ((pageRankRatio - 1) * kPageRankInfluence) * score;
         
-        if ((closestDistance < 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score += 2;//Need to adjust if we change things
+        if ((closestDistance < 3) && (move instanceof MoveTicket) && (((MoveTicket)move).ticket.equals(Ticket.Secret))) score += 4;//Need to adjust if we change things
+        if ((closestDistance < 3) && (move instanceof MoveDouble)) score += 4;//Need to adjust if we change things
         return score;
     } 
     

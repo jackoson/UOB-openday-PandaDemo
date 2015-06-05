@@ -19,7 +19,8 @@ import java.util.concurrent.*;
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
   
-    public boolean DEBUG = false;
+    public boolean DEBUG = true;
+    private boolean demo = false;
     private ScotlandYardGame game;
     private GameView gameView;
     private SetUpView setUpView;
@@ -77,7 +78,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setVisible(true);
         
         if (DEBUG){//?
-            beginGame(kNormalTimer);
+            threadCom = new ThreadCommunicator();
+            demo = true;
+            beginGame(15);
             newGame();
         }
     }
@@ -108,7 +111,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                 newGame();
             } else {
                 JOptionPane.showMessageDialog(null, "Game name must be at least " +
-                        "one character long and not contain any of #, /, \\. \nPlease choose another",
+                        "one character long and not contain any #, /, \\. \nPlease choose another",
                         "Invalid Name", JOptionPane.WARNING_MESSAGE, fileAccess.getWarningIcon());
             }
         } else if (e.getActionCommand().equals("loadGame")) {
@@ -120,13 +123,16 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (e.getActionCommand().equals("joinGame")) {
             try {
                 threadCom = new ThreadCommunicator();
+                demo = true;
+                beginGame(15);
+                newGame();
                 
-                String idString = setUpView.joinUsername();
+                /*String idString = setUpView.joinUsername();
                 List<String> studentIds = Arrays.asList(idString.split(" "));
                 String hostname = setUpView.joinIP();
                 int port = Integer.parseInt(setUpView.joinPort());
                 // Starts the GeneHuntPlayerFactory and PlayerClient on a new Thread.
-                new Thread(new ScotlandYardAIGame(this, threadCom, hostname, port, studentIds)).start();
+                new Thread(new ScotlandYardAIGame(this, threadCom, hostname, port, studentIds)).start();*/
             } catch (Exception exc) {
                 System.err.println("Error joining game :" + exc);
                 exc.printStackTrace();
@@ -175,7 +181,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private void newGame() {
         int playerNo = setUpView.newPlayers();
         String gameName = setUpView.newGameName();
-        game = new ScotlandYardGame(playerNo, gameName, "resources/graph.txt", threadCom);
+        if (demo) game = new ScotlandYardGame("resources/graph.txt", threadCom, true);
+        else game = new ScotlandYardGame(playerNo, gameName, "resources/graph.txt", threadCom);
         new Thread(game).start();
     }
 
@@ -195,6 +202,17 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         setUpView.refreshSaves();
         threadCom.clearEvents();
         threadCom.clearUpdates();
+        if (demo) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                System.err.println("Waiting to start a new game interrupted.");
+            }
+            threadCom = new ThreadCommunicator();
+            demo = true;
+            beginGame(15);
+            newGame();
+        }
     }
     
     /**
@@ -278,6 +296,15 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_round")) {
             Integer roundNo = (Integer) object;
             gameView.updateRoundCounter(roundNo);
+        } else if (id.equals("add_route")) {
+            Object[] hints = (Object[]) object;
+            @SuppressWarnings("unchecked")
+            List<Integer> route = (List<Integer>) hints[0];
+            @SuppressWarnings("unchecked")
+            Color color = (Color) hints[1];
+            gameView.addRouteHint(route, color);
+        } else if (id.equals("clear_routes")) {
+            gameView.clearRoutes();
         }
     }
     

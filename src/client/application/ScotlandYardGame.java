@@ -59,7 +59,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             model.spectate(this);
             int randMrXLocation = randomMrXLocation();
             int[] randDetectiveLocations = randomDetectiveLocations(numPlayers - 1);
-            this.players = initialiseGame(randMrXLocation, randDetectiveLocations);
+            this.players = initialiseGame(randMrXLocation, randDetectiveLocations, false);
             saveGame = new SaveGame(numPlayers, graphName, gameName);
             saveGame.setMrXLocation(randMrXLocation);
             saveGame.setDetectiveLocations(randDetectiveLocations);
@@ -91,7 +91,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             List<Boolean> rounds = ModelHelper.getRounds();
             model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
             model.spectate(this);
-            players = initialiseGame(saveGame.getMrXLocation(), saveGame.getDetectiveLocations());
+            players = initialiseGame(saveGame.getMrXLocation(), saveGame.getDetectiveLocations(), false);
             replaying = true;
         } catch (Exception e) {
             System.err.println("Error loading game :" + e);
@@ -118,6 +118,27 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             this.fileAccess = new FileAccess();
         } catch (Exception e) {
             System.err.println("Error joining a new game :" + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+    
+    public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, boolean demo) {
+        aiGame = false;
+        try {
+            this.threadCom = threadCom;
+            this.numPlayers = 6;
+            this.graphName = graphName;
+            routeFinder = new Dijkstra(graphName);
+            List<Boolean> rounds = ModelHelper.getRounds();
+            model = new ScotlandYardModel(numPlayers - 1, rounds, graphName);
+            model.spectate(this);
+            int randMrXLocation = randomMrXLocation();
+            int[] randDetectiveLocations = randomDetectiveLocations(numPlayers - 1);
+            this.players = initialiseGame(randMrXLocation, randDetectiveLocations, true);
+            fileAccess = new FileAccess();
+        } catch (Exception e) {
+            System.err.println("Error setting up a demonstration game :" + e);
             e.printStackTrace();
             System.exit(1);
         }
@@ -177,7 +198,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param mrXLocation the initial location of Mr X.
     // @param detectiveLocations the initial locations of the Detectives.
     // @return the List of players in the game.
-    private List<GamePlayer> initialiseGame(int mrXLocation, int[] detectiveLocations) {
+    private List<GamePlayer> initialiseGame(int mrXLocation, int[] detectiveLocations, boolean demo) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
         Colour[] colours = Colour.values();
         
@@ -187,8 +208,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         mrXTickets.put(Ticket.Underground, 10);
         mrXTickets.put(Ticket.Double, 2);
         mrXTickets.put(Ticket.Secret, 5);
-        model.join(this, colours[0], mrXLocation, mrXTickets);
-        players.add(new GamePlayer(this, colours[0], 0, mrXTickets));
+        Player player = this;
+        if (demo) player = new GeneHunt(model, graphName, threadCom);
+        model.join(player, colours[0], mrXLocation, mrXTickets);
+        players.add(new GamePlayer(player, colours[0], 0, mrXTickets));
         
         for (int i = 1; i < numPlayers; i++) {
             Map<Ticket, Integer> detectiveTickets = new HashMap<Ticket, Integer>();

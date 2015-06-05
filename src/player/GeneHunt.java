@@ -62,7 +62,7 @@ public class GeneHunt implements Player, ActionListener {
         Move move = null;
         if (gameTreeHelper == null) {
             List<GamePlayer> players = getPlayers(location, player);
-            gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
+            gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this, guiThreadCom);
         }
         wait(kTurnTime);
         move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
@@ -70,7 +70,9 @@ public class GeneHunt implements Player, ActionListener {
         if (move == null) move = moves.iterator().next();
         //gameTreeHelper.setMove(move);
         //new Thread(gameTreeHelper).start();
+        gameTreeHelper.stop();
         gameTreeHelper = null;
+        guiThreadCom.putUpdate("clear_routes", true);
         return move;
     }
     
@@ -89,9 +91,9 @@ public class GeneHunt implements Player, ActionListener {
      */
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("game_tree_crashed")) {
-            Colour player = view.getCurrentPlayer();
-            List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
-            gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
+            //Colour player = view.getCurrentPlayer();
+            //List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
+            //gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
         }
     }
     

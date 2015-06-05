@@ -22,7 +22,7 @@ public class GeneHunt implements Player, ActionListener {
     private List<Move> moveList;
     private ThreadCommunicator guiThreadCom;
     
-    private final int kTurnTime = 10000;
+    private final int kTurnTime = 20000;
     
     /**
      * Constructs a new GeneHunt AI object.

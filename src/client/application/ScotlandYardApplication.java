@@ -80,7 +80,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         if (DEBUG){//?
             threadCom = new ThreadCommunicator();
             demo = true;
-            beginGame(15);
+            beginGame(20);
             newGame();
         }
     }
@@ -124,7 +124,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             try {
                 threadCom = new ThreadCommunicator();
                 demo = true;
-                beginGame(15);
+                beginGame(20);
                 newGame();
                 
                 /*String idString = setUpView.joinUsername();

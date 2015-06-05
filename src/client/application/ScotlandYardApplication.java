@@ -210,7 +210,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
             threadCom = new ThreadCommunicator();
             demo = true;
-            beginGame(15);
+            beginGame(20);
             newGame();
         }
     }

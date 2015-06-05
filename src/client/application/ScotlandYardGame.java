@@ -127,7 +127,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         aiGame = false;
         try {
             this.threadCom = threadCom;
-            this.numPlayers = 6;
+            this.numPlayers = 3;
             this.graphName = graphName;
             routeFinder = new Dijkstra(graphName);
             List<Boolean> rounds = ModelHelper.getRounds();

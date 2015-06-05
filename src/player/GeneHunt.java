@@ -101,6 +101,7 @@ public class GeneHunt implements Player, ActionListener {
     // @param player the player whose turn it is.
     private void updateUI(Colour player) {
         guiThreadCom.putUpdate("reset_timer", true);
+        guiThreadCom.putUpdate("zoom_out", true);
         guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
         updateTickets(player);
     }

@@ -1,5 +1,5 @@
 199
-1 317 78 {node, x, y, z}
+1 317 78
 2 781 42
 3 1083 49
 4 1267 37
@@ -264,9 +264,7 @@
 27 40 Taxi
 28 41 Taxi
 29 41 Taxi
-29 41 Bus
 29 42 Taxi
-29 42 Bus
 29 55 Bus
 30 42 Taxi
 31 43 Taxi
@@ -297,7 +295,6 @@
 41 87 Bus
 42 56 Taxi
 42 72 Taxi
-42 72 Bus
 43 57 Taxi
 44 58 Taxi
 45 46 Taxi
@@ -332,7 +329,6 @@
 57 73 Taxi
 58 59 Taxi
 58 74 Taxi
-58 74 Bus
 58 75 Taxi
 58 77 Bus
 59 75 Taxi
@@ -346,7 +342,6 @@
 63 64 Taxi
 63 65 Bus
 63 79 Taxi
-63 79 Bus
 63 80 Taxi
 63 100 Bus
 64 65 Taxi
@@ -354,7 +349,6 @@
 65 66 Taxi
 65 67 Bus
 65 82 Taxi
-65 82 Bus
 66 67 Taxi
 66 82 Taxi
 67 68 Taxi
@@ -383,13 +377,11 @@
 75 94 Taxi
 76 77 Taxi
 77 78 Taxi
-77 78 Bus
 77 94 Bus
 77 95 Taxi
 77 96 Taxi
 77 124 Bus
 78 79 Taxi
-78 79 Bus
 78 97 Taxi
 79 93 Underground
 79 98 Taxi
@@ -424,7 +416,6 @@
 91 107 Taxi
 92 93 Taxi
 93 94 Taxi
-93 94 Bus
 94 95 Taxi
 95 122 Taxi
 96 97 Taxi
@@ -447,7 +438,6 @@
 105 106 Taxi
 105 107 Bus
 105 108 Taxi
-105 108 Bus
 106 107 Taxi
 107 119 Taxi
 107 161 Bus
@@ -460,7 +450,6 @@
 110 111 Taxi
 111 112 Taxi
 111 124 Taxi
-111 124 Bus
 111 153 Underground
 111 163 Underground
 112 125 Taxi
@@ -475,7 +464,6 @@
 116 117 Taxi
 116 118 Taxi
 116 127 Taxi
-116 127 Bus
 116 142 Bus
 117 129 Taxi
 118 129 Taxi
@@ -487,11 +475,9 @@
 121 122 Taxi
 121 145 Taxi
 122 123 Taxi
-122 123 Bus
 122 144 Bus
 122 146 Taxi
 123 124 Taxi
-123 124 Bus
 123 137 Taxi
 123 144 Bus
 123 148 Taxi
@@ -504,7 +490,6 @@
 126 127 Taxi
 126 140 Taxi
 127 133 Taxi
-127 133 Bus
 127 134 Taxi
 128 185 Underground
 128 187 Bus
@@ -517,7 +502,6 @@
 130 139 Taxi
 132 140 Taxi
 133 140 Taxi
-133 140 Bus
 133 141 Taxi
 133 157 Bus
 134 141 Taxi
@@ -526,7 +510,6 @@
 135 136 Taxi
 135 143 Taxi
 135 161 Taxi
-135 161 Bus
 136 162 Taxi
 137 147 Taxi
 138 150 Taxi
@@ -537,13 +520,10 @@
 140 128 Underground
 140 153 Underground
 140 154 Taxi
-140 154 Bus
 140 156 Taxi
-140 156 Bus
 141 142 Taxi
 141 158 Taxi
 142 128 Taxi
-142 128 Bus
 142 143 Taxi
 142 157 Bus
 142 158 Taxi
@@ -566,7 +546,6 @@
 151 166 Taxi
 152 153 Taxi
 153 154 Taxi
-153 154 Bus
 153 163 Underground
 153 166 Taxi
 153 167 Taxi
@@ -579,7 +558,6 @@
 155 167 Taxi
 155 168 Taxi
 156 157 Taxi
-156 157 Bus
 156 169 Taxi
 156 184 Bus
 157 158 Taxi
@@ -604,7 +582,6 @@
 164 179 Taxi
 165 179 Taxi
 165 180 Taxi
-165 180 Bus
 165 191 Bus
 166 181 Taxi
 166 183 Taxi
@@ -637,7 +614,6 @@
 182 195 Taxi
 183 196 Taxi
 184 185 Taxi
-184 185 Bus
 184 196 Taxi
 184 197 Taxi
 185 186 Taxi
@@ -649,7 +625,6 @@
 188 199 Taxi
 189 190 Taxi
 190 191 Taxi
-190 191 Bus
 190 192 Taxi
 191 192 Taxi
 192 194 Taxi

@@ -5,13 +5,11 @@ import java.util.*;
 public class Vector {
 
     private int x, y, z;
-    private List<Vector> vectors;
 
     public Vector(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.vectors = new ArrayList<Vector>();
     }
 
     public Vector addVectorToVector(Vector vector) {
@@ -66,14 +64,6 @@ public class Vector {
 
     public int getZ() {
         return z;
-    }
-
-    public void addVector(Vector vector) {
-        vectors.add(vector);
-    }
-
-    public List<Vector> getVectors() {
-        return vectors;
     }
 
 }

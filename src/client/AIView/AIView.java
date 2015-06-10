@@ -1,5 +1,7 @@
 package client.aiview;
 
+import client.view.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -9,10 +11,11 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends JPanel {
+public class AIView extends AnimatablePanel {
 
     private Point origin;
     private double xRotate, yRotate;
+    private AnimatablePanel.Animator yAnimator, xAnimator;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
 
@@ -28,6 +31,9 @@ public class AIView extends JPanel {
             Gson gson = new Gson();
             Map<String, List<Map<String, Double>>> json = gson.fromJson(reader, Map.class);
             parseJSON(json);
+
+            yAnimator = createAnimator(0.0, 360.0, 10.0);
+            xAnimator = createAnimator(0.0, 360.0, 10.0);
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -38,9 +44,19 @@ public class AIView extends JPanel {
     private void parseJSON(Map<String, List<Map<String, Double>>> json) {
         List<Map<String, Double>> nodes = json.get("nodes");
         for (Map<String, Double> node : nodes) {
-            int x = node.get("x").intValue();
-            int y = node.get("y").intValue();
-            int z = node.get("z").intValue();
+            Double ox = node.get("x");
+            Double oy = node.get("y");
+            Double oz = node.get("z");
+            //Transform the points.
+
+            Double z = -1.0 + 2.0 * (ox / 2570);
+            Double phi = 2.0 * Math.PI * (oy /2000);
+            Double theta = Math.asin(z);
+
+            Double x = Math.cos(theta) * Math.cos(phi) * 50;
+            Double y = Math.cos(theta) * Math.sin(phi) * 50;
+            z = z*50;
+
             vectors.put(node.get("node").intValue(), new Vector(x, y, z));
         }
         List<Map<String, Double>> connections = json.get("edges");
@@ -58,38 +74,43 @@ public class AIView extends JPanel {
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
         Dimension size = getSize();
-        //origin = new Point((int) (size.getWidth() / 2.0), (int) (size.getHeight() / 2.0), 0);
-        origin = new Point(0, 0, 0);
+        origin = new Point(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
+        //origin = new Point(0, 0, 0);
 
         drawVectors(g, vectors, origin, origin);
         drawEdges(g, edges);
     }
 
     private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Point origin, Point start) {
-        for (Map.Entry<Integer, Vector> vector : vectors.entrySet()) {
-            Vector rotatedVector = vector.getValue().rotateXZ(-xRotate);
-            rotatedVector.rotateYZ(-yRotate);
-            Point point = origin.addVectorToPoint(rotatedVector);
-            int diameter = (int) ((double) (point.getZ() + 100) / 4.0) + 5;
-            if (diameter < 5) diameter = 5;
-            if (vector.getValue().getZ() == 0) diameter = 15;
-            int radius = (int) ((double) diameter / 2.0);
-            g.fillOval(point.getX() - radius, point.getY() - radius, diameter, diameter);
+        for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
+            Vector vector = v.getValue().rotateYZ(xAnimator.value());
+            vector = vector.rotateXZ(yAnimator.value());
+
+            Point point = origin.addVectorToPoint(vector);
+
+            Double diameter = 5.0;
+            Double radius = diameter/2;
+            g.fillOval((int)(point.getX() - radius), (int)(point.getY() - radius), diameter.intValue(), diameter.intValue());
         }
+
     }
 
     private void drawEdges(Graphics2D g, List<Edge<Vector>> edges) {
         for (Edge<Vector> edge : edges) {
-            Vector node1 = edge.getNode1();
-            Vector node2 = edge.getNode2();
-            g.drawLine(node1.getX(), node1.getY(), node2.getX(), node2.getY());
+            Vector node1 = edge.getNode1().rotateYZ(xAnimator.value());
+            node1 = node1.rotateXZ(yAnimator.value());
+            Point point1 = origin.addVectorToPoint(node1);
+            Vector node2 = edge.getNode2().rotateYZ(xAnimator.value());
+            node2 = node2.rotateXZ(yAnimator.value());
+            Point point2 = origin.addVectorToPoint(node2);
+            g.drawLine(point1.getX().intValue(), point1.getY().intValue(), point2.getX().intValue(), point2.getY().intValue());
         }
     }
 
     public void rotate() {
         xRotate = (xRotate + 0.05) % 360;
         yRotate = (yRotate + 0.001) % 360;
-        repaint();
+        //repaint();
     }
 
 }

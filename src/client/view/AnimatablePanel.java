@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A class to make animations easy.
  */
 
-class AnimatablePanel extends JPanel implements ActionListener {
+public class AnimatablePanel extends JPanel implements ActionListener {
   
     private static final long serialVersionUID = -3670406422771531891L;
   

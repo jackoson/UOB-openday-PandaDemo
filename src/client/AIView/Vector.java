@@ -3,10 +3,10 @@ package client.aiview;
 import java.util.*;
 
 public class Vector {
+    
+    private Double x, y, z;
 
-    private int x, y, z;
-
-    public Vector(int x, int y, int z) {
+    public Vector(Double x, Double y,Double z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -28,42 +28,45 @@ public class Vector {
 
     public Vector rotateXY(double degrees) {
         double angle = Math.toRadians(degrees);
-        int x = (int) Math.round((Math.cos(angle) * this.x) - (Math.sin(angle) * this.y));
-        int y = (int) Math.round((Math.sin(angle) * this.x) + (Math.cos(angle) * this.y));
+        Double x = (Math.cos(angle) * this.x) - (Math.sin(angle) * this.y);
+        Double y = (Math.sin(angle) * this.x) + (Math.cos(angle) * this.y);
         return new Vector(x, y, z);
     }
 
     public Vector rotateYZ(double degrees) {
         double angle = Math.toRadians(degrees);
-        int y = (int) Math.round((Math.cos(angle) * this.y) - (Math.sin(angle) * this.z));
-        int z = (int) Math.round((Math.sin(angle) * this.y) + (Math.cos(angle) * this.z));
+        Double y = (Math.cos(angle) * this.y) - (Math.sin(angle) * this.z);
+        Double z = (Math.sin(angle) * this.y) + (Math.cos(angle) * this.z);
         return new Vector(x, y, z);
     }
 
     public Vector rotateXZ(double degrees) {
         double angle = Math.toRadians(degrees);
-        int x = (int) Math.round((Math.cos(angle) * this.x) + (Math.sin(angle) * this.z));
-        int z = (int) Math.round((Math.cos(angle) * this.z) - (Math.sin(angle) * this.x));
+        Double x = (Math.cos(angle) * this.x) + (Math.sin(angle) * this.z);
+        Double z = (Math.cos(angle) * this.z) - (Math.sin(angle) * this.x);
         return new Vector(x, y, z);
     }
 
     public Vector scale(double s0, double s1, double s2) {
-        x = (int) Math.round(x * s0);
-        y = (int) Math.round(y * s1);
-        z = (int) Math.round(z * s1);
+        x = x * s0;
+        y = y * s1;
+        z = z * s1;
         return this;
     }
 
-    public int getX() {
+    public Double getX() {
         return x;
     }
 
-    public int getY() {
+    public Double getY() {
         return y;
     }
 
-    public int getZ() {
+    public Double getZ() {
         return z;
     }
-
+    
+    public String stringValue() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
 }

@@ -1,40 +1,35 @@
-import javax.swing.JPanel;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Dimension;
-import java.awt.RenderingHints;
+package client.aiview;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
+import java.io.*;
+
+import com.google.gson.*;
+import com.google.gson.stream.*;
 
 public class AIView extends JPanel {
 
     private List<Vector> vectors;
     private Point origin;
     private double xRotate, yRotate;
-    private String graph;
 
     public AIView() {
-        setPreferredSize(new Dimension(600, 400));
-        xRotate = 0.0;
-        yRotate = 0.0;
-        vectors = new ArrayList<Vector>();
-        addVectors(vectors);
-    }
-
-    private void addVectors(List<Vector> vectors) {
-        vectors.add(new Vector(0, 0, 0));
-        vectors.add(new Vector(0, 100, -65));
-        vectors.add(new Vector(10, 50, -90));
-        vectors.add(new Vector(30, 30, 90));
-        vectors.add(new Vector(50, 40, 50));
-        vectors.add(new Vector(65, 8, 50));
-        vectors.add(new Vector(100, -50, -100));
-        vectors.add(new Vector(50, -65, 65));
-        vectors.add(new Vector(-5, -100, 100));
-        vectors.add(new Vector(-50, -100, -90));
-        vectors.add(new Vector(-50, -50, 95));
-        vectors.add(new Vector(-100, 0, -100));
-        vectors.add(new Vector(-35, 35, 0));
-        vectors.add(new Vector(-20, 70, -100));
+        try {
+            setPreferredSize(new Dimension(600, 400));
+            xRotate = 0.0;
+            yRotate = 0.0;
+            FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
+            JsonReader reader = new JsonReader(fileReader);
+            Gson gson = new Gson();
+            Map<String, Integer> json = gson.fromJson(reader, Map.class);
+            System.out.println("Nodes:" + json.get("nodes"));
+        } catch (FileNotFoundException e) {
+            System.err.println("Error in the AI :" + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public void paintComponent(Graphics g0) {
@@ -46,7 +41,7 @@ public class AIView extends JPanel {
         Dimension size = getSize();
         origin = new Point((int) (size.getWidth() / 2.0), (int) (size.getHeight() / 2.0), 0);
 
-        drawVectors(g, vectors, origin, origin);
+        //drawVectors(g, vectors, origin, origin);
     }
 
     private void drawVectors(Graphics2D g, List<Vector> vectors, Point origin, Point start) {

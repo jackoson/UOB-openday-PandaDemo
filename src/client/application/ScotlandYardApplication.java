@@ -5,6 +5,7 @@ import net.*;
 import client.view.*;
 import client.model.*;
 import player.*;
+import client.aiview.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +19,7 @@ import java.util.concurrent.*;
  */
 
 public class ScotlandYardApplication implements WindowListener, ActionListener, Runnable {
-  
+
     public boolean DEBUG = true;
     private boolean demo = false;
     private ScotlandYardGame game;
@@ -27,10 +28,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
     private JPanel container;
-    
+
     private final int kNormalTimer = 260;
     private final int kDemoTime = 20;
-    
+
     /**
      * Is the entry point for the game.
      *
@@ -41,10 +42,20 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
         ScotlandYardApplication application = new ScotlandYardApplication();
-        
+
         SwingUtilities.invokeLater(application::go);
+        SwingUtilities.invokeLater(application::ai);
     }
-    
+
+    public void ai() {
+        JFrame window = new JFrame();
+        window.add(new AIView());
+        window.pack();
+        window.setTitle("AI");
+        window.setLocationByPlatform(true);
+        window.setVisible(true);
+    }
+
     /**
      * Starts the window and adds the SetUpView.
      */
@@ -77,7 +88,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setLocationByPlatform(true);
         window.addWindowListener(this);
         window.setVisible(true);
-        
+
         if (DEBUG){//?
             threadCom = new ThreadCommunicator();
             demo = true;
@@ -85,9 +96,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             newGame();
         }
     }
-    
+
     /**
-     * Called when the window is being closed. This then tells the 
+     * Called when the window is being closed. This then tells the
      * game to save it's current state.
      *
      * @param e the WindowEvent sent when the window closes.
@@ -97,7 +108,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             game.saveGame();
         }
     }
-    
+
     /**
      * Called when the buttons in the SetUpView are clicked by the user.
      *
@@ -137,7 +148,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
         }
     }
-    
+
     // Returns true if  the given string is a valid game
     // name.
     // @param name the string to be checked.
@@ -148,11 +159,11 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         boolean containsForwardSlash = name.indexOf("\\") != -1;
         return (!containsHash) && (!containsBackslash) && (!containsForwardSlash);
     }
-    
+
     /**
      * Updates the ThreadCommunicator object used by the GameView.
      * Then displays the GameView and hides the SetUpView.
-     * 
+     *
      * @param timerTime the max time for the Timer in the TimerView.
      */
     public void beginGame(int timerTime) {
@@ -162,7 +173,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         cl.next(container);
         new Thread(this).start();
     }
-    
+
     /**
      * Starts a the specified ScotlandYardGame in a new Thread.
      *
@@ -171,9 +182,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void newAIGame(ScotlandYardGame game) {
         this.game = game;
         new Thread(game).start();
-        
+
     }
-    
+
     // Starts a new ScotlandYardGame in a new Thread.
     private void newGame() {
         int playerNo = setUpView.newPlayers();
@@ -188,7 +199,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         game = new ScotlandYardGame(setUpView.loadFilePath(), threadCom);
         new Thread(game).start();
     }
-    
+
     // Removes the GameView and shows the SetUpView view
     public void endGame() {
         game.endGame();
@@ -211,7 +222,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             newGame();
         }
     }
-    
+
     /**
      * Takes items off the queue and updates the views appropriately.
      */
@@ -227,9 +238,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             }
         }
     }
-    
+
     // Decodes the id of the update and acts accordingly.
-    // The 'empty loop technique' is used so that if the List does not only 
+    // The 'empty loop technique' is used so that if the List does not only
     // contain GamePlayer objects an exception will be thrown near to the cause.
     // @param id the id of the update.
     // @param object the object associated with the id.
@@ -304,7 +315,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             gameView.clearRoutes();
         }
     }
-    
+
     /**
      * Unused method from the WindowListener interface.
      *
@@ -341,5 +352,5 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
      * @param e the WindowEvent from the listener.
      */
     public void windowDeactivated(WindowEvent e) {}
-    
+
 }

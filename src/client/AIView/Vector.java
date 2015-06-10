@@ -75,5 +75,9 @@ public class Vector {
     public List<Vector> getVectors() {
         return vectors;
     }
+    
+    public String stringValue() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
 
 }

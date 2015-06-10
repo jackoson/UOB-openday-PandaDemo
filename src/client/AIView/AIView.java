@@ -74,7 +74,7 @@ public class AIView extends JPanel {
             if (diameter < 5) diameter = 5;
             if (vector.getValue().getZ() == 0) diameter = 15;
             int radius = (int) ((double) diameter / 2.0);
-            g.fillOval((int)(point.getX() * 0.75) - radius, (int)(point.getY() * 0.75) - radius, diameter, diameter);
+            g.fillOval(point.getX() - radius, point.getY() - radius, diameter, diameter);
         }
     }
 
@@ -82,7 +82,7 @@ public class AIView extends JPanel {
         for (Edge<Vector> edge : edges) {
             Vector node1 = edge.getNode1();
             Vector node2 = edge.getNode2();
-            g.drawLine((int)(node1.getX() * 0.75), (int)(node1.getY() * 0.75), (int)(node2.getX() * 0.75), (int)(node2.getY() * 0.75));
+            g.drawLine(node1.getX(), node1.getY(), node2.getX(), node2.getY());
         }
     }
 

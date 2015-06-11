@@ -195,7 +195,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private void newGame() {
         int playerNo = setUpView.newPlayers();
         String gameName = setUpView.newGameName();
-        if (demo) game = new ScotlandYardGame("resources/graph.txt", threadCom, true);
+        if (demo) game = new ScotlandYardGame("resources/graph.txt", threadCom, aiView);
         else game = new ScotlandYardGame(playerNo, gameName, "resources/graph.txt", threadCom);
         new Thread(game).start();
     }

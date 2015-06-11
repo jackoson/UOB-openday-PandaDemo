@@ -11,19 +11,17 @@ import java.awt.event.*;
 /**
  * A class that uses a GameTree to make it a useful AI, it channels it's inner Gene Hunt to make the best Moves.
  */
- 
-public class GeneHunt implements Player, ActionListener {
-    
+
+public class GeneHunt implements Player {
+
     private ScotlandYardView view;
     private Graph<Integer, Route> graph;
     private Dijkstra dijkstra;
     private PageRank pageRank;
-    private GameTree.GameTreeHelper gameTreeHelper = null;
     private List<Move> moveList;
-    private ThreadCommunicator guiThreadCom;
-    
-    private final int kTurnTime = 20000;
-    
+    private ThreadCommunicator threadCom;
+    private AIView aiView;
+
     /**
      * Constructs a new GeneHunt AI object.
      *
@@ -31,7 +29,7 @@ public class GeneHunt implements Player, ActionListener {
      * @param graphFilename the path to the file that contains the Graph.
      * @param guiThreadCom the ThreadCommunicator object to communicate with the Event handling thread (GUI thread).
      */
-    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator guiThreadCom) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom, AIView aiView) {
         try {
             this.view = view;
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
@@ -39,13 +37,14 @@ public class GeneHunt implements Player, ActionListener {
             this.dijkstra = new Dijkstra(graphFilename);
             this.pageRank = new PageRank(graph);
             this.pageRank.iterate(100);
-            this.guiThreadCom = guiThreadCom;
+            this.threadCom = threadCom;
+            this.aiView = aiView;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
             e.printStackTrace();
             System.exit(1);
         }
-        
+
     }
 
     /**
@@ -58,54 +57,35 @@ public class GeneHunt implements Player, ActionListener {
     @Override
     public Move notify(int location, Set<Move> moves) {
         Colour player = view.getCurrentPlayer();
-        if (guiThreadCom != null) updateUI(player);
-        Move move = null;
-        if (gameTreeHelper == null) {
-            List<GamePlayer> players = getPlayers(location, player);
-            gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this, guiThreadCom);
-        }
-        wait(kTurnTime);
-        move = gameTreeHelper.getSuggestedMove(view.getRound(), view.getCurrentPlayer());
-        System.out.println(move);
+        if (threadCom != null) updateUI(player);
+        GameTree gameTree = new GameTree(graph, pageRank, dijkstra, view.getRound(), player, getPlayers(location, player), threadCom);
+        Thread gameTreeThread = new Thread(gameTree);
+        aiView.setGameTree(gameTree);
+        gameTreeThread.start();
+        joinThread(gameTreeThread);
+        Move move = gameTree.getMove();
         if (move == null) move = moves.iterator().next();
-        //gameTreeHelper.setMove(move);
-        //new Thread(gameTreeHelper).start();
-        gameTreeHelper.stop();
-        gameTreeHelper = null;
-        guiThreadCom.putUpdate("clear_routes", true);
         return move;
     }
-    
-    private void wait(int milliseconds) {
+
+    private void joinThread(Thread thread) {
         try {
-            Thread.sleep(milliseconds);
+            thread.join();
         } catch (InterruptedException e) {
-            System.err.println("Interrupted while waiting in GeneHunt.");
+            System.err.println("Gene Hunt was interrupted.");
+            e.printStackTrace();
         }
     }
-    
-    /**
-     * Called when the game tree crashes and needs to be restarted.
-     *
-     * @param e the ActionEvent containing information about what object created it.
-     */
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("game_tree_crashed")) {
-            //Colour player = view.getCurrentPlayer();
-            //List<GamePlayer> players = getPlayers(view.getPlayerLocation(player), player);
-            //gameTreeHelper = GameTree.startTree(graph, pageRank, dijkstra, view.getRound(), view.getCurrentPlayer(), players, this);
-        }
-    }
-    
+
     // Updates the UI at the start of an AI move.
     // @param player the player whose turn it is.
     private void updateUI(Colour player) {
-        guiThreadCom.putUpdate("reset_timer", true);
-        guiThreadCom.putUpdate("zoom_out", true);
-        guiThreadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
+        threadCom.putUpdate("reset_timer", true);
+        threadCom.putUpdate("zoom_out", true);
+        threadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
         updateTickets(player);
     }
-    
+
     // Returns the correct message for the specified player.
     // @param player the player whose message should be returned.
     // @return the correct message for the specified player.
@@ -113,7 +93,7 @@ public class GeneHunt implements Player, ActionListener {
         if (player.equals(Colour.Black)) return "Mr X";
         else return "the " + player.toString() + " Detective";
     }
-    
+
     // Updates the PlayerTicketView with the current players Tickets.
     // @param player the player for whom the PlayerTicketView should update.
     private void updateTickets(Colour player) {
@@ -121,9 +101,9 @@ public class GeneHunt implements Player, ActionListener {
         newTickets.add(player);
         Map<Ticket, Integer> tickets = ModelHelper.getTickets(player, view);
         newTickets.add(tickets);
-        guiThreadCom.putUpdate("update_tickets", newTickets);
+        threadCom.putUpdate("update_tickets", newTickets);
     }
-    
+
     // Returns the List of GamePlayer objects for the current game state.
     // @param location the location of the current player.
     // @param currentPlayer the Colour of the current player.
@@ -138,5 +118,5 @@ public class GeneHunt implements Player, ActionListener {
         }
         return gamePlayers;
     }
-    
+
 }

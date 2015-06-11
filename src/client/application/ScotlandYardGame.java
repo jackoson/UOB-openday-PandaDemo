@@ -14,8 +14,9 @@ import javax.swing.JLabel;
  */
 
 public class ScotlandYardGame implements Player, Spectator, Runnable {
-    
+
     private ScotlandYard model;
+    private AIView aiView;
     private SaveGame saveGame = null;
     private int numPlayers;
     private List<GamePlayer> players;
@@ -29,21 +30,21 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private boolean firstRound = true;
     private boolean replaying = false;
     private final boolean aiGame;
-    
+
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
     private final int kAnimationWait = 500;
-    
+
     private int[] detectiveLocations = {26, 29, 50, 53, 91, 94, 103, 112, 117, 123, 138, 141, 155, 174};
     private int[] mrXLocations = {35, 45, 51, 71, 78, 104, 106, 127, 132, 166, 170, 172};
-        
+
     /**
      * Constructs a new ScotlandYardGame object.
      *
      * @param numPlayers the number of players in the game.
      * @param gameName the name of the game - for the game save.
      * @param graphName the name of the graph file for the game.
-     * @param threadCom the TreadCommunicator object to 
+     * @param threadCom the TreadCommunicator object to
      * communicate between Threads.
      */
     public ScotlandYardGame(int numPlayers, String gameName, String graphName, ThreadCommunicator threadCom) {
@@ -70,7 +71,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.exit(1);
         }
     }
-    
+
     /**
      * Constructs a ScotlandYardGame from a game save.
      *
@@ -99,13 +100,13 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.exit(1);
         }
     }
-    
+
     /**
      * Constructs a networked ScotlandYardGame without a game save.
      *
      * @param model the ScotlandYardView that controls the game.
      * @param graphName the path to the graph file.
-     * @param threadCom the ThreadCommunicator object to 
+     * @param threadCom the ThreadCommunicator object to
      * communicate between Threads.
      */
     public ScotlandYardGame(ScotlandYardView model, String graphName, ThreadCommunicator threadCom) {
@@ -122,12 +123,13 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.exit(1);
         }
     }
-    
-    public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, boolean demo) {
+
+    public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, AIView aiView) {
         aiGame = false;
         try {
             this.threadCom = threadCom;
-            this.numPlayers = 3;
+            this.aiView = aiView;
+            this.numPlayers = 2;
             this.graphName = graphName;
             routeFinder = new Dijkstra(graphName);
             List<Boolean> rounds = ModelHelper.getRounds();
@@ -143,7 +145,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.exit(1);
         }
     }
-    
+
     /**
      * The run method called when the Thread is started.
      * Starts the game.
@@ -163,7 +165,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.exit(1);
         }
     }
-    
+
     /**
      * Called when the game is over.
      * Updates the views and then returns to the SetUpView.
@@ -177,10 +179,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         if (!aiGame) threadCom.putUpdate("end_game", true);
         threadCom.putUpdate("clear_log", true);
     }
-    
+
     // Returns the List of GamePlayer objects that contain all
     // of the information about the players who are currently in the game.
-    // @return the List of GamePlayer objects that contain all 
+    // @return the List of GamePlayer objects that contain all
     // of the information about the players who are currently in the game.
     private List<GamePlayer> getPlayers() {
         if (players == null) {
@@ -193,7 +195,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             return players;
         }
     }
-    
+
     // Returns the List of players in the game.
     // @param mrXLocation the initial location of Mr X.
     // @param detectiveLocations the initial locations of the Detectives.
@@ -201,7 +203,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private List<GamePlayer> initialiseGame(int mrXLocation, int[] detectiveLocations, boolean demo) {
         List<GamePlayer> players = new ArrayList<GamePlayer>();
         Colour[] colours = Colour.values();
-        
+
         Map<Ticket, Integer> mrXTickets = new HashMap<Ticket, Integer>();
         mrXTickets.put(Ticket.Taxi, 10);
         mrXTickets.put(Ticket.Bus, 10);
@@ -209,10 +211,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         mrXTickets.put(Ticket.Double, 2);
         mrXTickets.put(Ticket.Secret, 5);
         Player player = this;
-        if (demo) player = new GeneHunt(model, graphName, threadCom);
+        if (demo) player = new GeneHunt(model, graphName, threadCom, aiView);
         model.join(player, colours[0], mrXLocation, mrXTickets);
         players.add(new GamePlayer(player, colours[0], 0, mrXTickets));
-        
+
         for (int i = 1; i < numPlayers; i++) {
             Map<Ticket, Integer> detectiveTickets = new HashMap<Ticket, Integer>();
             detectiveTickets.put(Ticket.Taxi, 11);
@@ -225,7 +227,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
         return players;
     }
-    
+
     // Returns an array of random locations for the detectives.
     // @param noOfDetectives the number of detectives to generate random locations for.
     // @return an array of random locations for the detectives.
@@ -241,18 +243,18 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
         return locations;
     }
-    
+
     // Returns a random location for Mr X.
     // @return a random location for Mr X.
     private int randomMrXLocation() {
         Random random = new Random();
         return mrXLocations[random.nextInt(12)];
     }
-    
+
     /**
      * Returns the Move chosen by the player.
      * Also updates the views for the start of a Move.
-     * 
+     *
      * @param location the actual location of the player.
      * @param moves the List of valid Moves the player can take.
      * @return the Move chosen by the player.
@@ -273,7 +275,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             String eventId = (String) threadCom.takeEvent();
             Object eventObject = threadCom.takeEvent();
             decodeEvents(eventId, eventObject);
-            
+
             if (pda.isAccepted()) {
                 move = pda.createMove(model.getCurrentPlayer());
                 if (moves.contains(move)) {
@@ -301,7 +303,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }*/
         return move;
     }
-    
+
     /**
      * Updates the UI after a move has been made.
      *
@@ -315,7 +317,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             threadCom.putUpdate("update_log", move);
         }
     }
-    
+
     // Decodes the id from the queue and performs the appropriate action.
     // @param id the id from the queue.
     // @param object the object from the queue.
@@ -339,20 +341,20 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             if (saveGame != null) fileAccess.saveGame(saveGame);
         }
     }
-    
+
     // Initialises the views at the start of a game.
     // @param players the List of players in the game.
     private void initialiseViews(List<GamePlayer> players) {
         threadCom.putUpdate("init_views", players);
         threadCom.putUpdate("update_round", 1);
     }
-    
+
     // Shows a message to the users.
     // @param message the message to be shown to the users.
     private void sendNotification(String message) {
         threadCom.putUpdate("send_notification", message);
     }
-    
+
     // Updates the UI at the start of a turn.
     // @param location the actual locaton of the player.
     // @param player the colour of the player whose turn it is.
@@ -368,7 +370,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         threadCom.putUpdate("zoom_in", location);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
     }
-    
+
     // Updates the UI at the end of a turn.
     // @param move the Move that has been played.
     private void updateUI(Move move) {
@@ -389,7 +391,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         threadCom.putUpdate("zoom_out", true);
         if (!aiGame) wait(kMoveWait);
     }
-    
+
     // Returns the target of a Move.
     // @param move the Move for which to return the target.
     // @return the target of a Move.
@@ -398,7 +400,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         else if (move instanceof MoveDouble) return ((MoveTicket) ((MoveDouble) move).move2).target;
         else return null;
     }
-    
+
     // Updates the PlayerTicketView with the current players Tickets.
     // @param player the player for whom the PlayerTicketView should update.
     private void updateTickets(Colour player) {
@@ -408,7 +410,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         newTickets.add(tickets);
         threadCom.putUpdate("update_tickets", newTickets);
     }
-    
+
     // Pauses the game thread for the specified time in milliseconds.
     // @param milliseconds the time to pause the game thread for.
     private void wait(int milliseconds) {
@@ -418,7 +420,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             System.err.println(e.getStackTrace());
         }
     }
-    
+
     // Returns the message at the start of a turn.
     // @param player the player whose turn it is.
     // @return the message at the start of a turn.
@@ -429,7 +431,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             return player.toString() + " Detective's turn.";
         }
     }
-    
+
     // Returns the message at the end of a game.
     // @param players the Set of winning players.
     // @return the message at the end of a game.
@@ -437,7 +439,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         if (players.contains(Colour.Black)) return "Mr X wins!";
         return "Detectives win!";
     }
-    
+
     // Returns the tickets a player has.
     // @param colour the color of the player.
     // @return the tickets a player has.
@@ -449,12 +451,12 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         tickets.put(Route.Boat, model.getPlayerTickets(colour, Ticket.Secret));
         return tickets;
     }
-    
+
     /**
      * Saves the game.
      */
     public void saveGame() {
         if (!replaying && saveGame != null) fileAccess.saveGame(saveGame);
     }
-    
+
 }

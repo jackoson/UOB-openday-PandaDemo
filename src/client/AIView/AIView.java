@@ -140,6 +140,7 @@ public class AIView extends AnimatablePanel {
     public void showTree(GraphNodeRep graphNode) {
         treeVectors = new HashMap<Integer, Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
+        //First hightlight current level
         buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
     }
 

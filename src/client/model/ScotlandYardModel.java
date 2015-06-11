@@ -14,7 +14,7 @@ import java.util.HashSet;
  */
 
 public class ScotlandYardModel extends ScotlandYard {
-    
+
     private int numberOfPlayers;
     private List<GamePlayer> players;
     private List<Spectator> spectators;
@@ -49,7 +49,7 @@ public class ScotlandYardModel extends ScotlandYard {
         Set<Move> moves = validMoves(colour);
         GamePlayer gamePlayer = getPlayer(colour);
         int playerLocation = gamePlayer.location();
-        
+
         Move chosenMove = gamePlayer.player().notify(playerLocation, moves);
         if (moves.contains(chosenMove)) {
             return chosenMove;
@@ -110,16 +110,16 @@ public class ScotlandYardModel extends ScotlandYard {
     @Override
     protected Set<Move> validMoves(Colour player) {
         GamePlayer gamePlayer = getPlayer(player);
-        Set<Move> validMoves = ModelHelper.validMoves(gamePlayer, players, graph);
+        Set<Move> validMoves = ModelHelper.validMoves(gamePlayer, players, graph, true);
         return validMoves;
     }
-    
+
     //Add a spectator to the game
     @Override
     public void spectate(Spectator spectator) {
         spectators.add(spectator);
     }
-    
+
     //Notify all spectators that a move has occurred
     private void notifySpectators(Move move) {
         for (Spectator spectator : spectators) {
@@ -141,7 +141,7 @@ public class ScotlandYardModel extends ScotlandYard {
         }
         return true;
     }
-    
+
     //Get the GamePlayer for a colour
     private GamePlayer getPlayer(Colour colour) {
         for (GamePlayer gamePlayer : players) {
@@ -186,7 +186,7 @@ public class ScotlandYardModel extends ScotlandYard {
               || getPlayers().size() == 1 || ModelHelper.onMrX(players) || ModelHelper.detectivesNoValidMoves(players, graph))) return true;
         return false;
     }
-    
+
     @Override
     public boolean isReady() {
         if (players.size() == numberOfPlayers && getPlayer(Colour.Black) != null) return true;
@@ -202,7 +202,7 @@ public class ScotlandYardModel extends ScotlandYard {
     public int getRound() {
         return roundCounter;
     }
-    
+
     public void setRound(int r) {
         roundCounter = r;
     }
@@ -211,5 +211,5 @@ public class ScotlandYardModel extends ScotlandYard {
     public List<Boolean> getRounds() {
         return rounds;
     }
-    
+
 }

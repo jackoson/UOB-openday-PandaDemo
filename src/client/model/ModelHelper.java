@@ -68,7 +68,7 @@ public class ModelHelper {
             || (round >= (getRounds().size() - 1)
                 && currentPlayer.equals(Colour.Black))) {
                 winners.add(Colour.Black);
-            } else if (onMrX(players) || validMoves(players.get(0), players, graph).size() == 0) {
+            } else if (onMrX(players) || validMoves(players.get(0), players, graph, true).size() == 0) {
                 for (GamePlayer player : players) {
                     if (!player.colour().equals(Colour.Black)) winners.add(player.colour());
                 }
@@ -87,7 +87,7 @@ public class ModelHelper {
         boolean noMoves = true;
         for (GamePlayer player : players) {
             if (!player.colour().equals(Colour.Black)) {
-                Set<Move> moves = validMoves(player, players, graph);
+                Set<Move> moves = validMoves(player, players, graph, true);
                 if (!(moves.size() == 1 && moves.iterator().next() instanceof MovePass)) {
                     noMoves = false;
                 }
@@ -118,7 +118,7 @@ public class ModelHelper {
      * @param graph the Graph associated with the game.
      * @return the Set of valid Moves a player can make.
      */
-    public static Set<Move> validMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph) {
+    public static Set<Move> validMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, boolean doubleMove) {
         Colour player = gamePlayer.colour();
         int secretMoveCount = gamePlayer.tickets().get(Ticket.Secret);
         int doubleMoveCount = gamePlayer.tickets().get(Ticket.Double);
@@ -130,12 +130,12 @@ public class ModelHelper {
 
         if (player.equals(Colour.Black)) {
             Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
-            //Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
+            Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
             if (secretMoveCount >= 1) secretMoves = createSingleSecretMoves(singleMoves);
-            //if (doubleMoveCount >= 1) doubleMoves = createDoubleMoves(gamePlayer, players, graph, singleMoves, secretMoveCount);
+            if (doubleMoveCount >= 1 && doubleMove) doubleMoves = createDoubleMoves(gamePlayer, players, graph, singleMoves, secretMoveCount);
 
             allMoves.addAll(secretMoves);
-            //allMoves.addAll(doubleMoves);
+            allMoves.addAll(doubleMoves);
         } else if (allMoves.size() == 0) {
             allMoves.add(MovePass.instance(player));
         }

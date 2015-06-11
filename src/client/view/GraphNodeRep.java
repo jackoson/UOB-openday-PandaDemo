@@ -11,15 +11,17 @@ public class GraphNodeRep {
     
     public GraphNodeRep(Color color, Integer location) {
         this.color = color;
+        if (this.color == null) this.color = Color.black;
         this.location = location;
-        this.children = new ArrayList<Integer>();
+        if (this.location == null) this.location = 1;//Need chnging
+        this.children = new ArrayList<GraphNodeRep>();
     }
     
     public void addChild(GraphNodeRep child) {
         children.add(child);
     }
     
-    public List<Integer> children() {
+    public List<GraphNodeRep> children() {
         return children;
     }
     

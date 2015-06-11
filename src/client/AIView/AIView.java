@@ -122,7 +122,7 @@ public class AIView extends AnimatablePanel {
             try {
                 String id = (String) threadCom.takeUpdate();
                 Object object = threadCom.takeUpdate();
-            } catch(InterruptedException e) {
+            } catch(Exception e) {
                 System.err.println("Error taking items from the queue :" + e);
                 e.printStackTrace();
             }

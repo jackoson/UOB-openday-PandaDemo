@@ -135,7 +135,7 @@ public class GameTree implements Runnable {
         if (maximising) nextRound++;
         Colour nextPlayer = ModelHelper.getNextPlayer(parent.getState(), ModelHelper.getPlayerOfColour(parent.getState(), parent.getPlayer())).colour();
         Set<Move> validMoves = ModelHelper.validMoves(ModelHelper.getPlayerOfColour(parent.getState(),
-                                                      parent.getPlayer()), parent.getState(), graph);
+                                                      parent.getPlayer()), parent.getState(), graph, false);
         for (Move move : validMoves) {
             List<GamePlayer> clonedState = cloneList(parent.getState());
             playMove(clonedState, move);

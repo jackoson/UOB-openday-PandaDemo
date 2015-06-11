@@ -4,7 +4,6 @@ import scotlandyard.*;
 import client.model.*;
 import client.algorithms.*;
 import player.*;
-import client.aiview.AIView;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -17,7 +16,6 @@ import javax.swing.JLabel;
 public class ScotlandYardGame implements Player, Spectator, Runnable {
 
     private ScotlandYard model;
-    private AIView aiView;
     private SaveGame saveGame = null;
     private int numPlayers;
     private List<GamePlayer> players;
@@ -125,11 +123,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
     }
 
-    public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, AIView aiView) {
+    public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, boolean demo) {
         aiGame = false;
         try {
             this.threadCom = threadCom;
-            this.aiView = aiView;
             this.numPlayers = 2;
             this.graphName = graphName;
             routeFinder = new Dijkstra(graphName);

@@ -2,6 +2,7 @@ package client.aiview;
 
 import client.view.*;
 import client.application.*;
+import player.GameTree;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,7 @@ public class AIView extends AnimatablePanel {
 
     private double xRotate, yRotate;
     private AnimatablePanel.Animator yAnimator, xAnimator;
+    private GameTree gameTree = null;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
@@ -105,6 +107,10 @@ public class AIView extends AnimatablePanel {
                 selectExploredNodes(graphNodeRep);
             }
         }
+    }
+
+    public void setGameTree(GameTree gameTree) {
+        this.gameTree = gameTree;
     }
 
     public void paintComponent(Graphics g0) {

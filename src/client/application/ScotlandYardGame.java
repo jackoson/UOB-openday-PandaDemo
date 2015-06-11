@@ -4,6 +4,7 @@ import scotlandyard.*;
 import client.model.*;
 import client.algorithms.*;
 import player.*;
+import client.aiview.AIView;
 
 import java.util.*;
 import java.util.concurrent.*;

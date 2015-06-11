@@ -53,9 +53,11 @@ public class AIView extends AnimatablePanel {
             Double phi = 2.0 * Math.PI * (oy /2000);
             Double theta = Math.asin(z);
 
-            Double x = Math.cos(theta) * Math.cos(phi) * 50;
-            Double y = Math.cos(theta) * Math.sin(phi) * 50;
-            z = z*50;
+            Double radius = 100 + (oz * 20);
+
+            Double x = Math.cos(theta) * Math.cos(phi) * radius;
+            Double y = Math.cos(theta) * Math.sin(phi) * radius;
+            z = z * radius;
 
             vectors.put(node.get("node").intValue(), new Vector(x, y, z));
         }

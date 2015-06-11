@@ -267,7 +267,7 @@ public class GameTree implements Runnable {
                 if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
-            threadCom.putUpdate("AI_display_tree", topRep);
+            threadCom.putUpdate("ai_display_tree", topRep);
             return v;
         }
         
@@ -287,7 +287,7 @@ public class GameTree implements Runnable {
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
-            threadCom.putUpdate("AI_display_tree", topRep);
+            threadCom.putUpdate("ai_display_tree", topRep);
             return v;
         }
         

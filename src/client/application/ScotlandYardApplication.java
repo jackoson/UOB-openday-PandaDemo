@@ -24,6 +24,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private boolean demo = false;
     private ScotlandYardGame game;
     private GameView gameView;
+    private AIView aiView;
     private SetUpView setUpView;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom;
@@ -47,9 +48,13 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         SwingUtilities.invokeLater(application::ai);
     }
 
+    public ScotlandYardApplication() {
+        this.aiView = new AIView();
+    }
+
     public void ai() {
         JFrame window = new JFrame();
-        window.add(new AIView());
+        window.add(aiView);
         window.pack();
         window.setTitle("AI");
         window.setLocationByPlatform(true);
@@ -169,6 +174,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void beginGame(int timerTime) {
         gameView.setTimerMaxTime(timerTime);
         gameView.setThreadCom(threadCom);
+        aiView.setThreadCom(threadCom);
         CardLayout cl = (CardLayout) container.getLayout();
         cl.next(container);
         new Thread(this).start();
@@ -304,15 +310,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_round")) {
             Integer roundNo = (Integer) object;
             gameView.updateRoundCounter(roundNo);
-        } else if (id.equals("add_route")) {
-            Object[] hints = (Object[]) object;
-            @SuppressWarnings("unchecked")
-            List<Integer> route = (List<Integer>) hints[0];
-            @SuppressWarnings("unchecked")
-            Color color = (Color) hints[1];
-            gameView.addRouteHint(route, color);
-        } else if (id.equals("clear_routes")) {
-            gameView.clearRoutes();
+        } else if (id.equals("ai_display_tree")) {
+            GraphNodeRep graphNode = (GraphNodeRep) object;
+            aiView.showTree(graphNode);
         }
     }
 

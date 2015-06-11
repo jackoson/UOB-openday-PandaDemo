@@ -20,6 +20,9 @@ public class AIView extends AnimatablePanel {
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
 
+    private Map<Integer, Vector> treeVectors;
+    private List<Edge<Vector>> treeEdges;
+
     public AIView() {
         try {
             threadCom = null;
@@ -29,6 +32,8 @@ public class AIView extends AnimatablePanel {
             yRotate = 0.0;
             vectors = new HashMap<Integer, Vector>();
             edges = new ArrayList<Edge<Vector>>();
+            treeVectors = new HashMap<Integer, Vector>();
+            treeEdges = new ArrayList<Edge<Vector>>();
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
             Gson gson = new Gson();
@@ -37,7 +42,6 @@ public class AIView extends AnimatablePanel {
 
             yAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator = createAnimator(0.0, 360.0, 10.0);
-            //Start Polling Queue
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -77,6 +81,19 @@ public class AIView extends AnimatablePanel {
         }
     }
 
+    private void buildGraphNodes(GraphNodeRep graphNode, Double horizontalSpace, Double y, Integer id, Vector parent) {
+        if (graphNode != null) {
+            Double x = horizontalSpace / 2.0;
+            Vector node = new Node(x, y, 0.0, graphNode.color());
+            treeVectors.put(id, node);
+            if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
+            for (GraphNodeRep graphNodeRep : graphNode.children()) {
+                horizontalSpace = horizontalSpace / graphNode.children().size();
+                buildGraphNodes(graphNodeRep, horizontalSpace, y - 40, id++, node);
+            }
+        }
+    }
+
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -88,6 +105,9 @@ public class AIView extends AnimatablePanel {
 
         drawVectors(g, vectors, origin);
         drawEdges(g, edges, origin);
+
+        drawEdges(g, treeEdges, origin);
+        drawVectors(g, treeVectors, origin);
     }
 
     private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin) {
@@ -103,7 +123,7 @@ public class AIView extends AnimatablePanel {
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
         }
     }
-    
+
     private void drawEdges(Graphics2D g, List<Edge<Vector>> edges, Vector origin) {
         g.setColor(Color.BLACK);
         for (Edge<Vector> edge : edges) {
@@ -117,28 +137,20 @@ public class AIView extends AnimatablePanel {
         }
     }
 
-    public void pollQueue() {
-        while (true) {
-            try {
-                String id = (String) threadCom.takeUpdate();
-                Object object = threadCom.takeUpdate();
-            } catch(Exception e) {
-                System.err.println("Error taking items from the queue :" + e);
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void decodeUpdate(String id, Object object) {
-        if (id.equals("ai_dispay_tree")) {
-            GraphNodeRep graphNode = (GraphNodeRep) object;
-            //Do Stuff
-        }
+    public void showTree(GraphNodeRep graphNode) {
+        System.out.println("Called");
+        treeVectors = new HashMap<Integer, Vector>();
+        treeEdges = new ArrayList<Edge<Vector>>();
+        buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
     }
 
     public void animationCompleted() {
       yAnimator = createAnimator(0.0, 360.0, 10.0);
       xAnimator = createAnimator(0.0, 360.0, 10.0);
+    }
+
+    public void setThreadCom(ThreadCommunicator threadCom) {
+        this.threadCom = threadCom;
     }
 
 }

@@ -12,7 +12,7 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends AnimatablePanel implements Runnable {
+public class AIView extends AnimatablePanel {
 
     private double xRotate, yRotate;
     private AnimatablePanel.Animator yAnimator, xAnimator;
@@ -32,6 +32,8 @@ public class AIView extends AnimatablePanel implements Runnable {
             yRotate = 0.0;
             vectors = new HashMap<Integer, Vector>();
             edges = new ArrayList<Edge<Vector>>();
+            treeVectors = new HashMap<Integer, Vector>();
+            treeEdges = new ArrayList<Edge<Vector>>();
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
             Gson gson = new Gson();
@@ -40,8 +42,6 @@ public class AIView extends AnimatablePanel implements Runnable {
 
             yAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator = createAnimator(0.0, 360.0, 10.0);
-            //Start Polling Queue
-            new Thread(this).start();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -137,29 +137,11 @@ public class AIView extends AnimatablePanel implements Runnable {
         }
     }
 
-    public void run() {
-        while (true) {
-            try {
-                if (threadCom != null) {
-                    String id = (String) threadCom.takeUpdate();
-                    Object object = threadCom.takeUpdate();
-                } else {
-                    Thread.sleep(100);
-                }
-            } catch(Exception e) {
-                System.err.println("Error taking items from the queue :" + e);
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void decodeUpdate(String id, Object object) {
-        if (id.equals("ai_display_tree")) {
-            GraphNodeRep graphNodes = (GraphNodeRep) object;
-            treeVectors = new HashMap<Integer, Vector>();
-            treeEdges = new ArrayList<Edge<Vector>>();
-            buildGraphNodes(graphNodes, 600.0, 180.0, 0, null);
-        }
+    public void showTree(GraphNodeRep graphNode) {
+        System.out.println("Called");
+        treeVectors = new HashMap<Integer, Vector>();
+        treeEdges = new ArrayList<Edge<Vector>>();
+        buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
     }
 
     public void animationCompleted() {

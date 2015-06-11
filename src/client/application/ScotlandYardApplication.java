@@ -48,10 +48,13 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         SwingUtilities.invokeLater(application::ai);
     }
 
+    public ScotlandYardApplication() {
+        this.aiView = new AIView();
+    }
+
     public void ai() {
         JFrame window = new JFrame();
-        aiView = new AIView();
-        window.add(aiView));
+        window.add(aiView);
         window.pack();
         window.setTitle("AI");
         window.setLocationByPlatform(true);
@@ -171,6 +174,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void beginGame(int timerTime) {
         gameView.setTimerMaxTime(timerTime);
         gameView.setThreadCom(threadCom);
+        aiView.setThreadCom(threadCom);
         CardLayout cl = (CardLayout) container.getLayout();
         cl.next(container);
         new Thread(this).start();
@@ -306,6 +310,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_round")) {
             Integer roundNo = (Integer) object;
             gameView.updateRoundCounter(roundNo);
+        } else if (id.equals("ai_display_tree")) {
+            GraphNodeRep graphNode = (GraphNodeRep) object;
+            aiView.showTree(graphNode);
         }
     }
 

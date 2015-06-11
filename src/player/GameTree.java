@@ -155,7 +155,7 @@ public class GameTree implements Runnable {
             this.depth = depth;
             this.alpha = alpha;
             this.beta = beta;
-            this.graphNodeRep = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), 1);//Need to get actual location
+            this.graphNodeRep = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());//Need to get actual location
         }
 
         private GraphNodeRep getGraphNodeRep() {

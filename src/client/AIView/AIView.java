@@ -22,6 +22,8 @@ public class AIView extends AnimatablePanel {
 
     private Map<Integer, Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
+    
+    
 
     public AIView() {
         try {

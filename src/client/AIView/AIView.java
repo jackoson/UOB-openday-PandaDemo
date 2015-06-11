@@ -102,9 +102,8 @@ public class AIView extends AnimatablePanel {
             Double radius = diameter / 2;
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
         }
-
     }
-
+    
     private void drawEdges(Graphics2D g, List<Edge<Vector>> edges, Vector origin) {
         g.setColor(Color.BLACK);
         for (Edge<Vector> edge : edges) {

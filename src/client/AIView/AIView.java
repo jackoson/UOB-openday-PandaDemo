@@ -138,7 +138,6 @@ public class AIView extends AnimatablePanel {
     }
 
     public void showTree(GraphNodeRep graphNode) {
-        System.out.println("Called");
         treeVectors = new HashMap<Integer, Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
         buildGraphNodes(graphNode, 600.0, 180.0, 0, null);

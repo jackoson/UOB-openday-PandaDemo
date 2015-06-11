@@ -209,7 +209,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         mrXTickets.put(Ticket.Double, 2);
         mrXTickets.put(Ticket.Secret, 5);
         Player player = this;
-        if (demo) player = new GeneHunt(model, graphName, threadCom, aiView);
+        if (demo) player = new GeneHunt(model, graphName, threadCom);
         model.join(player, colours[0], mrXLocation, mrXTickets);
         players.add(new GamePlayer(player, colours[0], 0, mrXTickets));
 

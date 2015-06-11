@@ -2,10 +2,11 @@ package client.aiview;
 
 import client.view.*;
 import client.application.*;
-import player.GameTree;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 import java.io.*;
@@ -13,17 +14,18 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends AnimatablePanel {
+public class AIView extends AnimatablePanel implements ActionListener {
 
     private double xRotate, yRotate;
     private AnimatablePanel.Animator yAnimator, xAnimator;
-    private GameTree gameTree = null;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
 
     private Map<Integer, Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
+
+    private GraphNodeRep graphNodeRep;
 
     public AIView() {
         try {
@@ -47,6 +49,9 @@ public class AIView extends AnimatablePanel {
             yAnimator.setLoops(true);
             xAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator.setLoops(true);
+
+            Timer time = new Timer(1000, this);
+            time.start();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -109,10 +114,6 @@ public class AIView extends AnimatablePanel {
         }
     }
 
-    public void setGameTree(GameTree gameTree) {
-        this.gameTree = gameTree;
-    }
-
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -156,21 +157,27 @@ public class AIView extends AnimatablePanel {
         }
     }
 
-    public void showTree(GraphNodeRep graphNode) {
+    public void setRep(GraphNodeRep graphNode) {
+        graphNodeRep = graphNode;
+    }
+
+    public void updateTree() {
         treeVectors = new HashMap<Integer, Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
         }
-        //buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
-        selectExploredNodes(graphNode);
-        System.err.println("Update");
-        repaint();
+        //buildGraphNodes(graphNodeRep, 600.0, 180.0, 0, null);
+        selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 
     public void setThreadCom(ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        updateTree();
     }
 
 }

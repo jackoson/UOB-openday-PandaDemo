@@ -4,7 +4,6 @@ import scotlandyard.*;
 import client.algorithms.*;
 import client.application.*;
 import client.model.*;
-import client.aiview.AIView;
 
 import java.util.*;
 import java.awt.event.*;
@@ -21,7 +20,6 @@ public class GeneHunt implements Player {
     private PageRank pageRank;
     private List<Move> moveList;
     private ThreadCommunicator threadCom;
-    private AIView aiView;
 
     /**
      * Constructs a new GeneHunt AI object.
@@ -30,7 +28,7 @@ public class GeneHunt implements Player {
      * @param graphFilename the path to the file that contains the Graph.
      * @param guiThreadCom the ThreadCommunicator object to communicate with the Event handling thread (GUI thread).
      */
-    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom, AIView aiView) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom) {
         try {
             this.view = view;
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
@@ -39,7 +37,6 @@ public class GeneHunt implements Player {
             this.pageRank = new PageRank(graph);
             this.pageRank.iterate(100);
             this.threadCom = threadCom;
-            this.aiView = aiView;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
             e.printStackTrace();
@@ -61,7 +58,6 @@ public class GeneHunt implements Player {
         if (threadCom != null) updateUI(player);
         GameTree gameTree = new GameTree(graph, pageRank, dijkstra, view.getRound(), player, getPlayers(location, player), threadCom);
         Thread gameTreeThread = new Thread(gameTree);
-        aiView.setGameTree(gameTree);
         gameTreeThread.start();
         joinThread(gameTreeThread);
         Move move = gameTree.getMove();

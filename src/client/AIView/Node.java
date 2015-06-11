@@ -10,11 +10,11 @@ public class Node extends Vector {
     public Node(Double x, Double y, Double z, Color color) {
         super(x, y, z);
         this.color = color;
-        this.selected = true;
+        this.selected = false;
     }
 
     public void setSelected(boolean selected) {
-        this.selected = !selected;
+        this.selected = selected;
     }
 
     public boolean isSelected() {
@@ -22,7 +22,7 @@ public class Node extends Vector {
     }
 
     public Color getColor() {
-        if (selected) return Color.GRAY;
+        if (!selected) return Color.white;
         else return color;
     }
 

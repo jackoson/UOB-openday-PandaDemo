@@ -27,6 +27,7 @@ public class AIView extends AnimatablePanel {
         try {
             threadCom = null;
 
+            setBackground(new Color(131, 226, 197));
             setPreferredSize(new Dimension(600, 400));
             xRotate = 0.0;
             yRotate = 0.0;
@@ -41,7 +42,9 @@ public class AIView extends AnimatablePanel {
             parseJSON(json);
 
             yAnimator = createAnimator(0.0, 360.0, 10.0);
+            yAnimator.setLoops(true);
             xAnimator = createAnimator(0.0, 360.0, 10.0);
+            xAnimator.setLoops(true);
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -57,8 +60,8 @@ public class AIView extends AnimatablePanel {
             Double oz = node.get("z");
             //Transform the points.
 
-            Double y = -1.0 + 2.0 * (oy / 2000);
-            Double phi = 2.0 * Math.PI * (ox /2570);
+            Double y = 2.0 * (oy / 2000) - 1.0;
+            Double phi = 2.0 * Math.PI * (ox / 2570);
             Double theta = Math.asin(y);
 
             Double radius = 60 + (oz * 40);
@@ -94,6 +97,16 @@ public class AIView extends AnimatablePanel {
         }
     }
 
+    private void selectExploredNodes(GraphNodeRep graphNode) {
+        if (graphNode != null) {
+            for (GraphNodeRep graphNodeRep : graphNode.children()) {
+                Node n = (Node)(vectors.get(graphNodeRep.location()));
+                n.setSelected(true);
+                selectExploredNodes(graphNodeRep);
+            }
+        }
+    }
+
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -118,14 +131,14 @@ public class AIView extends AnimatablePanel {
             vector = vector.rotateXZ(yAnimator.value());
 
             vector = origin.addVectorToVector(vector);
-            Double diameter = 11.25 - (vector.getZ() * (17.5 / 360.0));
+            Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
             Double radius = diameter / 2;
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
         }
     }
 
     private void drawEdges(Graphics2D g, List<Edge<Vector>> edges, Vector origin) {
-        g.setColor(Color.BLACK);
+        g.setColor(Color.white);
         for (Edge<Vector> edge : edges) {
             Vector node1 = edge.getNode1().rotateYZ(xAnimator.value());
             node1 = node1.rotateXZ(yAnimator.value());
@@ -140,13 +153,14 @@ public class AIView extends AnimatablePanel {
     public void showTree(GraphNodeRep graphNode) {
         treeVectors = new HashMap<Integer, Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
-        //First hightlight current level
-        buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
-    }
-
-    public void animationCompleted() {
-      yAnimator = createAnimator(0.0, 360.0, 10.0);
-      xAnimator = createAnimator(0.0, 360.0, 10.0);
+        for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
+            Node n = (Node)(v.getValue());
+            n.setSelected(false);
+        }
+        //buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
+        selectExploredNodes(graphNode);
+        System.err.println("Update");
+        repaint();
     }
 
     public void setThreadCom(ThreadCommunicator threadCom) {

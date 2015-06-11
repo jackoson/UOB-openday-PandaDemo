@@ -144,6 +144,15 @@ public class AnimatablePanel extends JPanel implements ActionListener {
      */
     public void cancelAllAnimations() {
         if (timer != null) timer.stop();
+        activeAnimators = new CopyOnWriteArrayList<Animator>();
+    }
+    
+    public void pauseAnimations() {
+        if (timer != null) timer.stop();
+    }
+    
+    public void resumeAnimations() {
+        if (timer != null && !timer.isRunning()) timer.start();
     }
     
     /**
@@ -187,6 +196,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         private Double change;
         private Double duration;
         private boolean increasing = true;
+        private boolean loops = false;
         
         /**
          * Constructs a new Animator object.
@@ -204,14 +214,22 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             if (change < 0) increasing = false;
         }
         
+        public void setLoops(boolean loops) {
+            this.loops = loops;
+        }
+        
         /**
          * Steps through the animation.
          */
         public boolean step() {
             time += kTimeInterval;
             if (time >= duration) {
-                time = duration;
-                return true;
+                if (loops) {
+                    time = 0.0;
+                } else {
+                    time = duration;
+                    return true;
+                }
             }
             return false;
         }

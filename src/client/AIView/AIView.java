@@ -12,13 +12,16 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends AnimatablePanel {
+public class AIView extends AnimatablePanel implements Runnable {
 
     private double xRotate, yRotate;
     private AnimatablePanel.Animator yAnimator, xAnimator;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
+
+    private Map<Integer, Vector> treeVectors;
+    private List<Edge<Vector>> treeEdges;
 
     public AIView() {
         try {
@@ -38,6 +41,7 @@ public class AIView extends AnimatablePanel {
             yAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator = createAnimator(0.0, 360.0, 10.0);
             //Start Polling Queue
+            new Thread(this).start();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -77,6 +81,19 @@ public class AIView extends AnimatablePanel {
         }
     }
 
+    private void buildGraphNodes(GraphNodeRep graphNode, Double horizontalSpace, Double y, Integer id, Vector parent) {
+        if (graphNode != null) {
+            Double x = horizontalSpace / 2.0;
+            Vector node = new Node(x, y, 0.0, graphNode.color());
+            treeVectors.put(id, node);
+            if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
+            for (GraphNodeRep graphNodeRep : graphNode.children()) {
+                horizontalSpace = horizontalSpace / graphNode.children().size();
+                buildGraphNodes(graphNodeRep, horizontalSpace, y - 40, id++, node);
+            }
+        }
+    }
+
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -88,6 +105,9 @@ public class AIView extends AnimatablePanel {
 
         drawVectors(g, vectors, origin);
         drawEdges(g, edges, origin);
+
+        drawEdges(g, treeEdges, origin);
+        drawVectors(g, treeVectors, origin);
     }
 
     private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin) {
@@ -103,7 +123,7 @@ public class AIView extends AnimatablePanel {
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
         }
     }
-    
+
     private void drawEdges(Graphics2D g, List<Edge<Vector>> edges, Vector origin) {
         g.setColor(Color.BLACK);
         for (Edge<Vector> edge : edges) {
@@ -117,11 +137,15 @@ public class AIView extends AnimatablePanel {
         }
     }
 
-    public void pollQueue() {
+    public void run() {
         while (true) {
             try {
-                String id = (String) threadCom.takeUpdate();
-                Object object = threadCom.takeUpdate();
+                if (threadCom != null) {
+                    String id = (String) threadCom.takeUpdate();
+                    Object object = threadCom.takeUpdate();
+                } else {
+                    Thread.sleep(100);
+                }
             } catch(Exception e) {
                 System.err.println("Error taking items from the queue :" + e);
                 e.printStackTrace();
@@ -130,15 +154,21 @@ public class AIView extends AnimatablePanel {
     }
 
     private void decodeUpdate(String id, Object object) {
-        if (id.equals("ai_dispay_tree")) {
-            //GraphNodeRep graphNode = (GraphNodeRep) object;
-            //Do Stuff
+        if (id.equals("ai_display_tree")) {
+            GraphNodeRep graphNodes = (GraphNodeRep) object;
+            treeVectors = new HashMap<Integer, Vector>();
+            treeEdges = new ArrayList<Edge<Vector>>();
+            buildGraphNodes(graphNodes, 600.0, 180.0, 0, null);
         }
     }
 
     public void animationCompleted() {
       yAnimator = createAnimator(0.0, 360.0, 10.0);
       xAnimator = createAnimator(0.0, 360.0, 10.0);
+    }
+
+    public void setThreadCom(ThreadCommunicator threadCom) {
+        this.threadCom = threadCom;
     }
 
 }

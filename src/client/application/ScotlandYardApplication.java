@@ -195,7 +195,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     private void newGame() {
         int playerNo = setUpView.newPlayers();
         String gameName = setUpView.newGameName();
-        if (demo) game = new ScotlandYardGame("resources/graph.txt", threadCom, aiView);
+        if (demo) game = new ScotlandYardGame("resources/graph.txt", threadCom);
         else game = new ScotlandYardGame(playerNo, gameName, "resources/graph.txt", threadCom);
         new Thread(game).start();
     }
@@ -310,9 +310,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("update_round")) {
             Integer roundNo = (Integer) object;
             gameView.updateRoundCounter(roundNo);
-        } else if (id.equals("ai_display_tree")) {
-            GraphNodeRep graphNode = (GraphNodeRep) object;
-            aiView.showTree(graphNode);
+        } else if (id.equals("ai_update_rep")) {
+            GraphNodeRep rep = (GraphNodeRep) object;
+            aiView.updateTree(rep);
         }
     }
 

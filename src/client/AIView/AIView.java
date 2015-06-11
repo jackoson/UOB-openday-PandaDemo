@@ -2,7 +2,6 @@ package client.aiview;
 
 import client.view.*;
 import client.application.*;
-import player.GameTree;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +16,6 @@ public class AIView extends AnimatablePanel {
 
     private double xRotate, yRotate;
     private AnimatablePanel.Animator yAnimator, xAnimator;
-    private GameTree gameTree = null;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
@@ -109,16 +107,13 @@ public class AIView extends AnimatablePanel {
         }
     }
 
-    public void setGameTree(GameTree gameTree) {
-        this.gameTree = gameTree;
-    }
-
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
+        updateTree();
         Dimension size = getSize();
         Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
@@ -156,7 +151,7 @@ public class AIView extends AnimatablePanel {
         }
     }
 
-    public void showTree(GraphNodeRep graphNode) {
+    public void updateTree(GraphNodeRep graphNode) {
         treeVectors = new HashMap<Integer, Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
@@ -165,8 +160,7 @@ public class AIView extends AnimatablePanel {
         }
         //buildGraphNodes(graphNode, 600.0, 180.0, 0, null);
         selectExploredNodes(graphNode);
-        System.err.println("Update");
-        repaint();
+        repaint();//?
     }
 
     public void setThreadCom(ThreadCommunicator threadCom) {

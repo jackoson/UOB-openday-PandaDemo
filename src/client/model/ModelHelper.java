@@ -130,12 +130,12 @@ public class ModelHelper {
 
         if (player.equals(Colour.Black)) {
             Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
-            Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
+            //Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
             if (secretMoveCount >= 1) secretMoves = createSingleSecretMoves(singleMoves);
-            if (doubleMoveCount >= 1) doubleMoves = createDoubleMoves(gamePlayer, players, graph, singleMoves, secretMoveCount);
+            //if (doubleMoveCount >= 1) doubleMoves = createDoubleMoves(gamePlayer, players, graph, singleMoves, secretMoveCount);
 
             allMoves.addAll(secretMoves);
-            allMoves.addAll(doubleMoves);
+            //allMoves.addAll(doubleMoves);
         } else if (allMoves.size() == 0) {
             allMoves.add(MovePass.instance(player));
         }

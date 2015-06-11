@@ -62,7 +62,7 @@ public class GameTree implements Runnable {
     public void run() {
         TreeNode root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
-        Double result = alphaBeta(root, 4, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
+        Double result = alphaBeta(root, 6, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
         this.move = findMove(root, round, initialPlayer);
     }
 
@@ -88,8 +88,8 @@ public class GameTree implements Runnable {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
                 GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 graphNode.addChild(newGraphNode);
+                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 if (result > v) {
                     v = result;
                     node.setBestChild(child);
@@ -102,8 +102,8 @@ public class GameTree implements Runnable {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
                 GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 graphNode.addChild(newGraphNode);
+                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 if (result < v) {
                     v = result;
                     node.setBestChild(child);

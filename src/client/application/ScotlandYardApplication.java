@@ -44,7 +44,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } catch (Exception e) { }
         ScotlandYardApplication application = new ScotlandYardApplication();
 
-        //SwingUtilities.invokeLater(application::go);
+        SwingUtilities.invokeLater(application::go);
         SwingUtilities.invokeLater(application::ai);
     }
 

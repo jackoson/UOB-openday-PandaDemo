@@ -5,6 +5,7 @@ import client.algorithms.*;
 import client.application.*;
 import client.model.*;
 import client.view.Formatter;
+import client.view.GraphNodeRep;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -36,6 +37,8 @@ public class GameTree implements Runnable {
     private static boolean prune = false;
 
     private static GameTree.GameTreeHelper helper = null;
+
+    private GraphNodeRep topRep;
 
     /**
      * Constructs a new GameTree object.
@@ -124,8 +127,10 @@ public class GameTree implements Runnable {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         iterationDepth = 1;
         while (iterationDepth < 6) {
-            Double bestScore = pool.invoke(new AlphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+            AlphaBeta topLayer = new AlphaBeta(root, iterationDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            Double bestScore = pool.invoke(topLayer);
             pool = new ForkJoinPool();
+            topRep = topLayer.getGraphNodeRep();
             System.err.println("Best score: " + bestScore + " depth: " + iterationDepth);
             GameTree.prune = false;
             iterationDepth++;
@@ -143,12 +148,18 @@ public class GameTree implements Runnable {
         private int depth;
         private Double alpha;
         private Double beta;
+        private GraphNodeRep graphNodeRep;
 
         public AlphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
             this.node = node;
             this.depth = depth;
             this.alpha = alpha;
             this.beta = beta;
+            this.graphNodeRep = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), 1);//Need to get actual location
+        }
+
+        private GraphNodeRep getGraphNodeRep() {
+            return graphNodeRep;
         }
 
         protected Double compute() {
@@ -240,7 +251,9 @@ public class GameTree implements Runnable {
         private Double max() {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                Double newValue = new AlphaBeta(child, depth - 1, alpha, beta).compute();
+                AlphaBeta newLayer = new AlphaBeta(child, depth - 1, alpha, beta);
+                Double newValue = newLayer.compute();
+                graphNodeRep.addChild(newLayer.getGraphNodeRep());
                 if (newValue == null) return null;
                 if (newValue > v) {
                     v = newValue;
@@ -249,13 +262,16 @@ public class GameTree implements Runnable {
                 if (v >= beta) break;
                 alpha = Math.max(alpha, v);
             }
+            threadCom.putUpdate("AI_display_tree", topRep);
             return v;
         }
 
         private Double min() {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                Double newValue = new AlphaBeta(child, depth - 1, alpha, beta).compute();
+                AlphaBeta newLayer = new AlphaBeta(child, depth - 1, alpha, beta);
+                Double newValue = newLayer.compute();
+                graphNodeRep.addChild(newLayer.getGraphNodeRep());
                 if (newValue == null) return null;
                 if (newValue < v) {
                     v = newValue;
@@ -265,6 +281,7 @@ public class GameTree implements Runnable {
                 if (v <= alpha) break;
                 beta = Math.min(beta, v);
             }
+            threadCom.putUpdate("AI_display_tree", topRep);
             return v;
         }
 

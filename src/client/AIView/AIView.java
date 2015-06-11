@@ -48,14 +48,14 @@ public class AIView extends AnimatablePanel {
             Double oy = node.get("y");
             Double oz = node.get("z");
             //Transform the points.
+            
+            Double y = -1.0 + 2.0 * (oy / 2000);
+            Double phi = 2.0 * Math.PI * (ox /2570);
+            Double theta = Math.asin(y);
 
-            Double z = -1.0 + 2.0 * (ox / 2570);
-            Double phi = 2.0 * Math.PI * (oy /2000);
-            Double theta = Math.asin(z);
-
-            Double x = Math.cos(theta) * Math.cos(phi) * 50;
-            Double y = Math.cos(theta) * Math.sin(phi) * 50;
-            z = z*50;
+            Double x = Math.cos(theta) * Math.cos(phi) * 100;
+            Double z = Math.cos(theta) * Math.sin(phi) * 100;
+            y = y*100;
 
             vectors.put(node.get("node").intValue(), new Vector(x, y, z));
         }

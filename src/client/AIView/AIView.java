@@ -1,6 +1,7 @@
 package client.aiview;
 
 import client.view.*;
+import client.application.*;
 
 import javax.swing.*;
 import java.awt.*;

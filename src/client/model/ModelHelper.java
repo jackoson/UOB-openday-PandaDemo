@@ -269,7 +269,7 @@ public class ModelHelper {
             return moveTicket.target;
         } else {
             MoveDouble moveDouble = (MoveDouble) move;
-            retun getLocation(moveDouble.move2);
+            return getLocation(moveDouble.move2);
         }
     }
 

@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  */
 
 public class ModelHelper {
-  
+
     /**
      * Returns the List of Booleans determining when Mr X is visible.
      * Only the advanced version of the game is supported at this time.
@@ -24,7 +24,7 @@ public class ModelHelper {
                              false, false, false, true, false,
                              false, false, false, false, true);
     }
-  
+
     /**
      * Returns the GamePlayer object of the specified player from a List.
      *
@@ -38,7 +38,7 @@ public class ModelHelper {
         }
         return null;
     }
-    
+
     /**
      * Returns the GamePlayer object of the player whose turn it is next.
      *
@@ -51,7 +51,7 @@ public class ModelHelper {
         GamePlayer nextPlayer = players.get((currentPosition + 1) % players.size());
         return nextPlayer;
     }
-    
+
     /**
      * Returns the Set of players who have won the game.
      *
@@ -75,7 +75,7 @@ public class ModelHelper {
             }
         return winners;
     }
-    
+
     /**
      * Returns true if all detectives have no valid Moves.
      *
@@ -95,7 +95,7 @@ public class ModelHelper {
         }
         return noMoves;
     }
-    
+
     /**
      * Returns true if a detective shares the same Node as Mr X.
      *
@@ -109,7 +109,7 @@ public class ModelHelper {
         }
         return false;
     }
-    
+
     /**
      * Returns the Set of valid Moves a player can make.
      *
@@ -127,13 +127,13 @@ public class ModelHelper {
         Set<Move> allMoves = new HashSet<Move>();
         Set<MoveTicket> singleMoves = createSingleMoves(gamePlayer, players, graph, currentPosition.data());
         allMoves.addAll(singleMoves);
-        
+
         if (player.equals(Colour.Black)) {
             Set<MoveTicket> secretMoves = new HashSet<MoveTicket>();
             Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
             if (secretMoveCount >= 1) secretMoves = createSingleSecretMoves(singleMoves);
             if (doubleMoveCount >= 1) doubleMoves = createDoubleMoves(gamePlayer, players, graph, singleMoves, secretMoveCount);
-            
+
             allMoves.addAll(secretMoves);
             allMoves.addAll(doubleMoves);
         } else if (allMoves.size() == 0) {
@@ -141,7 +141,7 @@ public class ModelHelper {
         }
         return allMoves;
     }
-    
+
     // Returns a Set of valid MoveTickets for a specified player.
     // @param gamePlayer the player for whom to generate the Set of valid MoveTickets.
     // @param players the List of players in the game.
@@ -151,11 +151,11 @@ public class ModelHelper {
     private static Set<MoveTicket> createSingleMoves(GamePlayer gamePlayer, List<GamePlayer> players, Graph<Integer, Route> graph, Integer location) {
         Set<MoveTicket> moves = new HashSet<MoveTicket>();
         Set<Edge<Integer, Route>> edges = graph.getEdges(location);
-        
+
         for (Edge<Integer, Route> edge : edges) {
             Node<Integer> node = graph.getNode(edge.source());
             if (node.data().equals(location)) node = graph.getNode(edge.target());
-            
+
             Ticket ticket = Ticket.fromRoute(edge.data());
             MoveTicket newMove = MoveTicket.instance(gamePlayer.colour(), ticket, (int) node.data());
             if (!nodeOccupied(players ,node) && hasTickets(gamePlayer, newMove, null)) {
@@ -164,7 +164,7 @@ public class ModelHelper {
         }
         return moves;
     }
-    
+
     // Returns a Set of valid MoveDoubles for a specified player.
     // @param gamePlayer the player for whom to generate the Set of valid MoveDoubles.
     // @param players the List of players in the game.
@@ -176,22 +176,22 @@ public class ModelHelper {
         Set<MoveDouble> doubleMoves = new HashSet<MoveDouble>();
         for (MoveTicket move : moves) {
             Set<MoveTicket> secondMoves = createSingleMoves(gamePlayer, players,  graph, move.target);
-            
+
             for (MoveTicket secondMove : secondMoves) {
-                
+
                 if (hasTickets(gamePlayer, move, secondMove)) doubleMoves.add(MoveDouble.instance(move.colour, move, secondMove));
                 if (secretMoveCount >= 1) {
                     if (hasTickets(gamePlayer, secondMove, null)) doubleMoves.add(MoveDouble.instance(move.colour, makeSecret(move), secondMove));
                     if (hasTickets(gamePlayer, move, null)) doubleMoves.add(MoveDouble.instance(move.colour, move, makeSecret(secondMove)));
-                    
+
                     if (secretMoveCount >= 2) doubleMoves.add(MoveDouble.instance(move.colour, makeSecret(move), makeSecret(secondMove)));
                 }
             }
         }
-        
+
         return doubleMoves;
     }
-    
+
     // Returns a Set of valid MoveTickets using secret Tickets for a specified player.
     // @param moves the Set of valid MoveTickets for the specified player.
     // @return a Set of valid MoveTickets using secret Tickets for a specified player.
@@ -202,14 +202,14 @@ public class ModelHelper {
         }
         return secretMoves;
     }
-    
+
     // Returns the MoveTicket after the Ticket has been replaced with a secret Ticket.
     // @param move the MoveTicket to be converted.
     // @return the MoveTicket after the Ticket has been replaced with a secret Ticket.
     private static MoveTicket makeSecret(MoveTicket move) {
         return MoveTicket.instance(move.colour, Ticket.Secret, move.target);
     }
-    
+
     // Returns true if the specified player has enough Tickets for a MoveDouble.
     // @param gamePlayer the player whose Tickets are to be checked.
     // @param move1 the first Move in the MoveDouble.
@@ -231,7 +231,7 @@ public class ModelHelper {
         }
         return true;
     }
-    
+
     // Returns true if a detective lies on the specified Node.
     // @param players the List of players in the game.
     // @param node the Node to be checked.
@@ -244,7 +244,7 @@ public class ModelHelper {
         }
         return false;
     }
-    
+
     /**
      * Returns the Map of Tickets for a specified player.
      *
@@ -260,6 +260,17 @@ public class ModelHelper {
         tickets.put(Ticket.Secret, model.getPlayerTickets(player, Ticket.Secret));
         tickets.put(Ticket.Double, model.getPlayerTickets(player, Ticket.Double));
         return tickets;
+    }
+
+    public static Integer getLocation(Move move) {
+        if (move instanceof MovePass) return null;
+        else if (move instanceof MoveTicket) {
+            MoveTicket moveTicket = (MoveTicket) move;
+            return moveTicket.target;
+        } else {
+            MoveDouble moveDouble = (MoveDouble) move;
+            return getLocation(moveDouble.move2);
+        }
     }
 
 }

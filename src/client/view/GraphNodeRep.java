@@ -11,7 +11,6 @@ public class GraphNodeRep {
 
     public GraphNodeRep(Color color, Integer location) {
         this.color = color;
-        if (this.color == null) this.color = Color.black;
         this.location = location;
         this.children = new ArrayList<GraphNodeRep>();
     }

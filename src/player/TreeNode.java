@@ -48,6 +48,15 @@ public class TreeNode {
         this.children = new ArrayList<TreeNode>();
     }
     
+    public Integer getTrueLocation() {
+        if (move == null) {
+            GamePlayer player = ModelHelper.getPlayerOfColour(currentState, currentPlayer);
+            return player.location();
+        } else {
+            return ModelHelper.getLocation(move);
+        }
+    }
+    
     /**
      * Returns the parent associated with this node.
      *

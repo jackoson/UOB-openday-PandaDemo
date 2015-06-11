@@ -80,21 +80,20 @@ public class AIView extends AnimatablePanel {
         drawVectors(g, vectors, origin, origin);
         drawEdges(g, edges);
     }
-
+    
     private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Point origin, Point start) {
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Vector vector = v.getValue().rotateYZ(xAnimator.value());
             vector = vector.rotateXZ(yAnimator.value());
 
             Point point = origin.addVectorToPoint(vector);
-
+            
             Double diameter = 5.0;
             Double radius = diameter/2;
             g.fillOval((int)(point.getX() - radius), (int)(point.getY() - radius), diameter.intValue(), diameter.intValue());
         }
-
     }
-
+    
     private void drawEdges(Graphics2D g, List<Edge<Vector>> edges) {
         for (Edge<Vector> edge : edges) {
             Vector node1 = edge.getNode1().rotateYZ(xAnimator.value());

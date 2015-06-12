@@ -6,6 +6,7 @@ import client.application.*;
 import player.GameTree;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
@@ -34,6 +35,17 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private GraphNodeRep graphNodeRep;
 
     public AIView() {
+        //Layout
+        setLayout(new GridBagLayout());
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        JButton button = Formatter.button("Whats happening?");
+        button.setActionCommand("switch_views");
+        button.addActionListener(this);
+        add(button, gbc);
+        
         try {
             threadCom = null;
 
@@ -59,11 +71,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
-
-            JButton button = Formatter.button("Info");
-            button.setActionCommand("switch_views");
-            button.addActionListener(this);
-            add(button);
             
             showHint("Title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
         } catch (FileNotFoundException e) {
@@ -74,26 +81,38 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
     
     private void showHint(String title, String message) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        gbc.insets = new Insets(20, 20, 20, 20);
+        
         JPanel hintPanel = new JPanel();
-        hintPanel.setPreferredSize(new Dimension(400, 100));
+        hintPanel.setPreferredSize(new Dimension(500, 140));
         hintPanel.setOpaque(true);
         hintPanel.setBackground(Color.WHITE);
-        hintPanel
+        Border whiteBorder = new LineBorder(Color.WHITE, 10);
+        Border blueBorder = new LineBorder(new Color(131, 226, 197), 1);
+        Border compBorder = new CompoundBorder(whiteBorder, blueBorder);
+        hintPanel.setBorder(compBorder);
         
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setPreferredSize(new Dimension(400, 14));
+        titleLabel.setPreferredSize(new Dimension(360, 14));
         titleLabel.setFont(Formatter.boldFontOfSize(12));
+        titleLabel.setOpaque(false);
         hintPanel.add(titleLabel);
         
         JTextArea messageLabel = new JTextArea(message);
-        messageLabel.setPreferredSize(new Dimension(400, 86));
+        messageLabel.setPreferredSize(new Dimension(360, 86));
         messageLabel.setFont(Formatter.defaultFontOfSize(12));
         messageLabel.setEditable(false);
         messageLabel.setHighlighter(null);
         messageLabel.setLineWrap(true);
+        messageLabel.setOpaque(false);
         hintPanel.add(messageLabel);
         
-        add(hintPanel);
+        add(hintPanel, gbc);
     }
 
     private void parseJSON(Map<String, List<Map<String, Double>>> json) {

@@ -145,16 +145,6 @@ public class GameTree implements Runnable {
         return this.move;
     }
 
-    private Move findMove(TreeNode root, int round, Colour colour) {
-        TreeNode n = root.getBestChild();
-        while (n != null) {
-            Move m = n.getMove();
-            if (n.getRound() == round && m.colour.equals(colour)) return m;
-            n = n.getBestChild();
-        }
-        return null;
-    }
-
     // Plays the specified Move in the specified game state.
     // @param players the specified game state.
     // @param move the specified Move.

@@ -23,7 +23,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
 
-    private Map<Integer, Vector> treeVectors;
+    private Set<Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
     
     private boolean onTreeView = false;
@@ -41,7 +41,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             yRotate = 0.0;
             vectors = new HashMap<Integer, Vector>();
             edges = new ArrayList<Edge<Vector>>();
-            treeVectors = new HashMap<Integer, Vector>();
+            treeVectors = new HashSet<Vector>();
             treeEdges = new ArrayList<Edge<Vector>>();
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
@@ -104,13 +104,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
             Double x =  xStart + (width / 2.0);
-            Vector node = new Node(x, y, 0.0, graphNode.color());
-            treeVectors.put(id, node);
+            Vector node = new Node(x, y, 100.0, graphNode.color());
+            treeVectors.add(node);
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
             width = width / graphNode.children().size();
             for (int i = 0; i < graphNode.children().size(); i++) {
                 GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 80, id, node);
+                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 80, id * width.intValue() * i, node);
             }
         }
     }
@@ -136,14 +136,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
         if(onTreeView) {
             drawEdges(g, treeEdges, origin, false);
-            //drawVectors(g, treeVectors, origin, false);
+            drawVectors(g, treeVectors, origin, false);
         } else {
             drawEdges(g, edges, origin, true);
-            drawVectors(g, vectors, origin, true);
+            Set<Vector> valueSet = new HashSet<Vector>(vectors.values());
+            drawVectors(g, valueSet, origin, true);
         }
     }
 
-    private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin, boolean rotate) {
+    private void drawVectors(Graphics2D g, Set<Vector> vectors, Vector origin, boolean rotate) {
         //A bit messy, but it gets the job done. (Orders the vectors by z value so they draw over each other properly)
         Set<Node> sortedVectors = new TreeSet<Node>(new Comparator<Node>() {
             public int compare(Node o1, Node o2) {
@@ -153,10 +154,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 else return -1;
             }
         });
-        for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
-            Node n = (Node) v.getValue();
+        for (Vector vector : vectors) {
+            Node n = (Node)vector;
             Color color = n.getColor();
-            Vector vector = n;
             if (rotate) {
                 vector = n.rotateYZ(xAnimator.value());
                 vector = vector.rotateXZ(yAnimator.value());
@@ -197,7 +197,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void updateTree() {
-        treeVectors = new HashMap<Integer, Vector>();
+        treeVectors = new HashSet<Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node)(v.getValue());

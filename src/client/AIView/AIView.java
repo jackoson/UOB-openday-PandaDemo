@@ -106,7 +106,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
             Double x =  xStart + (width / 2.0);
-            Vector node = new Node(x, y, 100.0, graphNode.color());
+            Vector node = new Node(x, y, 165.0, graphNode.color());
             treeVectors.add(node);
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
             width = width / graphNode.children().size();

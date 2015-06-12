@@ -95,7 +95,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private void buildGraphNodes(GraphNodeRep graphNode, Double horizontalSpace, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
             Double x = horizontalSpace / 2.0;
-            Vector node = new Node(x, y, 0.0, graphNode.color());
+            Node node = new Node(x, y, 4.0, graphNode.color());
+            node.setSelected(true);
             treeVectors.put(id, node);
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
             for (GraphNodeRep graphNodeRep : graphNode.children()) {
@@ -124,14 +125,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
         Dimension size = getSize();
         Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
-        drawEdges(g, edges, origin);
-        drawVectors(g, vectors, origin);
+        drawEdges(g, edges, origin, true);
+        drawVectors(g, vectors, origin, true);
 
-        drawEdges(g, treeEdges, origin);
-        drawVectors(g, treeVectors, origin);
+        drawEdges(g, treeEdges, origin, false);
+        drawVectors(g, treeVectors, origin, false);
     }
 
-    private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin) {
+    private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin, boolean rotate) {
         //A bit messy, but it gets the job done. (Orders the vectors by z value so they draw over each other properly)
         Set<Node> sortedVectors = new TreeSet<Node>(new Comparator<Node>() {
             public int compare(Node o1, Node o2) {
@@ -144,8 +145,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node) v.getValue();
             Color color = n.getColor();
-            Vector vector = n.rotateYZ(xAnimator.value());
-            vector = vector.rotateXZ(yAnimator.value());
+            Vector vector = n;
+            if (rotate) {
+                vector = n.rotateYZ(xAnimator.value());
+                vector = vector.rotateXZ(yAnimator.value());
+            }
             vector = origin.addVectorToVector(vector);
             Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color);
             nn.setSelected(n.isSelected());
@@ -159,14 +163,20 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    private void drawEdges(Graphics2D g, List<Edge<Vector>> edges, Vector origin) {
+    private void drawEdges(Graphics2D g, List<Edge<Vector>> edges, Vector origin, boolean rotate) {
         g.setColor(Color.white);
         for (Edge<Vector> edge : edges) {
-            Vector node1 = edge.getNode1().rotateYZ(xAnimator.value());
-            node1 = node1.rotateXZ(yAnimator.value());
+            Vector node1 = edge.getNode1();
+            if (rotate) {
+                node1 = node1.rotateYZ(xAnimator.value());
+                node1 = node1.rotateXZ(yAnimator.value());
+              }
             node1 = origin.addVectorToVector(node1);
-            Vector node2 = edge.getNode2().rotateYZ(xAnimator.value());
-            node2 = node2.rotateXZ(yAnimator.value());
+            Vector node2 = edge.getNode2();
+            if (rotate) {
+                node2 = node2.rotateYZ(xAnimator.value());
+                node2 = node2.rotateXZ(yAnimator.value());
+            }
             node2 = origin.addVectorToVector(node2);
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
@@ -183,7 +193,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
         }
-        //buildGraphNodes(graphNodeRep, 600.0, 180.0, 0, null);
+        buildGraphNodes(graphNodeRep, 600.0, 180.0, 0, null);
         selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 

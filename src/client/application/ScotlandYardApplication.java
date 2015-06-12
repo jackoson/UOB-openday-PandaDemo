@@ -45,20 +45,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         ScotlandYardApplication application = new ScotlandYardApplication();
 
         SwingUtilities.invokeLater(application::go);
-        SwingUtilities.invokeLater(application::ai);
     }
 
     public ScotlandYardApplication() {
         this.aiView = new AIView();
-    }
-
-    public void ai() {
-        JFrame window = new JFrame();
-        window.add(aiView);
-        window.pack();
-        window.setTitle("AI");
-        window.setLocationByPlatform(true);
-        window.setVisible(true);
     }
 
     /**
@@ -87,7 +77,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         gameView.getActionMap().put("menu", menu);
         window.addComponentListener(gameView);
         container.add(gameView);
-        window.add(container);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(container, BorderLayout.CENTER);
+        panel.add(aiView, BorderLayout.EAST);
+        window.add(panel);
         window.pack();
         window.setTitle("Scotland Yard");
         window.setLocationByPlatform(true);

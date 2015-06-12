@@ -32,7 +32,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             threadCom = null;
 
             setBackground(new Color(131, 226, 197));
-            setPreferredSize(new Dimension(600, 400));
+            setPreferredSize(new Dimension(700, 400));
             xRotate = 0.0;
             yRotate = 0.0;
             vectors = new HashMap<Integer, Vector>();
@@ -93,6 +93,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     private void buildGraphNodes(GraphNodeRep graphNode, Double horizontalSpace, Double y, Integer id, Vector parent) {
+        //Invert the y-coordinates
         if (graphNode != null) {
             Double x = horizontalSpace / 2.0;
             Node node = new Node(x, y, 4.0, graphNode.color());
@@ -151,8 +152,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 vector = vector.rotateXZ(yAnimator.value());
             }
             vector = origin.addVectorToVector(vector);
-            Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color);
-            nn.setSelected(n.isSelected());
+            Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color, n.isSelected());
             sortedVectors.add(nn);
         }
         for (Node vector : sortedVectors) {

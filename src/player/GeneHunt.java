@@ -61,7 +61,10 @@ public class GeneHunt implements Player {
         gameTreeThread.start();
         joinThread(gameTreeThread);
         Move move = gameTree.getMove();
-        if (move == null) move = moves.iterator().next();
+        if (move == null) {
+            System.out.println("print");
+            move = moves.iterator().next();
+        }
         return move;
     }
 
@@ -77,7 +80,7 @@ public class GeneHunt implements Player {
     // Updates the UI at the start of an AI move.
     // @param player the player whose turn it is.
     private void updateUI(Colour player) {
-        threadCom.putUpdate("reset_timer", true);
+        threadCom.putUpdate("stop_timer", true);
         threadCom.putUpdate("zoom_out", true);
         threadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
         updateTickets(player);

@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * A class to create both AI and GUI players. By default it makes only Mr X an AI player and everyone else a GUI player.
  */
- 
+
 public class GeneHuntFactory implements PlayerFactory {
     protected Map<Colour, PlayerType> typeMap;
 
@@ -27,7 +27,7 @@ public class GeneHuntFactory implements PlayerFactory {
     private GeneHunt ai;
     private ScotlandYardApplication application;
     private ThreadCommunicator threadCom;
-    
+
     private final int kTimerTime = 10;
 
     /**
@@ -39,7 +39,7 @@ public class GeneHuntFactory implements PlayerFactory {
     public GeneHuntFactory(ScotlandYardApplication application, ThreadCommunicator threadCom) {
         this.application = application;
         this.threadCom = threadCom;
-        
+
         typeMap = new HashMap<Colour, PlayerType>();
         typeMap.put(Colour.Black, GeneHuntFactory.PlayerType.AI);
         typeMap.put(Colour.Blue, GeneHuntFactory.PlayerType.GUI);
@@ -47,7 +47,7 @@ public class GeneHuntFactory implements PlayerFactory {
         typeMap.put(Colour.Red, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.White, GeneHuntFactory.PlayerType.GUI);
         typeMap.put(Colour.Yellow, GeneHuntFactory.PlayerType.GUI);
-        
+
         graphFilename = "resources/graph.txt";
     }
 
@@ -75,7 +75,7 @@ public class GeneHuntFactory implements PlayerFactory {
      * @return the correct Player for the specified player in the game.
      */
     @Override
-    public Player player(Colour colour, ScotlandYardView view, String graphFilename) {        
+    public Player player(Colour colour, ScotlandYardView view, String graphFilename) {
         switch (typeMap.get(colour)) {
             case AI:
                 return ai(view, graphFilename, threadCom);
@@ -119,10 +119,9 @@ public class GeneHuntFactory implements PlayerFactory {
     public void finish() {
         if (gui != null && application != null) {
             application.endGame();
-            GameTree.getGameTreeHelper().stop();
         }
     }
-    
+
     private GeneHunt ai(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom) {
         if (ai == null) {
             ai = new GeneHunt(view, graphFilename, threadCom);

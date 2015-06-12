@@ -52,8 +52,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
             xAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator.setLoops(true);
 
-            //Timer time = new Timer(1000, this);
-            //time.start();
+            Timer time = new Timer(1000, this);
+            time.setActionCommand("rep");
+            time.start();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -79,9 +80,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Double z = Math.cos(theta) * Math.sin(phi) * radius;
             y = y * radius;
 
-            Color color = Color.RED;
-            if (oz == 2) color = Color.BLUE;
-            else if (oz == 3) color = Color.GREEN;
+            Color color = new Color(255, 113, 113);
+            if (oz == 2) color = new Color(42, 154, 164);
+            else if (oz == 3) color = new Color(242, 196, 109);
 
             vectors.put(node.get("node").intValue(), new Node(x, y, z, color));
         }
@@ -95,7 +96,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private void buildGraphNodes(GraphNodeRep graphNode, Double horizontalSpace, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
-            Double x = horizontalSpace / 2.0;
+            Double x = -(horizontalSpace / 2.0);
             Vector node = new Node(x, y, 0.0, graphNode.color());
             treeVectors.put(id, node);
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
@@ -125,21 +126,35 @@ public class AIView extends AnimatablePanel implements ActionListener {
         Dimension size = getSize();
         Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
-        drawVectors(g, vectors, origin);
         drawEdges(g, edges, origin);
+        drawVectors(g, vectors, origin);
 
         drawEdges(g, treeEdges, origin);
         drawVectors(g, treeVectors, origin);
     }
 
     private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin) {
+        //A bit messy, but it gets the job done. (Orders the vectors by z value so they draw over each other properly)
+        Set<Node> sortedVectors = new TreeSet<Node>(new Comparator<Node>() {
+            public int compare(Node o1, Node o2) {
+                Double o1z = o1.getZ();
+                Double o2z = o2.getZ();
+                if (o1z < o2z) return 1;
+                else return -1;
+            }
+        });
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
-            Color color = ((Node) v.getValue()).getColor();
-            g.setColor(color);
-            Vector vector = v.getValue().rotateYZ(xAnimator.value());
+            Node n = (Node) v.getValue();
+            Color color = n.getColor();
+            Vector vector = n.rotateYZ(xAnimator.value());
             vector = vector.rotateXZ(yAnimator.value());
-
             vector = origin.addVectorToVector(vector);
+            Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color);
+            nn.setSelected(n.isSelected());
+            sortedVectors.add(nn);
+        }
+        for (Node vector : sortedVectors) {
+            g.setColor(vector.getColor());
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
             Double radius = diameter / 2;
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
@@ -160,7 +175,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void setRep(GraphNodeRep graphNode) {
-        //graphNodeRep = graphNode;
+        graphNodeRep = graphNode;
     }
 
     public void updateTree() {
@@ -170,7 +185,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
         }
-        //buildGraphNodes(graphNodeRep, 600.0, 180.0, 0, null);
+        buildGraphNodes(graphNodeRep, 600.0, 180.0, 0, null);
         selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 
@@ -179,7 +194,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        //updateTree();
+        if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
+          updateTree();
+        } else {
+          super.actionPerformed(e);
+        }
     }
 
 }

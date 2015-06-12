@@ -34,26 +34,30 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private GameTree gameTree = null;
     private GraphNodeRep graphNodeRep;
 
+    private Map<Vector, NodeAnimator> nodeAnimators;
+    private boolean nodeAnimationStarted = false;
+    private AnimatablePanel.Animator alphaAnimator = null;
+
     public AIView() {
         //Layout
         setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(20, 20, 20, 20);
-        
+
         JButton button = Formatter.button("Whats happening?");
         button.setActionCommand("switch_views");
         button.addActionListener(this);
-        //add(button, gbc);
-        
+        add(button, gbc);
+
         JLabel title = new JLabel("The AI is thinking", SwingConstants.CENTER);
         title.setFont(Formatter.defaultFontOfSize(30));
         title.setForeground(Color.WHITE);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(title, gbc);
-        
+        //add(title, gbc);
+
         try {
             threadCom = null;
 
@@ -65,6 +69,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             edges = new ArrayList<Edge<Vector>>();
             treeVectors = new HashSet<Vector>();
             treeEdges = new ArrayList<Edge<Vector>>();
+            nodeAnimators = new HashMap<Vector, NodeAnimator>();
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
             Gson gson = new Gson();
@@ -79,7 +84,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
-            
+
             showHint("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
@@ -95,7 +100,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(4, 10, 10, 0);
-        
+
         JPanel hintPanel = new JPanel(new GridBagLayout());
         hintPanel.setPreferredSize(new Dimension(500, 140));
         hintPanel.setOpaque(true);
@@ -115,7 +120,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         messageLabel.setEditable(false);
         messageLabel.setHighlighter(null);
         hintPanel.add(messageLabel, gbc);
-        
+
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
         gbc.fill = GridBagConstraints.NONE;
@@ -159,13 +164,27 @@ public class AIView extends AnimatablePanel implements ActionListener {
         if (graphNode != null) {
             Integer location = graphNode.location();
 
-            if (!node.isPartOfTree()) {
-                //Animate it.
-            }
+            Node node = (Node) vectors.get(location);
 
             Double x =  xStart + (width / 2.0);
-            Vector node = new Node(x, y, 165.0, graphNode.color());
-            treeVectors.add(node);
+
+            if (!node.isPartOfTree()) {
+                //Animate it.
+                AnimatablePanel.Animator xAnimator = createDelayedAnimator(node.getX(), x, 10.0);
+                xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+                AnimatablePanel.Animator yAnimator = createDelayedAnimator(node.getY(), y, 10.0);
+                yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+                AnimatablePanel.Animator zAnimator = createDelayedAnimator(node.getZ(), 165.0, 10.0);
+                zAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+                NodeAnimator animator = new NodeAnimator(xAnimator, yAnimator, zAnimator);
+                nodeAnimators.put(node, animator);
+                node.setPartOfTree(true);
+            } else {
+                node = new Node(x, y, 165.0, graphNode.color(), true);
+                node.setPartOfTree(true);
+                treeVectors.add(node);
+            }
+
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
             width = width / graphNode.children().size();
             for (int i = 0; i < graphNode.children().size(); i++) {
@@ -194,13 +213,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
         Dimension size = getSize();
         Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
-        if(onTreeView) {
+        boolean rotate = true;
+        if (xAnimator == null && yAnimator == null) rotate = false;
+
+        drawEdges(g, edges, origin, rotate);
+        Set<Vector> valueSet = new HashSet<Vector>(vectors.values());
+        drawVectors(g, valueSet, origin, rotate);
+
+        if (alphaAnimator != null) {
             drawEdges(g, treeEdges, origin, false);
             drawVectors(g, treeVectors, origin, false);
-        } else {
-            drawEdges(g, edges, origin, true);
-            Set<Vector> valueSet = new HashSet<Vector>(vectors.values());
-            drawVectors(g, valueSet, origin, true);
         }
     }
 
@@ -221,8 +243,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 vector = n.rotateYZ(xAnimator.value());
                 vector = vector.rotateXZ(yAnimator.value());
             }
-            vector = origin.addVectorToVector(vector);
+            vector = updateNode(vector, origin);
             Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color, n.isSelected());
+            nn.setPartOfTree(n.isPartOfTree());
             sortedVectors.add(nn);
         }
         for (Node vector : sortedVectors) {
@@ -230,6 +253,18 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
             Double radius = diameter / 2;
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
+        }
+    }
+
+    private Vector updateNode(Vector vector, Vector origin) {
+        if (nodeAnimators.containsKey(vector) && nodeAnimationStarted) {
+            NodeAnimator animator = nodeAnimators.get(vector);
+            Double x = animator.xAnimator.value();
+            Double y = animator.yAnimator.value();
+            Double z = animator.zAnimator.value();
+            return new Vector(x, y, z);
+        } else {
+          return origin.addVectorToVector(vector);
         }
     }
 
@@ -287,11 +322,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     private void resetTree() {
-        treeVectors = new HashSet<Vector>();
-        treeEdges = new ArrayList<Edge<Vector>>();
+        nodeAnimators.clear();
+        treeVectors.clear();
+        treeEdges.clear();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
+            n.setPartOfTree(false);
         }
     }
 
@@ -305,11 +342,56 @@ public class AIView extends AnimatablePanel implements ActionListener {
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             onTreeView = !onTreeView;
             firstPrune = true;
+            cancelAllAnimations();
+            xAnimator = null;
+            yAnimator = null;
+            nodeAnimationStarted = true;
+            alphaAnimator = createDelayedAnimator(1.0, 0.0, 1.0);
+            start();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_prune")) {
             showPrune = true;
         } else {
           super.actionPerformed(e);
         }
+    }
+
+    public void animationCompleted() {
+        nodeAnimators.clear();
+        alphaAnimator = null;
+        nodeAnimationStarted = false;
+    }
+
+    private class NodeAnimator {
+
+        /**
+         * The AnimatablePanel.Animator for the x coordinate.
+         */
+        public AnimatablePanel.Animator xAnimator;
+
+        /**
+         * The AnimatablePanel.Animator for the y coordinate.
+         */
+        public AnimatablePanel.Animator yAnimator;
+
+        /**
+         * The AnimatablePanel.Animator for the z coordinate.
+         */
+        public AnimatablePanel.Animator zAnimator;
+
+        /**
+         * Constructs a new BoardAnimator object.
+         *
+         * @param scaleAnimator the AnimatablePanel.Animator for the scale Factor.
+         * @param xAnimator the AnimatablePanel.Animator for the x coordinate.
+         * @param yAnimator the AnimatablePanel.Animator for the y coordinate.
+         */
+        public NodeAnimator(AnimatablePanel.Animator xAnimator, AnimatablePanel.Animator yAnimator,
+                               AnimatablePanel.Animator zAnimator) {
+            this.xAnimator = xAnimator;
+            this.yAnimator = yAnimator;
+            this.zAnimator = zAnimator;
+        }
+
     }
 
 }

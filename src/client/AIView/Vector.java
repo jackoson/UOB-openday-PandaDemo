@@ -58,12 +58,24 @@ public class Vector {
         return x;
     }
 
+    public void setX(Double x) {
+        this.x = x;
+    }
+
     public Double getY() {
         return y;
     }
 
+    public void setY(Double y) {
+        this.y = y;
+    }
+
     public Double getZ() {
         return z;
+    }
+
+    public void setZ(Double z) {
+        this.z = z;
     }
 
     public String stringValue() {

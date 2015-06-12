@@ -9,13 +9,13 @@ import java.io.IOException;
  * A class to find the best route to take giving the best possible options
  * to change location as quickly as possible.
  */
- 
+
 public class Dijkstra {
-  
+
     private PageRank pageRank;
     private Graph<Integer, Route> graph;
     private Set<Node<Integer>> nodes;
-    
+
     /**
      * Constructs a new Dijkstra object.
      *
@@ -23,7 +23,7 @@ public class Dijkstra {
      */
     public Dijkstra(String graphFilename) {
         try {
-            
+
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
             this.graph = graphReader.readGraph(graphFilename);
             nodes = graph.getNodes();
@@ -33,26 +33,26 @@ public class Dijkstra {
             System.err.println(e);
         }
     }
-    
+
     /**
-     * Returns the route between two nodes, taking into 
+     * Returns the route between two nodes, taking into
      * account player tickets and the rank of nodes.
      *
      * @param start the start location.
      * @param destination the destination location.
-     * @param tickets the tickets for each route 
+     * @param tickets the tickets for each route
      * the player holds.
      * @return the optimal route from start to destination.
      */
     public List<Integer> getRoute(int start, int destination, Map<Route, Integer> tickets) {
-        
+
         Set<Node<Integer>> nodes = graph.getNodes();
         //Initialisation
         Map<Node<Integer>, Double> unvisitedNodes = new HashMap<Node<Integer>, Double>();
         Map<Node<Integer>, Double> distances = new HashMap<Node<Integer>, Double>();
         Map<Node<Integer>, Node<Integer>> previousNodes = new HashMap<Node<Integer>, Node<Integer>>();
         Node<Integer> currentNode = graph.getNode(start);
-        
+
         for (Node<Integer> node : nodes) {
             if (!currentNode.data().equals(node.data())) {
                 distances.put(node, Double.POSITIVE_INFINITY);
@@ -71,16 +71,15 @@ public class Dijkstra {
         while (unvisitedNodes.size() > 0) {
             currentNode = minDistance(distances, unvisitedNodes);
             try {
-            if (currentNode.data().equals(destination)) break;
+                if (currentNode.data().equals(destination)) break;
             } catch (Exception e) {
-                System.err.println("Dijkstra: " + currentNode + "   :   " + currentNode.data() + "   :   " + destination);
                 System.err.println(e);
             }
             unvisitedNodes.remove(currentNode);
-            
+
             step(graph, distances, unvisitedNodes, currentNode, previousNodes, tickets);
         }
-        
+
         //Move backwards finding the shortest route
         List<Integer> route = new ArrayList<Integer>();
         while (previousNodes.get(currentNode) != null) {
@@ -90,7 +89,7 @@ public class Dijkstra {
         route.add(0, currentNode.data());
         return route;
     }
-    
+
     // Perform a step in Dijkstra's algorithm.
     // @param graph the Graph containing all nodes.
     // @param distances all calculated distances.
@@ -102,9 +101,9 @@ public class Dijkstra {
     // @param tickets the player tickets for different
     // routes.
     private void step(Graph<Integer, Route> graph, Map<Node<Integer>, Double> distances,
-                      Map<Node<Integer>, Double> unvisitedNodes, 
-                      Node<Integer> currentNode, 
-                      Map<Node<Integer>, Node<Integer>> previousNodes, 
+                      Map<Node<Integer>, Double> unvisitedNodes,
+                      Node<Integer> currentNode,
+                      Map<Node<Integer>, Node<Integer>> previousNodes,
                       Map<Route, Integer> tickets) {
         Set<Edge<Integer, Route>> edges = graph.getEdges(currentNode.data());
         Double currentDistance = distances.get(currentNode);
@@ -124,15 +123,15 @@ public class Dijkstra {
             }
         }
     }
-    
-    // Returns the node with the minimum distance from 
+
+    // Returns the node with the minimum distance from
     // the set of unvisited nodes.
     // @param distances the current distances.
     // @param unvisitedNodes the nodes that have yet to be visited.
     // @return the minimum distance for all unvisited nodes.
     private Node<Integer> minDistance(Map<Node<Integer>, Double> distances, Map<Node<Integer>, Double> unvisitedNodes) {
         Double min = Double.POSITIVE_INFINITY;
-        
+
         Node<Integer> minNode = null;
         for (Map.Entry<Node<Integer>, Double> entry : distances.entrySet()) {
             Double d = entry.getValue();
@@ -143,5 +142,5 @@ public class Dijkstra {
         }
         return minNode;
     }
-    
+
 }

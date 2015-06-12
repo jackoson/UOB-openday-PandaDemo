@@ -290,7 +290,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             Integer location = (Integer) object;
             gameView.highlightNode(location);
         } else if (id.equals("valid_moves")) {
-            System.err.println("w");
             @SuppressWarnings("unchecked")
             Set<Move> moves = (Set<Move>) object;
             for (Move move : moves);
@@ -309,6 +308,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("ai_set_rep")) {
             GraphNodeRep rep = (GraphNodeRep) object;
             aiView.setRep(rep);
+        } else if (id.equals("ai_prune")) {
+            GameTree gameTree = (GameTree) object;
+            aiView.showPrune(gameTree);
         }
     }
 

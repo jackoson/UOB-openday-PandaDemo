@@ -249,7 +249,6 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * @param moves the List of valid Moves.
      */
     public void updateRoutes(Set<Move> moves) {
-        System.err.println("f");
         board.updateValidMoves(moves);
         List<ListCellView> v = new ArrayList<ListCellView>();
         Iterator<Move> it = moves.iterator();

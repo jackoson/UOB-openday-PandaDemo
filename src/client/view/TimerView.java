@@ -84,7 +84,6 @@ public class TimerView extends JPanel implements ActionListener {
      * Starts the timer.
      */
     public void start() {
-        System.out.println("start");
         timer.start();
         drawInfinity = false;
         CardLayout cl = (CardLayout) this.getLayout();

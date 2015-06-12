@@ -64,7 +64,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             button.setActionCommand("switch_views");
             button.addActionListener(this);
             add(button);
-            
+
             showHint("Title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
@@ -72,27 +72,25 @@ public class AIView extends AnimatablePanel implements ActionListener {
             System.exit(1);
         }
     }
-    
+
     private void showHint(String title, String message) {
         JPanel hintPanel = new JPanel();
         hintPanel.setPreferredSize(new Dimension(400, 100));
         hintPanel.setOpaque(true);
         hintPanel.setBackground(Color.WHITE);
-        hintPanel
-        
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setPreferredSize(new Dimension(400, 14));
-        titleLabel.setFont(Formatter.boldFontOfSize(12));
-        hintPanel.add(titleLabel);
-        
-        JTextArea messageLabel = new JTextArea(message);
+
+        String firstWord = message.split(" ")[0];
+        String theRest = message.replace(firstWord, "");
+
+        JTextPane messageLabel = new JTextPane();
+        messageLabel.setContentType("text/html");
+        messageLabel.setText("<html><font size=+4 face='Helvetica Neue' >" + firstWord + "</font><font face='Helvetica Neue'>" + theRest + "</font></html>");
         messageLabel.setPreferredSize(new Dimension(400, 86));
         messageLabel.setFont(Formatter.defaultFontOfSize(12));
         messageLabel.setEditable(false);
         messageLabel.setHighlighter(null);
-        messageLabel.setLineWrap(true);
         hintPanel.add(messageLabel);
-        
+
         add(hintPanel);
     }
 

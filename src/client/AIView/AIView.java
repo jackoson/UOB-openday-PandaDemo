@@ -28,6 +28,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private List<Edge<Vector>> treeEdges;
 
     private boolean onTreeView = false;
+    private boolean showPrune = false;
+    private boolean firstPrune = true;
+    private GameTree gameTree = null;
     private GraphNodeRep graphNodeRep;
 
     public AIView() {
@@ -196,15 +199,27 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void showPrune(GameTree gameTree) {
-        if (onTreeView) {
+        if (onTreeView && showPrune && !firstPrune) {
+            this.gameTree = gameTree;
             gameTree.pause();
             try {
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (Exception e) {
                 System.err.println(e);
             }
+            showPrune = false;
             gameTree.resume();
+        } else if (onTreeView && firstPrune) {
+            Timer timer = new Timer(650, this);
+            timer.setActionCommand("show_prune");
+            timer.setRepeats(false);
+            firstPrune = false;
+            timer.start();
         }
+    }
+
+    public void resetFirstPrune() {
+        firstPrune = true;
     }
 
     public void updateTree() {
@@ -231,6 +246,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
           updateTree();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             onTreeView = !onTreeView;
+            firstPrune = true;
+        } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_prune")) {
+            showPrune = true;
         } else {
           super.actionPerformed(e);
         }

@@ -52,8 +52,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
             xAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator.setLoops(true);
 
-            Timer time = new Timer(1000, this);
-            time.start();
+            //Timer time = new Timer(1000, this);
+            //time.start();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -160,7 +160,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void setRep(GraphNodeRep graphNode) {
-        graphNodeRep = graphNode;
+        //graphNodeRep = graphNode;
     }
 
     public void updateTree() {
@@ -179,7 +179,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        updateTree();
+        //updateTree();
     }
 
 }

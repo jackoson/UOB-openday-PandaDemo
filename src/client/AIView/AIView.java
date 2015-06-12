@@ -3,6 +3,7 @@ package client.aiview;
 import client.view.*;
 import client.view.Formatter;
 import client.application.*;
+import player.GameTree;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -25,10 +26,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private Set<Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
-    
-    private boolean onTreeView = false;
-    
 
+    private boolean onTreeView = false;
     private GraphNodeRep graphNodeRep;
 
     public AIView() {
@@ -57,7 +56,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
-            
+
             JButton button = Formatter.button("Info");
             button.setActionCommand("switch_views");
             button.addActionListener(this);
@@ -196,15 +195,31 @@ public class AIView extends AnimatablePanel implements ActionListener {
         graphNodeRep = graphNode;
     }
 
+    public void showPrune(GameTree gameTree) {
+        if (onTreeView) {
+            gameTree.pause();
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+            gameTree.resume();
+        }
+    }
+
     public void updateTree() {
+        resetTree();
+        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
+        selectExploredNodes(graphNodeRep);//////////////////Bad
+    }
+
+    private void resetTree() {
         treeVectors = new HashSet<Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
         }
-        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
-        selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 
     public void setThreadCom(ThreadCommunicator threadCom) {

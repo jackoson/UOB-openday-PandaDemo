@@ -63,7 +63,7 @@ public class GameTree implements Runnable {
         TreeNode root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
         threadCom.putUpdate("ai_set_rep", topRep);
-        Double result = alphaBeta(root, 4, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
+        Double result = alphaBeta(root, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
         this.move = root.getBestChild().getMove();
     }
 
@@ -91,7 +91,10 @@ public class GameTree implements Runnable {
                     v = result;
                     node.setBestChild(child);
                 }
-                if (v >= beta) break;
+                if (v >= beta) {
+                    threadCom.putUpdate("ai_prune", this);
+                    break;
+                }
                 alpha = Math.max(alpha, v);
             }
             return v;
@@ -105,7 +108,10 @@ public class GameTree implements Runnable {
                     v = result;
                     node.setBestChild(child);
                 }
-                if (v <= alpha) break;
+                if (v <= alpha) {
+                    threadCom.putUpdate("ai_prune", this);
+                    break;
+                }
                 beta = Math.min(beta, v);
             }
             return v;

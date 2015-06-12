@@ -180,6 +180,16 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         return animator;
     }
     
+    public Animator createDelayedAnimator(Double value, Double target, Double duration) {
+        Animator animator = new Animator(value, duration, target);
+        activeAnimators.add(animator);
+        return animator;
+    }
+    
+    public void start() {
+        if (!timer.isRunning()) timer.start();
+    }
+    
     /**
      * An enum containing the different ease types supported.
      */

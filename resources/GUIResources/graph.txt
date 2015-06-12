@@ -226,7 +226,6 @@
 10 34 Taxi
 11 22 Taxi
 12 23 Taxi
-13 14 Taxi
 13 14 Bus
 13 23 Taxi
 13 23 Bus

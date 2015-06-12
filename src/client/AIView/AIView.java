@@ -41,10 +41,18 @@ public class AIView extends AnimatablePanel implements ActionListener {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.insets = new Insets(20, 20, 20, 20);
+        
         JButton button = Formatter.button("Whats happening?");
         button.setActionCommand("switch_views");
         button.addActionListener(this);
-        add(button, gbc);
+        //add(button, gbc);
+        
+        JLabel title = new JLabel("The AI is thinking", SwingConstants.CENTER);
+        title.setFont(Formatter.defaultFontOfSize(30));
+        title.setForeground(Color.WHITE);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(title, gbc);
         
         try {
             threadCom = null;
@@ -72,23 +80,23 @@ public class AIView extends AnimatablePanel implements ActionListener {
             time.setActionCommand("rep");
             time.start();
             
-            showHint("Title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
+            showHint("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
             System.exit(1);
         }
     }
-    
-    private void showHint(String title, String message) {
+
+    private void showHint(String message) {
         GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.SOUTHWEST;
-        gbc.insets = new Insets(20, 20, 20, 20);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(4, 10, 10, 0);
         
-        JPanel hintPanel = new JPanel();
+        JPanel hintPanel = new JPanel(new GridBagLayout());
         hintPanel.setPreferredSize(new Dimension(500, 140));
         hintPanel.setOpaque(true);
         hintPanel.setBackground(Color.WHITE);
@@ -96,22 +104,22 @@ public class AIView extends AnimatablePanel implements ActionListener {
         Border blueBorder = new LineBorder(new Color(131, 226, 197), 1);
         Border compBorder = new CompoundBorder(whiteBorder, blueBorder);
         hintPanel.setBorder(compBorder);
-        
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setPreferredSize(new Dimension(360, 14));
-        titleLabel.setFont(Formatter.boldFontOfSize(12));
-        titleLabel.setOpaque(false);
-        hintPanel.add(titleLabel);
-        
-        JTextArea messageLabel = new JTextArea(message);
-        messageLabel.setPreferredSize(new Dimension(360, 86));
+
+        String firstWord = message.split(" ")[0];
+        String theRest = message.replace(firstWord, "");
+
+        JTextPane messageLabel = new JTextPane();
+        messageLabel.setContentType("text/html");
+        messageLabel.setText("<html><font size=+4 face='Helvetica Neue'>" + firstWord + "</font><font face='Helvetica Neue'>" + theRest + "</font></html>");
         messageLabel.setFont(Formatter.defaultFontOfSize(12));
         messageLabel.setEditable(false);
         messageLabel.setHighlighter(null);
-        messageLabel.setLineWrap(true);
-        messageLabel.setOpaque(false);
-        hintPanel.add(messageLabel);
+        hintPanel.add(messageLabel, gbc);
         
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(20, 20, 20, 20);
         add(hintPanel, gbc);
     }
 
@@ -150,7 +158,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
             Double x =  xStart + (width / 2.0);
-            Vector node = new Node(x, y, 100.0, graphNode.color());
+            Vector node = new Node(x, y, 165.0, graphNode.color());
             treeVectors.add(node);
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
             width = width / graphNode.children().size();

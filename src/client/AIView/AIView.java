@@ -33,6 +33,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private boolean firstPrune = true;
     private GameTree gameTree = null;
     private GraphNodeRep graphNodeRep;
+    
+    private JPanel hintPanel;
+    private JButton button;
+    private Integer hintState = 0;
 
     public AIView() {
         //Layout
@@ -43,16 +47,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
         gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(20, 20, 20, 20);
         
-        JButton button = Formatter.button("Whats happening?");
+        button = Formatter.button("Whats happening here?");
         button.setActionCommand("switch_views");
         button.addActionListener(this);
-        //add(button, gbc);
+        add(button, gbc);
         
         JLabel title = new JLabel("The AI is thinking", SwingConstants.CENTER);
         title.setFont(Formatter.defaultFontOfSize(30));
         title.setForeground(Color.WHITE);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(title, gbc);
+        //add(title, gbc);
         
         try {
             threadCom = null;
@@ -80,7 +84,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             time.setActionCommand("rep");
             time.start();
             
-            showHint("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
+            //showHint("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -88,7 +92,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    private void showHint(String message) {
+    private void addHint(String message) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         gbc.weightx = 1.0;
@@ -96,7 +100,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(4, 10, 10, 0);
         
-        JPanel hintPanel = new JPanel(new GridBagLayout());
+        hintPanel = new JPanel(new GridBagLayout());
         hintPanel.setPreferredSize(new Dimension(500, 140));
         hintPanel.setOpaque(true);
         hintPanel.setBackground(Color.WHITE);
@@ -121,6 +125,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(20, 20, 20, 20);
         add(hintPanel, gbc);
+    }
+    
+    private void removeHint() {
+        this.remove(hintPanel);
     }
 
     private void parseJSON(Map<String, List<Map<String, Double>>> json) {
@@ -248,26 +256,40 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void setRep(GraphNodeRep graphNode) {
         graphNodeRep = graphNode;
+        //Start timer for hints
+        Timer timer = new Timer(650, this);
+        timer.setActionCommand("show_hint");
+        timer.setRepeats(false);
+        timer.start();
+    }
+    
+    public void setGameTree(GameTree gameTree) {
+        this.gameTree = gameTree;
     }
 
-    public void showPrune(GameTree gameTree) {
-        if (onTreeView && showPrune && !firstPrune) {
-            this.gameTree = gameTree;
+    public void showHint(String text) {
+        if (gameTree == null) return;
+        if (onTreeView) {
+            System.err.println("R:" + gameTree.randomNode());
             gameTree.pause();
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-            showPrune = false;
-            gameTree.resume();
-        } else if (onTreeView && firstPrune) {
-            Timer timer = new Timer(650, this);
-            timer.setActionCommand("show_prune");
+            addHint(text);
+            
+            Timer timer = new Timer(5000, this);
+            timer.setActionCommand("hide_hint");
             timer.setRepeats(false);
-            firstPrune = false;
             timer.start();
         }
+    }
+    
+    public void hideHint() {
+        if (gameTree == null) return;
+        showPrune = false;
+        gameTree.resume();
+        removeHint();
+        Timer timer = new Timer(350, this);
+        timer.setActionCommand("show_hint");
+        timer.setRepeats(false);
+        timer.start();
     }
 
     public void resetFirstPrune() {
@@ -298,10 +320,26 @@ public class AIView extends AnimatablePanel implements ActionListener {
           updateTree();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             onTreeView = !onTreeView;
+            if (onTreeView) {
+                remove(button);
+                hintState = 1;
+            }
+            else add(button);
             firstPrune = true;
-        } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_prune")) {
-            showPrune = true;
-        } else {
+        } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_hint")) {
+            if (hintState < 4 && onTreeView) {
+                if (hintState == 1) {
+                    showHint("Hint number one.");
+                } else if (hintState == 2) {
+                    showHint("Hint number two.");
+                } else if (hintState == 3) {
+                    showHint("Hint number three.");
+                }
+                hintState ++;
+            }
+        } else if (e.getActionCommand() != null && e.getActionCommand().equals("hide_hint")) {
+            hideHint();
+        }else {
           super.actionPerformed(e);
         }
     }

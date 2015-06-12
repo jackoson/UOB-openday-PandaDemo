@@ -77,9 +77,11 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         gameView.getActionMap().put("menu", menu);
         window.addComponentListener(gameView);
         container.add(gameView);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(container, BorderLayout.CENTER);
-        panel.add(aiView, BorderLayout.EAST);
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints(0, 0, 2, 1, 0.5, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints aiconstraints = new GridBagConstraints(3, 0, 1, 1, 0.5, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        panel.add(container, constraints);
+        panel.add(aiView, aiconstraints);
         window.add(panel);
         window.pack();
         window.setTitle("Scotland Yard");

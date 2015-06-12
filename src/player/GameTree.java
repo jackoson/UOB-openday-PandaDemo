@@ -64,7 +64,7 @@ public class GameTree implements Runnable {
         topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
         threadCom.putUpdate("ai_set_rep", topRep);
         Double result = alphaBeta(root, 5, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
-        this.move = findMove(root, round, initialPlayer);
+        this.move = root.getBestChild().getMove();
     }
 
     public void pause() {
@@ -143,16 +143,6 @@ public class GameTree implements Runnable {
 
     public Move getMove() {
         return this.move;
-    }
-
-    private Move findMove(TreeNode root, int round, Colour colour) {
-        TreeNode n = root.getBestChild();
-        while (n != null) {
-            Move m = n.getMove();
-            if (n.getRound() == round && m.colour.equals(colour)) return m;
-            n = n.getBestChild();
-        }
-        return null;
     }
 
     // Plays the specified Move in the specified game state.

@@ -32,7 +32,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             threadCom = null;
 
             setBackground(new Color(131, 226, 197));
-            setPreferredSize(new Dimension(700, 400));
+            setPreferredSize(new Dimension(400, 800));
             xRotate = 0.0;
             yRotate = 0.0;
             vectors = new HashMap<Integer, Vector>();

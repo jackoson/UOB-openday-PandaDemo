@@ -38,7 +38,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      * images for the views.
      */
     public GameView(FileAccess fileAccess) {
-        setPreferredSize(new Dimension(1100, 800));
+        setPreferredSize(new Dimension(800, 800));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
         listView = new ListView();

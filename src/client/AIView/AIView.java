@@ -24,8 +24,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private Map<Integer, Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
-    
-    
+
+
 
     private GraphNodeRep graphNodeRep;
 
@@ -188,14 +188,18 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void updateTree() {
+        resetTree();
+        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
+        selectExploredNodes(graphNodeRep);//////////////////Bad
+    }
+
+    private void resetTree() {
         treeVectors = new HashMap<Integer, Vector>();
         treeEdges = new ArrayList<Edge<Vector>>();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
         }
-        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
-        selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 
     public void setThreadCom(ThreadCommunicator threadCom) {

@@ -1,6 +1,7 @@
 package client.aiview;
 
 import client.view.*;
+import client.view.Formatter;
 import client.application.*;
 
 import javax.swing.*;
@@ -25,6 +26,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private Map<Integer, Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
     
+    private boolean onTreeView = false;
     
 
     private GraphNodeRep graphNodeRep;
@@ -55,6 +57,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
+            
+            JButton button = Formatter.button("Info");
+            button.setActionCommand("switch_views");
+            button.addActionListener(this);
+            add(button);
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -103,7 +110,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             width = width / graphNode.children().size();
             for (int i = 0; i < graphNode.children().size(); i++) {
                 GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 40, id, node);
+                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 80, id, node);
             }
         }
     }
@@ -127,11 +134,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
         Dimension size = getSize();
         Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
-        drawEdges(g, edges, origin, true);
-        drawVectors(g, vectors, origin, true);
-
-        drawEdges(g, treeEdges, origin, false);
-        drawVectors(g, treeVectors, origin, false);
+        if(onTreeView) {
+            drawEdges(g, treeEdges, origin, false);
+            //drawVectors(g, treeVectors, origin, false);
+        } else {
+            drawEdges(g, edges, origin, true);
+            drawVectors(g, vectors, origin, true);
+        }
     }
 
     private void drawVectors(Graphics2D g, Map<Integer, Vector> vectors, Vector origin, boolean rotate) {
@@ -205,6 +214,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
           updateTree();
+        } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
+            onTreeView = !onTreeView;
         } else {
           super.actionPerformed(e);
         }

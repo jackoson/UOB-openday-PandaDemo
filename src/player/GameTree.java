@@ -75,10 +75,6 @@ public class GameTree implements Runnable {
         pause = false;
     }
 
-    public GraphNodeRep getTopRep() {
-        return topRep;
-    }
-
     private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta, GraphNodeRep graphNode) {
         checkPause();
         if (depth == 0) return node.getScore();

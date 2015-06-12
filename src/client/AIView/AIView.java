@@ -34,7 +34,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             threadCom = null;
 
             setBackground(new Color(131, 226, 197));
-            setPreferredSize(new Dimension(600, 400));
+            setPreferredSize(new Dimension(700, 400));
             xRotate = 0.0;
             yRotate = 0.0;
             vectors = new HashMap<Integer, Vector>();
@@ -52,7 +52,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             xAnimator = createAnimator(0.0, 360.0, 10.0);
             xAnimator.setLoops(true);
 
-            Timer time = new Timer(1000, this);
+            Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
         } catch (FileNotFoundException e) {
@@ -97,14 +97,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
             Double x =  xStart + (width / 2.0);
-            //System.err.println("X: "+ x);
             Vector node = new Node(x, y, 0.0, graphNode.color());
             treeVectors.put(id, node);
             if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
+            width = width / graphNode.children().size();
             for (int i = 0; i < graphNode.children().size(); i++) {
                 GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                width = width / graphNode.children().size();
-                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y - 40, id++, node);
+                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 40, id, node);
             }
         }
     }
@@ -154,8 +153,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 vector = vector.rotateXZ(yAnimator.value());
             }
             vector = origin.addVectorToVector(vector);
-            Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color);
-            nn.setSelected(n.isSelected());
+            Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color, n.isSelected());
             sortedVectors.add(nn);
         }
         for (Node vector : sortedVectors) {
@@ -196,7 +194,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
         }
-        buildGraphNodes(graphNodeRep, -300.0, 600.0, 180.0, 0, null);
+        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
         selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 

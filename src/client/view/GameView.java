@@ -16,7 +16,7 @@ import java.util.concurrent.*;
  */
 
 public class GameView extends JPanel implements ComponentListener, ActionListener {
-    
+
     private static final long serialVersionUID = -8523153159692178708L;
 
     private BoardView board;
@@ -30,15 +30,15 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     private MenuBar bar;
     private FileAccess fileAccess;
     private ThreadCommunicator threadCom = null;
-    
+
     /**
      * Constructs a new GameView object.
      *
-     * @param fileAccess the FileAccess object needed to get the 
+     * @param fileAccess the FileAccess object needed to get the
      * images for the views.
      */
     public GameView(FileAccess fileAccess) {
-        setPreferredSize(new Dimension(1200, 800));
+        setPreferredSize(new Dimension(1100, 800));
         setLayout(new BorderLayout());
         this.fileAccess = fileAccess;
         listView = new ListView();
@@ -67,7 +67,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         bar = new MenuBar(chat, eventView, ticket, roundView, timer);
         board.add(bar, BorderLayout.SOUTH);
     }
-    
+
     /**
      * Receives the ActionEvents from the views that it has
      * been added to and updates the game model accordingly.
@@ -115,7 +115,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
             }
         }
     }
-    
+
     /**
      * Calls the BoardView to resize the map when the window is resized.
      * This is necessary to maintain aspect ratio of the map.
@@ -125,7 +125,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void componentResized(ComponentEvent e) {
         board.updateDisplay(e);
     }
-    
+
     /**
      * Sets the ThreadCommunicator that the view should use.
      *
@@ -134,10 +134,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void setThreadCom(ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
     }
-    
+
     /**
      * Initialises all sub views at the start of a game.
-     * 
+     *
      * @param players the List of players in the game.
      */
     public void initialise(List<GamePlayer> players) {
@@ -145,14 +145,14 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         bar.setBackgroundColor(Formatter.colorForPlayer(Colour.Black));
         timer.stop();
     }
-    
+
     /**
      * Stops the Timer in the TimerView.
      */
     public void stopTimer() {
         timer.stop();
     }
-    
+
     /**
      * Resets the Timer in the TimerView.
      */
@@ -160,7 +160,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         timer.stop();
         timer.start();
     }
-    
+
     /**
      * Sets the max time for the Timer in the TimerView.
      *
@@ -169,7 +169,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void setTimerMaxTime(int maxTime) {
         timer.setMaxTime(maxTime);
     }
-    
+
     /**
      * Highlists a node in the board view.
      *
@@ -179,16 +179,16 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void highlightNode(Integer location) {
         board.highlightNode(location);
     }
-    
+
     /**
      * Updates the message shown by the NotifyView.
-     * 
+     *
      * @param message the message to be shown to the players.
      */
     public void setNotification(String message) {
         notify.notify(message);
     }
-    
+
     /**
      * Updates the tickets displayed in the PlayerTicketView.
      *
@@ -199,16 +199,16 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         bar.setBackgroundColor(Formatter.colorForPlayer(colour));
         ticket.update(tickets);
     }
-    
+
     /**
      * Updates the locations of the players in the BoardView.
-     * 
+     *
      * @param move the move containing the information to update the view.
      */
     public void updateBoard(Move move) {
         board.update(move);
     }
-    
+
     /**
      * Adds a Move to the game log.
      *
@@ -217,7 +217,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void updateLog(Move move) {
         eventView.addMessage(move);
     }
-    
+
     /**
      * Adds a message to the game log.
      *
@@ -226,14 +226,14 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void updateLog(String string) {
         eventView.addMessage(string);
     }
-    
+
     /**
      * Clears the game log.
      */
     public void clearLog() {
         eventView.clear();
     }
-    
+
     /**
      * Sets the current round in the game.
      *
@@ -242,13 +242,14 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void updateRoundCounter(int round) {
         roundView.setSelectedRound(round);
     }
-    
+
     /**
      * Updates the valid Moves shown by RouteView and the List in BoardView.
      *
      * @param moves the List of valid Moves.
      */
     public void updateRoutes(Set<Move> moves) {
+        System.err.println("f");
         board.updateValidMoves(moves);
         List<ListCellView> v = new ArrayList<ListCellView>();
         Iterator<Move> it = moves.iterator();
@@ -268,7 +269,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         listView.setCells(v);
         listView.setPreferredSize(new Dimension(200, 1000));
     }
-    
+
     /**
      * Enlarges the map and centers the node in the view.
      *
@@ -277,25 +278,25 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void zoomToNode(Integer location) {
         board.zoomToNode(location);
     }
-    
+
     /**
      * Shows the whole map in the BoardView.
      */
     public void zoomOut() {
         board.zoomOut();
     }
-    
+
     /**
      * Adds the specified ActionListener to receive events from all sub views.
      * If listener listener is null, no action is performed.
-     * 
+     *
      * @param listener the listener to be added to the view.
      */
     public void setActionListener(ActionListener listener) {
         board.setActionListener(listener);
         timer.setActionListener(listener);
     }
-    
+
     /**
      * Sets the route to be displayed for the BoardView
      *
@@ -304,15 +305,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
     public void setRouteHint(List<Integer> route) {
         board.setRouteHint(route);
     }
-    
-    public void addRouteHint(List<Integer> route, Color color) {
-        board.addRouteHint(route, color);
-    }
-    
-    public void clearRoutes() {
-        board.clearRouteHints();
-    }
-    
+
     /**
      * Unused method from the ComponentListener interface.
      */

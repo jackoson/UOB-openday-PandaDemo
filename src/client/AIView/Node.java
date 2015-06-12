@@ -13,6 +13,12 @@ public class Node extends Vector {
         this.selected = false;
     }
 
+    public Node(Double x, Double y, Double z, Color color, boolean selected) {
+        super(x, y, z);
+        this.color = color;
+        this.selected = selected;
+    }
+
     public void setSelected(boolean selected) {
         this.selected = selected;
     }

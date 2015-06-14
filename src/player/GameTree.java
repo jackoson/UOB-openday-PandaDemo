@@ -24,6 +24,7 @@ public class GameTree implements Runnable {
     public final PageRank pageRank;
     public final Dijkstra dijkstra;
     public final ThreadCommunicator threadCom;
+    private TreeNode root;
 
     private final Integer round;
     private final Colour initialPlayer;
@@ -60,8 +61,9 @@ public class GameTree implements Runnable {
      * Starts a new game tree.
      */
     public void run() {
-        TreeNode root = new TreeNode(null, initialState, initialPlayer, round, null, this);
+        root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
+        threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", topRep);
         Double result = alphaBeta(root, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
         this.move = root.getBestChild().getMove();
@@ -85,14 +87,15 @@ public class GameTree implements Runnable {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
                 GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                graphNode.addChild(newGraphNode);
+                synchronized (graphNode) {
+                    graphNode.addChild(newGraphNode);
+                }
                 Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 if (result > v) {
                     v = result;
                     node.setBestChild(child);
                 }
                 if (v >= beta) {
-                    threadCom.putUpdate("ai_prune", this);
                     break;
                 }
                 alpha = Math.max(alpha, v);
@@ -102,14 +105,15 @@ public class GameTree implements Runnable {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
                 GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                graphNode.addChild(newGraphNode);
+                synchronized (graphNode) {
+                    graphNode.addChild(newGraphNode);
+                }
                 Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 if (result < v) {
                     v = result;
                     node.setBestChild(child);
                 }
                 if (v <= alpha) {
-                    threadCom.putUpdate("ai_prune", this);
                     break;
                 }
                 beta = Math.min(beta, v);
@@ -129,6 +133,17 @@ public class GameTree implements Runnable {
         }
     }
 
+    public Integer randomNode() {
+        if (root == null) return -1;
+        TreeNode n = root;
+        Random r = new Random();
+        while (r.nextInt(3) < 1 && n.getChildren().size() > 0) {
+            List<TreeNode> children = n.getChildren();
+            int c = children.size();
+            n = children.get(r.nextInt(c));
+        }
+        return n.getTrueLocation();
+    }
 
     // Adds all children to a specified node.
     // @param parent the node to add children to.

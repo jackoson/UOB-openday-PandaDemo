@@ -12,14 +12,14 @@ public class Vector {
         this.z = z;
     }
 
-    public Vector addVectorToVector(Vector vector) {
+    public Vector add(Vector vector) {
         Double x = this.x + vector.getX();
         Double y = this.y + vector.getY();
         Double z = this.z + vector.getZ();
         return new Vector(x, y, z);
     }
 
-    public Vector subtractVectorFromVector(Vector vector) {
+    public Vector subtract(Vector vector) {
         Double x = this.x - vector.getX();
         Double y = this.y - vector.getY();
         Double z = this.z - vector.getZ();
@@ -58,24 +58,12 @@ public class Vector {
         return x;
     }
 
-    public void setX(Double x) {
-        this.x = x;
-    }
-
     public Double getY() {
         return y;
     }
 
-    public void setY(Double y) {
-        this.y = y;
-    }
-
     public Double getZ() {
         return z;
-    }
-
-    public void setZ(Double z) {
-        this.z = z;
     }
 
     public String stringValue() {

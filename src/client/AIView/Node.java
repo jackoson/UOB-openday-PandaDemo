@@ -43,17 +43,4 @@ public class Node extends Vector {
         else return color;
     }
 
-    public boolean equals(Object object) {
-        if (object instanceof Node) {
-            Node node = (Node) object;
-            if (this.getX() == node.getX() &&
-                this.getY() == node.getY() &&
-                this.getZ() == node.getZ() &&
-                this.getColor().equals(node.getColor()) &&
-                this.isSelected() == node.isSelected() &&
-                this.isPartOfTree() == node.isPartOfTree()) return true;
-        }
-        return false;
-    }
-
 }

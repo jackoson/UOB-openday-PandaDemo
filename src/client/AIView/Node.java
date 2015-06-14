@@ -37,14 +37,3 @@ public class Node extends Vector {
     public void setPartOfTree(boolean partOfTree) {
         this.partOfTree = partOfTree;
     }
-
-    public boolean isPartOfTree() {
-        return partOfTree;
-    }
-
-    public Color getColor() {
-        if (!selected) return Color.white;
-        else return color;
-    }
-
-}

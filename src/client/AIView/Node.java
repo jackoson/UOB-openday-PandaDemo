@@ -2,6 +2,10 @@ package client.aiview;
 
 import java.awt.*;
 
+/**
+ * Maybe add the animators in here?
+ */
+
 public class Node extends Vector {
 
     private Color color;

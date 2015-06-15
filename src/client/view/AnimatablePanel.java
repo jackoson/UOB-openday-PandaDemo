@@ -190,6 +190,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
 
     public void start() {
         activeAnimators.addAll(pendingAnimators);
+        pendingAnimators.clear();
         if (!timer.isRunning()) timer.start();
     }
 

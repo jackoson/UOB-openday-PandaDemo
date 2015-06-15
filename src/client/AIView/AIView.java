@@ -21,6 +21,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private double xRotate, yRotate;
     private AnimatablePanel.Animator rotateAnimator;
+    private AnimatablePanel.Animator alphaAnimator = null;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
@@ -131,7 +132,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         List<Map<String, Double>> nodes = json.get("nodes");
         for (Map<String, Double> node : nodes) {
             Double ox = node.get("x");
-            Double oy = node.get("y");
+            Double oy = node.get("y");/******SUBTRACT THE ORIGIN SO THE POINTS AREN'T OFF THE SCREEN******/
             Double oz = node.get("z");
             //Transform the points.
 
@@ -149,7 +150,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (oz == 2) color = new Color(42, 154, 164);
             else if (oz == 3) color = new Color(242, 196, 109);
 
-            vectors.put(node.get("node").intValue(), new Node(x, y, z, color));
+            Node projectedNode = new Node(ox, oy, oz, color);
+            projectedNode.setAnimators(createAnimator(ox, x, 1.0), createAnimator(oy, y, 1.0), createAnimator(oz, z, 1.0));
+
+            vectors.put(node.get("node").intValue(), projectedNode);
         }
         List<Map<String, Double>> connections = json.get("edges");
         for (Map<String, Double> edge : connections) {
@@ -160,10 +164,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
-        if (graphNode != null) {
+        if (graphNode != null) {//Need to subtract origin to get proper location.
             synchronized (graphNode) {
                 Double x =  xStart + (width / 2.0);
-                Vector node = new Node(x, y, 165.0, graphNode.color());
+                Vector vector = vectors.get(graphNode.location());
+                Node node = new Node(vector.getX(), vector.getY(), vector.getZ(), graphNode.color(), true);
+                node.setAnimators(createDelayedAnimator(vector.getX(), x, 1.0), createDelayedAnimator(vector.getY(), y, 1.0), createDelayedAnimator(vector.getZ(), 165.0, 1.0));
                 treeVectors.add(node);
                 if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
                 width = width / graphNode.children().size();
@@ -218,6 +224,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         });
         for (Vector vector : vectors) {
             Node n = (Node)vector;
+            if (n.getPosInAnimation() != null) n = n.getPosInAnimation();
             Color color = n.getColor();
             if (rotate) {
                 vector = n.rotateYZ(rotateAnimator.value());
@@ -239,12 +246,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
         g.setColor(Color.white);
         for (Edge<Vector> edge : edges) {
             Vector node1 = edge.getNode1();
+            if (((Node) node1).getPosInAnimation() != null) node1 = ((Node) node1).getPosInAnimation();
             if (rotate) {
                 node1 = node1.rotateYZ(rotateAnimator.value());
                 node1 = node1.rotateXZ(rotateAnimator.value());
               }
             node1 = origin.add(node1);
             Vector node2 = edge.getNode2();
+            if (((Node) node2).getPosInAnimation() != null) node2 = ((Node) node2).getPosInAnimation();
             if (rotate) {
                 node2 = node2.rotateYZ(rotateAnimator.value());
                 node2 = node2.rotateXZ(rotateAnimator.value());
@@ -320,7 +329,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-          updateTree();
+            updateTree();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             onTreeView = !onTreeView;
             humanPlaying();

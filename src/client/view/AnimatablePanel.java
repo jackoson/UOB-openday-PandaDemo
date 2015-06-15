@@ -149,6 +149,19 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         activeAnimators = new CopyOnWriteArrayList<Animator>();
     }
 
+    public boolean removeAnimator(Animator animator) {
+        boolean success = false;
+        if (activeAnimators.contains(animator)) {
+            activeAnimators.remove(animator);
+            success = true;
+        }
+        if (pendingAnimators.contains(animator)) {
+            pendingAnimators.remove(animator);
+            success = true;
+        }
+        return success;
+    }
+
     public void pauseAnimations() {
         if (timer != null) timer.stop();
     }

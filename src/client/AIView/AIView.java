@@ -31,6 +31,9 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     private JButton button;
     private Integer hintState = 0;
 
+    private RatingView ratingView;
+    private HintsView hintsView;
+
     public AIView(FileAccess fileAccess) {
         try {
             threadCom = null;
@@ -38,11 +41,12 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             setPreferredSize(new Dimension(400, 800));
 
             setLayout(new CardLayout());
-            //add(new TutorialView());
-
-            RatingView rv = new RatingView(fileAccess);
-            add(rv);
-            rv.update(true, MovePass.instance(Colour.Black), "Too cool for school.");
+            //add(new TutorialView(), "TUTORIAL");
+            ratingView = new RatingView(fileAccess);
+            //add(ratingView, "RATING");
+            ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
+            hintsView = new HintsView();
+            //add(hintsView, "HINTS");
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);

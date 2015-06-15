@@ -16,11 +16,11 @@ public class TutorialView extends JPanel {
     };
 
     public TutorialView() {
-        setBackground(new Color(24, 52, 113));
+        setBackground(new Color(47, 128, 131));
         setLayout(new BorderLayout());
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setForeground(new Color(255, 255, 255, 204));
         titleLabel.setFont(Formatter.boldFontOfSize(48));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(100, 30, 30, 30));
         add(titleLabel, BorderLayout.NORTH);
@@ -36,7 +36,7 @@ public class TutorialView extends JPanel {
             bulletLabel.setContentType("text/html");
             bulletLabel.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
             bulletLabel.setFont(Formatter.defaultFontOfSize(22));
-            bulletLabel.setForeground(Color.WHITE);
+            bulletLabel.setForeground(new Color(255, 255, 255, 204));
             bulletLabel.setText("<html>" + bullet + "</html>");
             bulletLabel.setEditable(false);
             bulletLabel.setOpaque(false);

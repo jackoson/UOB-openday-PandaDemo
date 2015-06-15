@@ -32,6 +32,7 @@ public class FileAccess {
     private Map<Set<Ticket>, BufferedImage> cursors;
     private BufferedImage badMove;
     private BufferedImage goodMove;
+    private Map<Ticket, BufferedImage> ticketsLarge;
 
     /**
      * Constructs a new FileAccess object.
@@ -39,6 +40,7 @@ public class FileAccess {
      */
     public FileAccess() {
         ticketsSmall = new HashMap<Ticket, BufferedImage>();
+        ticketsLarge = new HashMap<Ticket, BufferedImage>();
         counters = new HashMap<Colour, BufferedImage>();
         mapPositions = makePositions();
         cursors = new HashMap<Set<Ticket>, BufferedImage>();
@@ -224,6 +226,12 @@ public class FileAccess {
 
             badMove = ImageIO.read(this.getClass().getResource("/resources/AI/badMove.png"));
             goodMove = ImageIO.read(this.getClass().getResource("/resources/AI/goodMove.png"));
+
+            ticketsLarge.put(Ticket.Taxi, ImageIO.read(this.getClass().getResource("/resources/tickets/taxi.png")));
+            ticketsLarge.put(Ticket.Bus, ImageIO.read(this.getClass().getResource("/resources/tickets/bus.png")));
+            ticketsLarge.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground.png")));
+            ticketsLarge.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret.png")));
+            ticketsLarge.put(Ticket.Double, ImageIO.read(this.getClass().getResource("/resources/tickets/double.png")));
         } catch (Exception e) {
             System.err.println("Error retrieving images :" + e);
             e.printStackTrace();
@@ -247,6 +255,10 @@ public class FileAccess {
 
     public BufferedImage getGoodMove() {
         return goodMove;
+    }
+
+    public Map<Ticket, BufferedImage> getLargeTickets() {
+        return ticketsLarge;
     }
 
     /**

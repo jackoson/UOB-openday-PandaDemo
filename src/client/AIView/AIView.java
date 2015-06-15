@@ -197,6 +197,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     }
 
     private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin) {
+        //System.err.println("Count: " + edges.size());
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Node n2 = edge.getNode2();
@@ -256,7 +257,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
             if (onTreeView) graphHandler.updateTree(this);
-            //if(!onTreeView) graphHandler.updateNodes();
+            if(!onTreeView) graphHandler.updateNodes();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             humanPlaying();
             if (onTreeView) {

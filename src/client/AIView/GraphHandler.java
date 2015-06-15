@@ -167,9 +167,8 @@ public class GraphHandler {
             }
             node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
             node.setTree(true);
+            node.setSelected(false);
             if (parent != null) {
-                //?Issue when both nodes in tree and have edge in 3d view
-                //?Also need to fade out edges when returning (and maybe in)
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
                 addEdge(e);
@@ -230,15 +229,17 @@ public class GraphHandler {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
             if(nodes.containsValue(n)) newAllNodes.add(n);
-            n.setSelected(false);
             if (end) n.resetAnimators();
             if (end) n.setTree(false);
         }
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
-        if (end){
-            for (Edge<Node> e : edges) {
-                if (nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2()) ) newEdges.add(e);
+        for (Edge<Node> e : edges) {
+            //System.err.println("INS");
+            if ((nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2())) || (!end && allNodes.contains(e.getNode1()) && allNodes.contains(e.getNode2()))) {
+                //System.err.println("IN");
+                e.setInTree(false);
+                newEdges.add(e);
             }
         }
         edges = newEdges;

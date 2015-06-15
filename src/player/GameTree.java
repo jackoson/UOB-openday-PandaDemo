@@ -65,7 +65,7 @@ public class GameTree implements Runnable {
         topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
         threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", topRep);
-        Double result = alphaBeta(root, 6, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
+        Double result = alphaBeta(root, 5, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
         this.move = root.getBestChild().getMove();
     }
 

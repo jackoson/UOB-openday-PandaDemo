@@ -63,7 +63,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             threadCom = null;
             setBackground(new Color(131, 226, 197));
             setPreferredSize(new Dimension(400, 800));
-            initialVectors = new HashMap<Integer, Node>();
             nodes = new TreeSet<Node>(new Comparator<Node>() {
                 public int compare(Node o1, Node o2) {
                     Double o1z = o1.getZ();
@@ -104,7 +103,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
       Integer closestNode = findClosestNode(e.getPoint());
       //System.err.println("Mouse moved" + closestNode);
       if(closestNode > 0) {
-        Node n = (Node)vectors.get(closestNode);
+        Node n = getNode(closestNode);
         n.setSelected(true);
 
         findRoutes(n, true);
@@ -114,18 +113,15 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     public Integer findClosestNode(Point position) {
       Double minDist = Double.POSITIVE_INFINITY;
       Integer minLoc = -1;
-      for (Map.Entry<Integer, Vector> entry : vectors.entrySet()) {
-        Node n = (Node)entry.getValue();
-        Vector v = n.getPosInAnimation();
-        if (v == null) return -1;
-        v = origin.add(v);
+      for (Node node : nodes) {
+        Vector v = origin.add(node);
         Double x = v.getX();
         Double y = v.getY();
 
         Double squareDistance = Math.pow(x - position.getX(), 2) + Math.pow(y - position.getY(), 2);
         if (squareDistance < minDist && squareDistance < 100) {
           minDist = squareDistance;
-          minLoc = entry.getKey();
+          minLoc = node.location();
         }
       }
       return minLoc;
@@ -227,13 +223,13 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         if (graphNode != null) {//Need to subtract origin to get proper location.
             synchronized (graphNode) {
                 Double x =  xStart + (width / 2.0);
-                Node vector = initialVectors.get(graphNode.location());
+                Node vector = getNode(graphNode.location());
                 Node node = new Node(vector.getX(), vector.getY(), vector.getZ(), graphNode.color(), graphNode.location());
                 node.setAnimators(createDelayedAnimator(vector.getX(), x, 1.0), createDelayedAnimator(vector.getY(), y, 1.0), createDelayedAnimator(vector.getZ(), 165.0, 1.0));
                 node.setTree(true);
                 nodes.add(node);
                 if (parent != null) {
-                  treeEdges.add(new Edge<Vector>(node, parent));
+                  edges.add(new Edge<Node>(node, parent));
                   node.setParent(parent);
                 }
                 width = width / graphNode.children().size();
@@ -249,7 +245,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         if (graphNode != null) {
             synchronized (graphNode) {
                 for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                    Node n = initialVectors.get(graphNodeRep.location());
+                    Node n = getNode(graphNodeRep.location());
                     n.setSelected(true);
                     selectExploredNodes(graphNodeRep);
                 }
@@ -264,7 +260,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
         Dimension size = getSize();
-        Node origin = new Node(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0, Color.WHITE, 0);
+        Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
         Double alpha = 255.0;
         if (alphaAnimator != null) alpha = alphaAnimator.value();
@@ -273,7 +269,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         drawVectors(g, nodes, origin, alpha.intValue());
     }
 
-    private void drawVectors(Graphics2D g, Set<Node> nodes, Node origin, int alpha) {
+    private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin, int alpha) {
         for (Node node : nodes) {
             Color color = node.getColor();
             Vector vector = node.rotateYZ(rotateAnimator.value());
@@ -290,7 +286,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         }
     }
 
-    private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Node origin, int alpha) {
+    private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin, int alpha) {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Vector node1 = n1.rotateYZ(rotateAnimator.value());

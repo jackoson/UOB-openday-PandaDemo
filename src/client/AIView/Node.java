@@ -40,7 +40,7 @@ public class Node extends Vector {
         this.tree = tree;
     }
 
-    public boolean isTree() {
+    public boolean inTree() {
         return tree;
     }
 
@@ -103,6 +103,13 @@ public class Node extends Vector {
         alphaAnimator = null;
     }
 
+    public void forwardAnimators(Double time) {
+        if(this.xAnimator != null) xAnimator.setTime(time);
+        if(this.yAnimator != null) yAnimator.setTime(time);
+        if(this.zAnimator != null) zAnimator.setTime(time);
+        if(this.alphaAnimator != null) alphaAnimator.setTime(time);
+    }
+
     @Override
     public Double getX() {
         if (xAnimator == null) return super.getX();
@@ -119,6 +126,18 @@ public class Node extends Vector {
     public Double getZ() {
         if (zAnimator == null) return super.getZ();
         else return zAnimator.value();
+    }
+
+    public Double getTrueX() {
+        return super.getX();
+    }
+
+    public Double getTrueY() {
+        return super.getY();
+    }
+
+    public Double getTrueZ() {
+        return super.getZ();
     }
 
 }

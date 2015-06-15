@@ -58,7 +58,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(300, this);
+            Timer time = new Timer(1000, this);
             time.setActionCommand("rep");
             time.start();
 
@@ -80,33 +80,34 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     public void mouseDragged(MouseEvent e) {}
 
     public void mouseMoved(MouseEvent e) {
-      /*Integer closestNode = findClosestNode(e.getPoint());
-      //System.err.println("Mouse moved" + closestNode);
-      if(closestNode > 0) {
-        Node n = getNode(closestNode);
-        n.setSelected(true);
+        if (!onTreeView) return;
+        Node closestNode = findClosestNode(e.getPoint());
+        if(closestNode != null) {
+            closestNode.setSelected(true);
 
-        List<List<Integer>> routes = findRoutes(n, true);
-        System.err.println("ROUTE: " + routes);
-      }*/
+            List<List<Integer>> routes = findRoutes(closestNode, true);
+            System.err.println("ROUTE: " + routes);
+        }
+        repaint();
     }
 
-    /*public Integer findClosestNode(Point position) {
+    public Node findClosestNode(Point position) {
       Double minDist = Double.POSITIVE_INFINITY;
-      Integer minLoc = -1;
-      for (Node node : nodes) {
-        Vector v = origin.add(node);
+      Node minNode = null;
+      for (Node node : graphHandler.getNodes()) {
+          if (!node.inTree()) continue;
+        Vector v = graphHandler.getOrigin().offsetAdd(node);
         Double x = v.getX();
         Double y = v.getY();
 
         Double squareDistance = Math.pow(x - position.getX(), 2) + Math.pow(y - position.getY(), 2);
         if (squareDistance < minDist && squareDistance < 100) {
           minDist = squareDistance;
-          minLoc = node.location();
+          minNode = node;
         }
       }
-      return minLoc;
-    }*/
+      return minNode;
+    }
 
     public List<List<Integer>> findRoutes(Node n, boolean mrX) {
       if (n == null){
@@ -138,8 +139,8 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
-            //if (onTreeView && !node.isTree()) continue;
-            //if (!onTreeView && node.isTree()) continue;//?
+            //if (onTreeView && !node.inTree()) continue;
+            //if (!onTreeView && node.inTree()) continue;//?
             g.setColor(node.getColor());
             Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
@@ -149,10 +150,11 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     }
 
     private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin) {
+        //System.err.println("Count: " + edges.size());
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Node n2 = edge.getNode2();
-            //?if (!edge.inTree() && onTreeView) continue;
+            if (!edge.inTree() && onTreeView) continue;
             Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
             g.setColor(new Color(255, 255, 255, Math.min(n1.getColor().getAlpha(), n2.getColor().getAlpha())));
@@ -183,7 +185,8 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-            graphHandler.updateTree();
+            if (onTreeView) graphHandler.updateTree(this);
+            if(!onTreeView) graphHandler.updateNodes();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             humanPlaying();
             if (onTreeView) {
@@ -216,11 +219,13 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     @Override
     public void animationCompleted() {
         if (!onTreeView) {
-            graphHandler.cleanTree();
+            graphHandler.cleanTree(true);
             Double rotateValue = rotateAnimator.value();
             removeAnimator(rotateAnimator);
             rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0);
             rotateAnimator.setLoops(true);
+        } else {
+            graphHandler.finishTreeBuild();
         }
     }
 

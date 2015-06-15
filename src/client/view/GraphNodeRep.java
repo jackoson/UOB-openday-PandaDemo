@@ -16,7 +16,11 @@ public class GraphNodeRep {
     }
 
     public void addChild(GraphNodeRep child) {
-        children.add(child);
+        /*boolean locOccupied = false;//?maybe use a map
+        for(GraphNodeRep c : children) {
+            if (child.location() == c.location()) locOccupied = true;
+        }
+        if (!locOccupied) */if (children.size() < 5) children.add(child);
     }
 
     public List<GraphNodeRep> children() {

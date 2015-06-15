@@ -128,75 +128,119 @@ public class GraphHandler {
         }
     }
 
+    public void updateNodes() {
+        if (!animating) selectNodes(graphNode());
+    }
 
-    public void updateTree() {
+    public void updateTree(AnimatablePanel panel) {
+        System.err.println("Update:" + graphNode().children().size());
         //resetTree();
         if (!animating) {
-            selectNodes(graphNode());
-            //?Need to update the tree while it is building
-
+            cleanTree(false);
+            rebuildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
+            panel.start();
         }
     }
 
     public void showTree(AnimatablePanel panel) {
+        panel.cancelAllAnimations();
+        animating = true;
         buildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
         for (Node n : allNodes) {
-            if (!n.isTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
+            if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
         panel.start();
     }
 
     private void buildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
-        animating = true;
-        if (graphNode != null) {//Need to subtract origin to get proper location.
-            panel.cancelAllAnimations();
-            synchronized (graphNode) {
-                Double x =  xStart + (width / 2.0);
-                Node node = getNode(graphNode.location());
-                if (node != null){
-                    if (node.isTree()){
-                        node = new Node(node.getX(), node.getY(), node.getZ(), node.getColor(), node.location());
-                        allNodes.add(node);
-                    }
-                    node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
-                    node.setTree(true);
-                    if (parent != null) {
-                        //?Issue when both nodes in tree and have edge in 3d view
-                        //?Also need to fade out edges when returning (and maybe in)
-                        Edge<Node> e = new Edge<Node>(node, parent);
-                        e.setInTree(true);
-                        addEdge(e);
-                        node.setParent(parent);
-                    }
-                    width = width / graphNode.children().size();
-                    for (int i = 0; i < graphNode.children().size(); i++) {
-                        GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                        buildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
-                    }
-                } else {
-                    System.err.println("Null node when creating tree.");
-                }
+        if (graphNode == null) return;
+        synchronized (graphNode) {
+            Double x =  xStart + (width / 2.0);
+            Node node = getNode(graphNode.location());
+            if (node == null) {
+                System.err.println("Null node when creating tree.");
+                return;
+            }
+            if (node.inTree()){
+                node = new Node(node.getX(), node.getY(), node.getZ(), node.getColor(), node.location());
+                allNodes.add(node);
+            }
+            node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
+            node.setTree(true);
+            node.setSelected(false);
+            if (parent != null) {
+                Edge<Node> e = new Edge<Node>(node, parent);
+                e.setInTree(true);
+                addEdge(e);
+                node.setParent(parent);
+            }
+            width = width / graphNode.children().size();
+            for (int i = 0; i < graphNode.children().size(); i++) {
+                GraphNodeRep graphNodeRep = graphNode.children().get(i);
+                buildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
+            }
+        }
+    }
+
+    private void rebuildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
+        if (graphNode == null) return;
+        synchronized (graphNode) {
+            Double x =  xStart + (width / 2.0);
+            Node node = getNode(graphNode.location());
+            if (node == null) {
+                System.err.println("Null node when creating tree.");
+                return;
+            }
+            if (node.inTree()){
+                node = new Node(node.getTrueX(), node.getTrueY(), node.getTrueZ(), node.getColor(), node.location());
+                allNodes.add(node);
+            }
+            node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
+            node.forwardAnimators(1.0);
+            node.setTree(true);
+            if (parent != null)  {
+                //?Issue when both nodes in tree and have edge in 3d view
+                //?Also need to fade out edges when returning (and maybe in)
+                Edge<Node> e = new Edge<Node>(node, parent);
+                e.setInTree(true);
+                addEdge(e);
+                node.setParent(parent);
+            }
+            width = width / graphNode.children().size();
+            for (int i = 0; i < graphNode.children().size(); i++) {
+                GraphNodeRep graphNodeRep = graphNode.children().get(i);
+                rebuildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
     }
 
     public void returnFromTree(AnimatablePanel panel) {
+        animating = true;
         for (Node n : allNodes) {
             n.reverseAnimation(1.0, panel);
         }
     }
 
-    public void cleanTree() {
+    public void finishTreeBuild() {
+        animating = false;
+    }
+
+    public void cleanTree(boolean end) {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
-            n.setTree(false);
-            n.resetAnimators();
             if(nodes.containsValue(n)) newAllNodes.add(n);
+            if (end) n.resetAnimators();
+            if (end) n.setTree(false);
         }
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
         for (Edge<Node> e : edges) {
-            if(nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2()) ) newEdges.add(e);
+            //System.err.println("INS");
+            if ((nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2())) || (!end && allNodes.contains(e.getNode1()) && allNodes.contains(e.getNode2()))) {
+                //System.err.println("IN");
+                e.setInTree(false);
+                newEdges.add(e);
+            }
         }
         edges = newEdges;
         animating = false;

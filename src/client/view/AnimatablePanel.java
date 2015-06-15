@@ -245,6 +245,10 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             this.loops = loops;
         }
 
+        public void setTime(Double time) {
+            this.time = time;
+        }
+
         /**
          * Steps through the animation.
          */

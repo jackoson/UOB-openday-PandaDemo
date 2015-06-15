@@ -32,24 +32,8 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     public AIView() {
         //Layout
-        setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        gbc.insets = new Insets(20, 20, 20, 20);
-
-        button = Formatter.button("Whats happening here?");
-        button.setActionCommand("switch_views");
-        button.addActionListener(this);
-        //add(button, gbc);
-
-        JLabel title = new JLabel("The AI is thinking", SwingConstants.CENTER);
-        title.setFont(Formatter.defaultFontOfSize(30));
-        title.setForeground(Color.WHITE);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridy = 0;
-        //add(title, gbc);
+        setLayout(new CardLayout());
+        add(new TutorialView());
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -129,45 +113,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
       return routes;
     }
 
-    private void addHint(String message) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(4, 10, 10, 0);
-
-        hintPanel = new JPanel(new GridBagLayout());
-        hintPanel.setPreferredSize(new Dimension(500, 140));
-        hintPanel.setOpaque(true);
-        hintPanel.setBackground(Color.WHITE);
-        Border whiteBorder = new LineBorder(Color.WHITE, 10);
-        Border blueBorder = new LineBorder(new Color(131, 226, 197), 1);
-        Border compBorder = new CompoundBorder(whiteBorder, blueBorder);
-        hintPanel.setBorder(compBorder);
-
-        String firstWord = message.split(" ")[0];
-        String theRest = message.replace(firstWord, "");
-
-        JTextPane messageLabel = new JTextPane();
-        messageLabel.setContentType("text/html");
-        messageLabel.setText("<html><font size=+4 face='Helvetica Neue'>" + firstWord + "</font><font face='Helvetica Neue'>" + theRest + "</font></html>");
-        messageLabel.setFont(Formatter.defaultFontOfSize(12));
-        messageLabel.setEditable(false);
-        messageLabel.setHighlighter(null);
-        hintPanel.add(messageLabel, gbc);
-
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.SOUTHWEST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(20, 20, 20, 20);
-        add(hintPanel, gbc);
-    }
-
-    private void removeHint() {
-        this.remove(hintPanel);
-    }
-
     /*private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode != null) {//Need to subtract origin to get proper location.
             synchronized (graphNode) {
@@ -237,30 +182,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         this.gameTree = gameTree;
     }
 
-    public void showHint(String text) {
-        if (gameTree == null) return;
-        if (onTreeView) {
-            System.err.println("R:" + gameTree.randomNode());
-            gameTree.pause();
-            addHint(text);
-
-            Timer timer = new Timer(5000, this);
-            timer.setActionCommand("hide_hint");
-            timer.setRepeats(false);
-            timer.start();
-        }
-    }
-
-    public void hideHint() {
-        if (gameTree == null) return;
-        gameTree.resume();
-        removeHint();
-        Timer timer = new Timer(350, this);
-        timer.setActionCommand("show_hint");
-        timer.setRepeats(false);
-        timer.start();
-    }
-
     /*public void updateTree() {
         resetTree();
         buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, null);
@@ -284,20 +205,20 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             if (onTreeView) {
                 hintState = 1;
             }
-            else add(button);
+            //else add(button);
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_hint")) {
             if (hintState < 4 && onTreeView) {
                 if (hintState == 1) {
-                    showHint("Hint number one.");
+                //    showHint("Hint number one.");
                 } else if (hintState == 2) {
-                    showHint("Hint number two.");
+                //    showHint("Hint number two.");
                 } else if (hintState == 3) {
-                    showHint("Hint number three.");
+              //      showHint("Hint number three.");
                 }
                 hintState++;
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("hide_hint")) {
-            hideHint();
+          //  hideHint();
         } else {
             super.actionPerformed(e);
         }

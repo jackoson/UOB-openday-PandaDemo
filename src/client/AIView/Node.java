@@ -21,6 +21,7 @@ public class Node extends Vector {
     public Node(Double x, Double y, Double z, Color color, int location) {
         super(x, y, z);
         this.color = color;
+        this.alpha = 1.0;
         this.location = location;
         this.parent = null;
         this.selected = false;

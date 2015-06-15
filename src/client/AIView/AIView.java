@@ -107,7 +107,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         Node n = (Node)vectors.get(closestNode);
         n.setSelected(true);
 
-        findRoutes(n);
+        findRoutes(n, true);
       }
     }
 
@@ -133,14 +133,14 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     public List<List<Integer>> findRoutes(Node n, boolean mrX) {
       if (n == null){
-        List<List<Integer>> list = new ArrayList<Integer>();
-        list.add(new ArrayList());
-        list.add(new ArrayList());
+        List<List<Integer>> list = new ArrayList<List<Integer>>();
+        list.add(new ArrayList<Integer>());
+        list.add(new ArrayList<Integer>());
       }
       List<List<Integer>> routes = findRoutes(n.parent(), !mrX);
       if(mrX) routes.get(0).add(n.location());
       else routes.get(1).add(n.location());
-      return route;
+      return routes;
     }
 
     private void addHint(String message) {

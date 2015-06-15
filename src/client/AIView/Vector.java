@@ -1,15 +1,29 @@
 package client.aiview;
 
 import java.util.*;
+import client.view.AnimatablePanel.Animator;
 
 public class Vector {
 
     private Double x, y, z;
+    private Animator xAnimator = null, yAnimator = null, zAnimator = null;
 
     public Vector(Double x, Double y,Double z) {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+    
+    public void set(Double x, Double y,Double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    
+    public void setAnimators(Animator xAnimator, Animator yAnimator, Animator zAnimator) {
+        this.xAnimator = xAnimator;
+        this.yAnimator = yAnimator;
+        this.zAnimator = zAnimator;
     }
 
     public Vector addVectorToVector(Vector vector) {
@@ -55,14 +69,17 @@ public class Vector {
     }
 
     public Double getX() {
+        if(xAnimator != null) return xAnimator.value();
         return x;
     }
 
     public Double getY() {
+        if(yAnimator != null) return yAnimator.value();
         return y;
     }
 
     public Double getZ() {
+        if(zAnimator != null) return zAnimator.value();
         return z;
     }
 

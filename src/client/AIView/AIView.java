@@ -50,7 +50,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         button = Formatter.button("Whats happening here?");
         button.setActionCommand("switch_views");
         button.addActionListener(this);
-        add(button, gbc);
+        //add(button, gbc);
         
         JLabel title = new JLabel("The AI is thinking", SwingConstants.CENTER);
         title.setFont(Formatter.defaultFontOfSize(30));
@@ -83,6 +83,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
+            
+            transformPoints();
             
             //showHint("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
         } catch (FileNotFoundException e) {
@@ -163,7 +165,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
+    private void buildTree(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
         if (graphNode != null) {
             Double x =  xStart + (width / 2.0);
             Vector node = new Node(x, y, 165.0, graphNode.color());
@@ -172,11 +174,20 @@ public class AIView extends AnimatablePanel implements ActionListener {
             width = width / graphNode.children().size();
             for (int i = 0; i < graphNode.children().size(); i++) {
                 GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 80, id * width.intValue() * i, node);
+                buildTree(graphNodeRep, xStart + (width * i), width, y + 80, id * width.intValue() * i, node);
             }
         }
     }
+    private void transformPoints() {
+        //cancelAllAnimations();
+        Set<Vector> valueSet = new HashSet<Vector>(vectors.values());
+        
+        for (Vector vector : valueSet) {
+            Node n = (Node)vector;
+            vector.setAnimators(createAnimator(n.getX(), 20.0, 4.0), createAnimator(n.getY(), 20.0, 4.0), createAnimator(n.getZ(), 20.0, 4.0));
+        }
 
+    }
     private void selectExploredNodes(GraphNodeRep graphNode) {
         if (graphNode != null) {
             for (GraphNodeRep graphNodeRep : graphNode.children()) {
@@ -220,7 +231,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Node n = (Node)vector;
             Color color = n.getColor();
             if (rotate) {
-                vector = n.rotateYZ(xAnimator.value());
+                vector = n.rotateYZ(xAnimator.value());//?Will need to rectify this situation, this is why animators are not being conserved
                 vector = vector.rotateXZ(yAnimator.value());
             }
             vector = origin.addVectorToVector(vector);
@@ -298,7 +309,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void updateTree() {
         resetTree();
-        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
+        buildTree(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
         selectExploredNodes(graphNodeRep);//////////////////Bad
     }
 

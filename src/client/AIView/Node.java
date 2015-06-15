@@ -6,6 +6,7 @@ public class Node extends Vector {
 
     private Color color;
     private boolean selected;
+    
 
     public Node(Double x, Double y, Double z, Color color) {
         super(x, y, z);

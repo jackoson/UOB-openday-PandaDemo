@@ -1,5 +1,7 @@
 package client.aiview;
 
+import client.view.*;
+
 import java.util.*;
 import java.awt.Color;
 
@@ -7,7 +9,7 @@ public class GraphView {
 
     private Map<Integer, Node> nodes;
     private Set<Node> allNodes;
-    private List<Edges<Node>> edges;
+    private List<Edge<Node>> edges;
     private Map<String, List<Map<String, Double>>> json;
     private Double angle = 0.0;
     private Vector origin = null;
@@ -48,7 +50,7 @@ public class GraphView {
         return allNodes;
     }
 
-    public List<Edges> getEdges() {
+    public List<Edge<Node>> getEdges() {
         return edges;
     }
 
@@ -72,7 +74,7 @@ public class GraphView {
         this.graphNode = graphNode;
     }
 
-    public void selectNodes() {
+    public void selectNodes(GraphNodeRep graphNode) {
         if (graphNode != null) {
             synchronized (graphNode) {
                 for (GraphNodeRep graphNodeRep : graphNode.children()) {
@@ -109,7 +111,7 @@ public class GraphView {
             if (oz == 2) color = new Color(42, 154, 164);
             else if (oz == 3) color = new Color(242, 196, 109);
 
-            addNode(new Node(x, y, z, color));
+            addNode(new Node(x, y, z, color, item.get("node").intValue()));
         }
         List<Map<String, Double>> connections = json.get("edges");
         for (Map<String, Double> edge : connections) {

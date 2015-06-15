@@ -88,7 +88,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     public void mouseDragged(MouseEvent e) {}
 
     public void mouseMoved(MouseEvent e) {
-      Integer closestNode = findClosestNode(e.getPoint());
+      /*Integer closestNode = findClosestNode(e.getPoint());
       //System.err.println("Mouse moved" + closestNode);
       if(closestNode > 0) {
         Node n = getNode(closestNode);
@@ -96,10 +96,10 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
         List<List<Integer>> routes = findRoutes(n, true);
         System.err.println("ROUTE: " + routes);
-      }
+      }*/
     }
 
-    public Integer findClosestNode(Point position) {
+    /*public Integer findClosestNode(Point position) {
       Double minDist = Double.POSITIVE_INFINITY;
       Integer minLoc = -1;
       for (Node node : nodes) {
@@ -114,7 +114,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         }
       }
       return minLoc;
-    }
+    }*/
 
     public List<List<Integer>> findRoutes(Node n, boolean mrX) {
       if (n == null){
@@ -168,7 +168,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         this.remove(hintPanel);
     }
 
-    private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
+    /*private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode != null) {//Need to subtract origin to get proper location.
             synchronized (graphNode) {
                 Double x =  xStart + (width / 2.0);
@@ -188,7 +188,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
                 }
             }
         }
-    }
+    }*/
 
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
@@ -206,14 +206,14 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
             g.setColor(node.getColor());
-            Vector vector = origin.offsetAdd(vector);
+            Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
             Double radius = diameter / 2;
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
         }
     }
 
-    private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin, int alpha) {
+    private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin) {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Vector node1 = origin.offsetAdd(n1);
@@ -261,11 +261,11 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         timer.start();
     }
 
-    public void updateTree() {
+    /*public void updateTree() {
         resetTree();
         buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, null);
         selectExploredNodes(graphNodeRep);
-    }
+    }*/
 
     public void setThreadCom(ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
@@ -277,7 +277,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-            updateTree();
+            //updateTree();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             onTreeView = !onTreeView;
             humanPlaying();
@@ -285,7 +285,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
                 hintState = 1;
             }
             else add(button);
-            firstPrune = true;
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_hint")) {
             if (hintState < 4 && onTreeView) {
                 if (hintState == 1) {

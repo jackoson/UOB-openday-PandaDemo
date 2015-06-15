@@ -38,12 +38,12 @@ public class TimerView extends JPanel implements ActionListener {
         label.setFont(new Font("SansSerif", Font.BOLD, 14));
         panel.add(label);
 
-        JLabel infinity = new JLabel("\u221E");
+        JLabel infinity = new JLabel("\u221E", SwingConstants.CENTER);
         infinity.setForeground(Color.white);
-        infinity.setFont(new Font("SansSerif", Font.BOLD, 18));
+        infinity.setFont(new Font("SansSerif", Font.PLAIN, 26));
 
-        add(panel);
-        add(infinity);
+        add(panel, "LABEL");
+        add(infinity, "INFINITY");
 
         timer = new Timer(1000, this);
         timer.setRepeats(true);
@@ -87,7 +87,7 @@ public class TimerView extends JPanel implements ActionListener {
         timer.start();
         drawInfinity = false;
         CardLayout cl = (CardLayout) this.getLayout();
-        cl.next(this);
+        cl.show(this, "LABEL");
     }
 
     /**
@@ -98,7 +98,7 @@ public class TimerView extends JPanel implements ActionListener {
         drawInfinity = true;
         timer.stop();
         CardLayout cl = (CardLayout) this.getLayout();
-        cl.next(this);
+        cl.show(this, "INFINITY");
     }
 
     /**

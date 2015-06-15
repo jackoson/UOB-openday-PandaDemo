@@ -12,13 +12,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 
 public class AnimatablePanel extends JPanel implements ActionListener {
-  
+
     private static final long serialVersionUID = -3670406422771531891L;
-  
+
     private Timer timer;
     private Double kTimeInterval = 1/50.0;
     private List<Animator> activeAnimators;
-    
+    private List<Animator> pendingAnimators;
+
     //Animatable properties
     private Animator preferredSizeX = null;
     private Animator preferredSizeY = null;
@@ -26,15 +27,16 @@ public class AnimatablePanel extends JPanel implements ActionListener {
     private Animator green = null;
     private Animator blue = null;
     private Animator alpha = null;
-    
+
     /**
      * Constructs a new AnimatablePanel object.
      */
     public AnimatablePanel() {
         timer = new Timer((int)(1000.0*kTimeInterval), this);
         activeAnimators = new CopyOnWriteArrayList<Animator>();
+        pendingAnimators = new CopyOnWriteArrayList<Animator>();
     }
-    
+
     /**
      * Animates a view to a specified size.
      *
@@ -44,7 +46,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
     public void setPreferredSize(Dimension size, Double duration) {
         setPreferredSize(size, duration, AnimationEase.LINEAR);
     }
-    
+
     /**
      * Animates a view to a specified size.
      *
@@ -59,11 +61,11 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         preferredSizeY = new Animator(getPreferredSize().getHeight(), duration, size.getHeight());
         preferredSizeY.setEase(ease);
         activeAnimators.add(preferredSizeY);
-        
+
         if (! timer.isRunning()) timer.start();
         animationBegun();
     }
-    
+
     /**
      * Animates the background Color of a view.
      *
@@ -73,7 +75,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
     public void setBackground(Color color, Double duration) {
         setBackground(color, duration, AnimationEase.LINEAR);
     }
-    
+
     /**
      * Animates the background Color of a view.
      *
@@ -87,12 +89,12 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         Double currentGreen = ((double)currentColor.getGreen())/255;
         Double currentBlue = ((double)currentColor.getBlue())/255;
         Double currentAlpha = ((double)currentColor.getAlpha())/255;
-        
+
         Double red = ((double)color.getRed())/255;
         Double green = ((double)color.getGreen())/255;
         Double blue = ((double)color.getBlue())/255;
         Double alpha = ((double)color.getAlpha())/255;
-        
+
         this.red = new Animator(currentRed, duration, red);
         this.red.setEase(ease);
         activeAnimators.add(this.red);
@@ -105,11 +107,11 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         this.alpha = new Animator(currentAlpha, duration, alpha);
         this.alpha.setEase(ease);
         activeAnimators.add(this.alpha);
-        
+
         if (! timer.isRunning()) timer.start();
         animationBegun();
     }
-    
+
     /**
      * Updates the animation properties.
      *
@@ -127,10 +129,10 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             activeAnimators.remove(a);
             a = null;
         }
-        
+
         if(preferredSizeX != null && preferredSizeY != null) setPreferredSize(new Dimension(preferredSizeX.value().intValue(), preferredSizeY.value().intValue()));
         if(red != null && green != null && blue != null && alpha != null) setBackground(new Color((int)(255*red.value()), (int)(255*green.value()), (int)(255*blue.value()), (int)(255*alpha.value())));
-        
+
         if (finished) {
             timer.stop();
             animationCompleted();
@@ -138,7 +140,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         revalidate();
         repaint();
     }
-    
+
     /**
      * Cancels all current animations.
      */
@@ -146,25 +148,25 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         if (timer != null) timer.stop();
         activeAnimators = new CopyOnWriteArrayList<Animator>();
     }
-    
+
     public void pauseAnimations() {
         if (timer != null) timer.stop();
     }
-    
+
     public void resumeAnimations() {
         if (timer != null && !timer.isRunning()) timer.start();
     }
-    
+
     /**
      * Called when the first animation has started.
      */
     public void animationBegun() {}
-    
+
     /**
      * Called when the last animation has finished.
      */
     public void animationCompleted() {}
-    
+
     /**
      * Returns an Animator object.
      *
@@ -179,27 +181,29 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         animationBegun();
         return animator;
     }
-    
+
     public Animator createDelayedAnimator(Double value, Double target, Double duration) {
         Animator animator = new Animator(value, duration, target);
-        activeAnimators.add(animator);
+        pendingAnimators.add(animator);
         return animator;
     }
-    
+
     public void start() {
+        activeAnimators.addAll(pendingAnimators);
+        pendingAnimators.clear();
         if (!timer.isRunning()) timer.start();
     }
-    
+
     /**
      * An enum containing the different ease types supported.
      */
     public enum AnimationEase {
         LINEAR, EASE_IN, EASE_OUT, EASE_IN_OUT
     }
-    
+
     // A class to iterate values.
     public class Animator {
-      
+
         private AnimationEase ease = AnimationEase.LINEAR;
         private Double time;
         private Double initial;
@@ -207,7 +211,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         private Double duration;
         private boolean increasing = true;
         private boolean loops = false;
-        
+
         /**
          * Constructs a new Animator object.
          *
@@ -220,14 +224,14 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             this.initial = value;
             this.change = target - value;
             this.duration = duration;
-            
+
             if (change < 0) increasing = false;
         }
-        
+
         public void setLoops(boolean loops) {
             this.loops = loops;
         }
-        
+
         /**
          * Steps through the animation.
          */
@@ -243,7 +247,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             }
             return false;
         }
-        
+
         /**
          * Returns the current value at this point in the animation.
          *
@@ -258,7 +262,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             }
             return change * (time / duration) + initial;
         }
-        
+
         /**
          * Sets the ease to be used in the animation.
          *
@@ -267,7 +271,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         public void setEase(AnimationEase ease) {
             this.ease = ease;
         }
-        
+
     }
-    
+
 }

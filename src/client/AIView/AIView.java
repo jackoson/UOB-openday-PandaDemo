@@ -17,23 +17,24 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends AnimatablePanel implements ActionListener {
+public class AIView extends AnimatablePanel implements ActionListener, MouseListener, MouseMotionListener {
 
     private double xRotate, yRotate;
-    private AnimatablePanel.Animator yAnimator, xAnimator;
+    private AnimatablePanel.Animator rotateAnimator;
+    private AnimatablePanel.Animator alphaAnimator = null;
     private Map<Integer, Vector> vectors;
     private List<Edge<Vector>> edges;
     private ThreadCommunicator threadCom;
 
     private Set<Vector> treeVectors;
     private List<Edge<Vector>> treeEdges;
+    private Vector origin;
 
     private boolean onTreeView = false;
-    private boolean showPrune = false;
     private boolean firstPrune = true;
     private GameTree gameTree = null;
     private GraphNodeRep graphNodeRep;
-    
+
     private JPanel hintPanel;
     private JButton button;
     private Integer hintState = 0;
@@ -41,23 +42,27 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public AIView() {
         //Layout
         setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(20, 20, 20, 20);
-        
+
         button = Formatter.button("Whats happening here?");
         button.setActionCommand("switch_views");
         button.addActionListener(this);
         //add(button, gbc);
-        
+
         JLabel title = new JLabel("The AI is thinking", SwingConstants.CENTER);
         title.setFont(Formatter.defaultFontOfSize(30));
         title.setForeground(Color.WHITE);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridy = 0;
         //add(title, gbc);
-        
+
+        addMouseListener(this);
+        addMouseMotionListener(this);
+
         try {
             threadCom = null;
 
@@ -75,23 +80,68 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Map<String, List<Map<String, Double>>> json = gson.fromJson(reader, Map.class);
             parseJSON(json);
 
-            yAnimator = createAnimator(0.0, 360.0, 10.0);
-            yAnimator.setLoops(true);
-            xAnimator = createAnimator(0.0, 360.0, 10.0);
-            xAnimator.setLoops(true);
+            rotateAnimator = createAnimator(0.0, 360.0, 10.0);
+            rotateAnimator.setLoops(true);
 
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
-            
-            transformPoints();
-            
-            //showHint("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nisl felis, accumsan sed sapien eget, faucibus egestas lectus. Cras eu auctor metus, at aliquet augue. Donec semper facilisis porta.");
+
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    public void mousePressed(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {}
+    public void mouseClicked(MouseEvent e) {}
+    public void mouseDragged(MouseEvent e) {}
+
+    public void mouseMoved(MouseEvent e) {
+      Integer closestNode = findClosestNode(e.getPoint());
+      //System.err.println("Mouse moved" + closestNode);
+      if(closestNode > 0) {
+        Node n = (Node)vectors.get(closestNode);
+        n.setSelected(true);
+
+        findRoutes(n);
+      }
+    }
+
+    public Integer findClosestNode(Point position) {
+      Double minDist = Double.POSITIVE_INFINITY;
+      Integer minLoc = -1;
+      for (Map.Entry<Integer, Vector> entry : vectors.entrySet()) {
+        Node n = (Node)entry.getValue();
+        Vector v = n.getPosInAnimation();
+        if (v == null) return -1;
+        v = origin.add(v);
+        Double x = v.getX();
+        Double y = v.getY();
+
+        Double squareDistance = Math.pow(x - position.getX(), 2) + Math.pow(y - position.getY(), 2);
+        if (squareDistance < minDist && squareDistance < 100) {
+          minDist = squareDistance;
+          minLoc = entry.getKey();
+        }
+      }
+      return minLoc;
+    }
+
+    public List<List<Integer>> findRoutes(Node n, boolean mrX) {
+      if (n == null){
+        List<List<Integer>> list = new ArrayList<Integer>();
+        list.add(new ArrayList());
+        list.add(new ArrayList());
+      }
+      List<List<Integer>> routes = findRoutes(n.parent(), !mrX);
+      if(mrX) routes.get(0).add(n.location());
+      else routes.get(1).add(n.location());
+      return route;
     }
 
     private void addHint(String message) {
@@ -101,7 +151,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(4, 10, 10, 0);
-        
+
         hintPanel = new JPanel(new GridBagLayout());
         hintPanel.setPreferredSize(new Dimension(500, 140));
         hintPanel.setOpaque(true);
@@ -121,14 +171,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
         messageLabel.setEditable(false);
         messageLabel.setHighlighter(null);
         hintPanel.add(messageLabel, gbc);
-        
+
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(20, 20, 20, 20);
         add(hintPanel, gbc);
     }
-    
+
     private void removeHint() {
         this.remove(hintPanel);
     }
@@ -137,7 +187,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         List<Map<String, Double>> nodes = json.get("nodes");
         for (Map<String, Double> node : nodes) {
             Double ox = node.get("x");
-            Double oy = node.get("y");
+            Double oy = node.get("y");/******SUBTRACT THE ORIGIN SO THE POINTS AREN'T OFF THE SCREEN******/
             Double oz = node.get("z");
             //Transform the points.
 
@@ -155,7 +205,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (oz == 2) color = new Color(42, 154, 164);
             else if (oz == 3) color = new Color(242, 196, 109);
 
-            vectors.put(node.get("node").intValue(), new Node(x, y, z, color));
+            Node projectedNode = new Node(ox, oy, oz, color);
+            projectedNode.setAnimators(createAnimator(ox, x, 1.0), createAnimator(oy, y, 1.0), createAnimator(oz, z, 1.0));
+
+            vectors.put(node.get("node").intValue(), projectedNode);
         }
         List<Map<String, Double>> connections = json.get("edges");
         for (Map<String, Double> edge : connections) {
@@ -165,23 +218,31 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    private void buildTree(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Vector parent) {
-        if (graphNode != null) {
-            Double x =  xStart + (width / 2.0);
-            Vector node = new Node(x, y, 165.0, graphNode.color());
-            treeVectors.add(node);
-            if (parent != null) treeEdges.add(new Edge<Vector>(node, parent));
-            width = width / graphNode.children().size();
-            for (int i = 0; i < graphNode.children().size(); i++) {
-                GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                buildTree(graphNodeRep, xStart + (width * i), width, y + 80, id * width.intValue() * i, node);
+    private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Integer id, Node parent) {
+        if (graphNode != null) {//Need to subtract origin to get proper location.
+            synchronized (graphNode) {
+                Double x =  xStart + (width / 2.0);
+                Vector vector = vectors.get(graphNode.location());
+                Node node = new Node(vector.getX(), vector.getY(), vector.getZ(), graphNode.color(), true);
+                node.setLocation(graphNode.location());
+                node.setAnimators(createDelayedAnimator(vector.getX(), x, 1.0), createDelayedAnimator(vector.getY(), y, 1.0), createDelayedAnimator(vector.getZ(), 165.0, 1.0));
+                treeVectors.add(node);
+                if (parent != null) {
+                  treeEdges.add(new Edge<Vector>(node, parent));
+                  node.setParent(parent);
+                }
+                width = width / graphNode.children().size();
+                for (int i = 0; i < graphNode.children().size(); i++) {
+                    GraphNodeRep graphNodeRep = graphNode.children().get(i);
+                    buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 80, id * width.intValue() * i, node);
+                }
             }
         }
     }
     private void transformPoints() {
         //cancelAllAnimations();
         Set<Vector> valueSet = new HashSet<Vector>(vectors.values());
-        
+
         for (Vector vector : valueSet) {
             Node n = (Node)vector;
             vector.setAnimators(createAnimator(n.getX(), 20.0, 4.0), createAnimator(n.getY(), 20.0, 4.0), createAnimator(n.getZ(), 20.0, 4.0));
@@ -190,10 +251,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
     private void selectExploredNodes(GraphNodeRep graphNode) {
         if (graphNode != null) {
-            for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                Node n = (Node)(vectors.get(graphNodeRep.location()));
-                n.setSelected(true);
-                selectExploredNodes(graphNodeRep);
+            synchronized (graphNode) {
+                for (GraphNodeRep graphNodeRep : graphNode.children()) {
+                    Node n = (Node)(vectors.get(graphNodeRep.location()));
+                    n.setSelected(true);
+                    selectExploredNodes(graphNodeRep);
+                }
             }
         }
     }
@@ -205,9 +268,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
         Dimension size = getSize();
-        Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
+        origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
 
-        if(onTreeView) {
+        if (onTreeView) {
             drawEdges(g, treeEdges, origin, false);
             drawVectors(g, treeVectors, origin, false);
         } else {
@@ -229,12 +292,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
         });
         for (Vector vector : vectors) {
             Node n = (Node)vector;
+            if (n.getPosInAnimation() != null) n = n.getPosInAnimation();
             Color color = n.getColor();
             if (rotate) {
-                vector = n.rotateYZ(xAnimator.value());//?Will need to rectify this situation, this is why animators are not being conserved
-                vector = vector.rotateXZ(yAnimator.value());
+                vector = n.rotateYZ(rotateAnimator.value());
+                vector = vector.rotateXZ(rotateAnimator.value());
             }
-            vector = origin.addVectorToVector(vector);
+            vector = origin.add(vector);
             Node nn = new Node(vector.getX(), vector.getY(), vector.getZ(), color, n.isSelected());
             sortedVectors.add(nn);
         }
@@ -250,17 +314,19 @@ public class AIView extends AnimatablePanel implements ActionListener {
         g.setColor(Color.white);
         for (Edge<Vector> edge : edges) {
             Vector node1 = edge.getNode1();
+            if (((Node) node1).getPosInAnimation() != null) node1 = ((Node) node1).getPosInAnimation();
             if (rotate) {
-                node1 = node1.rotateYZ(xAnimator.value());
-                node1 = node1.rotateXZ(yAnimator.value());
+                node1 = node1.rotateYZ(rotateAnimator.value());
+                node1 = node1.rotateXZ(rotateAnimator.value());
               }
-            node1 = origin.addVectorToVector(node1);
+            node1 = origin.add(node1);
             Vector node2 = edge.getNode2();
+            if (((Node) node2).getPosInAnimation() != null) node2 = ((Node) node2).getPosInAnimation();
             if (rotate) {
-                node2 = node2.rotateYZ(xAnimator.value());
-                node2 = node2.rotateXZ(yAnimator.value());
+                node2 = node2.rotateYZ(rotateAnimator.value());
+                node2 = node2.rotateXZ(rotateAnimator.value());
             }
-            node2 = origin.addVectorToVector(node2);
+            node2 = origin.add(node2);
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
     }
@@ -273,7 +339,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         timer.setRepeats(false);
         timer.start();
     }
-    
+
     public void setGameTree(GameTree gameTree) {
         this.gameTree = gameTree;
     }
@@ -284,17 +350,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
             System.err.println("R:" + gameTree.randomNode());
             gameTree.pause();
             addHint(text);
-            
+
             Timer timer = new Timer(5000, this);
             timer.setActionCommand("hide_hint");
             timer.setRepeats(false);
             timer.start();
         }
     }
-    
+
     public void hideHint() {
         if (gameTree == null) return;
-        showPrune = false;
         gameTree.resume();
         removeHint();
         Timer timer = new Timer(350, this);
@@ -309,13 +374,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void updateTree() {
         resetTree();
-        buildTree(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
-        selectExploredNodes(graphNodeRep);//////////////////Bad
+        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, 0, null);
+        selectExploredNodes(graphNodeRep);
     }
 
     private void resetTree() {
-        treeVectors = new HashSet<Vector>();
-        treeEdges = new ArrayList<Edge<Vector>>();
+        treeVectors.clear();
+        treeEdges.clear();
         for (Map.Entry<Integer, Vector> v : vectors.entrySet()) {
             Node n = (Node)(v.getValue());
             n.setSelected(false);
@@ -326,11 +391,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
         this.threadCom = threadCom;
     }
 
+    public void humanPlaying() {
+        if (onTreeView) threadCom.putEvent("timer_fired", true);
+    }
+
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-          updateTree();
+            updateTree();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             onTreeView = !onTreeView;
+            humanPlaying();
             if (onTreeView) {
                 remove(button);
                 hintState = 1;
@@ -346,12 +416,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 } else if (hintState == 3) {
                     showHint("Hint number three.");
                 }
-                hintState ++;
+                hintState++;
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("hide_hint")) {
             hideHint();
         }else {
-          super.actionPerformed(e);
+            super.actionPerformed(e);
         }
     }
 

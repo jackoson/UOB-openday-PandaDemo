@@ -26,14 +26,14 @@ public class Vector {
         this.zAnimator = zAnimator;
     }
 
-    public Vector addVectorToVector(Vector vector) {
+    public Vector add(Vector vector) {
         Double x = this.x + vector.getX();
         Double y = this.y + vector.getY();
         Double z = this.z + vector.getZ();
         return new Vector(x, y, z);
     }
 
-    public Vector subtractVectorFromVector(Vector vector) {
+    public Vector subtract(Vector vector) {
         Double x = this.x - vector.getX();
         Double y = this.y - vector.getY();
         Double z = this.z - vector.getZ();

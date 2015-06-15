@@ -87,7 +87,9 @@ public class GameTree implements Runnable {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
                 GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                graphNode.addChild(newGraphNode);
+                synchronized (graphNode) {
+                    graphNode.addChild(newGraphNode);
+                }
                 Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 if (result > v) {
                     v = result;
@@ -103,7 +105,9 @@ public class GameTree implements Runnable {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
                 GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                graphNode.addChild(newGraphNode);
+                synchronized (graphNode) {
+                    graphNode.addChild(newGraphNode);
+                }
                 Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
                 if (result < v) {
                     v = result;
@@ -128,7 +132,7 @@ public class GameTree implements Runnable {
             }
         }
     }
-    
+
     public Integer randomNode() {
         if (root == null) return -1;
         TreeNode n = root;

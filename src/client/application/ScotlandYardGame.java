@@ -294,11 +294,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             }
         }
         if (saveGame != null) saveGame.addMove(move);
-        /*GameTree.GameTreeHelper helper = GameTree.getGameTreeHelper();
-        if (helper != null) {
-            helper.setMove(move);
-            new Thread(helper).start();
-        }*/
         return move;
     }
 
@@ -367,6 +362,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         threadCom.putUpdate("valid_moves", moves);
         threadCom.putUpdate("zoom_in", location);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
+        threadCom.putUpdate("ai_human_playing", true);
     }
 
     // Updates the UI at the end of a turn.

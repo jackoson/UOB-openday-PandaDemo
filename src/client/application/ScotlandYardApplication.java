@@ -48,14 +48,14 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     }
 
     public ScotlandYardApplication() {
-        this.aiView = new AIView();
+        this.fileAccess = new FileAccess();
+        this.aiView = new AIView(fileAccess);
     }
 
     /**
      * Starts the window and adds the SetUpView.
      */
     public void go() {
-        fileAccess = new FileAccess();
         JFrame window = new JFrame();
         window.setMinimumSize(new Dimension(1200, 800));
         window.setPreferredSize(new Dimension(1200, 800));
@@ -276,13 +276,13 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             gameView.stopTimer();
         } else if (id.equals("show_route")) {
             @SuppressWarnings("unchecked")
-            List<Integer> list = (List<Integer>) object;
-            for (Integer item : list);
+            List<RouteHint> list = (List<RouteHint>) object;
+            for (RouteHint item : list);
             gameView.setRouteHint(list);
         } else if (id.equals("select_ticket")) {
             @SuppressWarnings("unchecked")
-            List<Integer> list = (List<Integer>) object;
-            for (Integer item : list);
+            List<RouteHint> list = (List<RouteHint>) object;
+            for (RouteHint item : list);
             gameView.setRouteHint(list);
         } else if (id.equals("end_game")) {
             endGame();

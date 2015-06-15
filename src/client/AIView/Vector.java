@@ -33,11 +33,13 @@ public class Vector {
 
     public void rotate(double degrees) {
         Double angle = Math.toRadians(degrees);
-        x = (Math.cos(angle) * y) - (Math.sin(angle) * z);
-        y = (Math.sin(angle) * y) + (Math.cos(angle) * z);
+        Double yy = (Math.cos(angle) * y) - (Math.sin(angle) * z);
+        z = (Math.sin(angle) * y) + (Math.cos(angle) * z);
+        y=yy;
 
-        y = (Math.sin(angle) * z) + (Math.cos(angle) * x);
-        x = (Math.cos(angle) * x) - (Math.sin(angle) * z);
+        Double zz = (Math.cos(angle) * z) - (Math.sin(angle) * x);
+        x = (Math.cos(angle) * x) + (Math.sin(angle) * z);
+        z = zz;
     }
 
     public Vector scale(double s0, double s1, double s2) {

@@ -4,6 +4,7 @@ import client.view.*;
 import client.view.Formatter;
 import client.application.*;
 import player.GameTree;
+import scotlandyard.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -21,7 +22,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     private AnimatablePanel.Animator rotateAnimator;
     private ThreadCommunicator threadCom;
-    private GraphView graphView;
+    private GraphHandler graphHandler;
 
     private boolean onTreeView = false;
     private GameTree gameTree = null;
@@ -30,25 +31,25 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     private JButton button;
     private Integer hintState = 0;
 
-    public AIView() {
-        //Layout
-        setLayout(new CardLayout());
-        add(new TutorialView());
-
-        addMouseListener(this);
-        addMouseMotionListener(this);
-
+    public AIView(FileAccess fileAccess) {
         try {
             threadCom = null;
             setBackground(new Color(131, 226, 197));
             setPreferredSize(new Dimension(400, 800));
+
+            setLayout(new CardLayout());
+            //add(new TutorialView());
+
+            RatingView rv = new RatingView(fileAccess);
+            add(rv);
+            rv.update(true, MovePass.instance(Colour.Black), "Too cool for school.");
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
             Gson gson = new Gson();
             Map<String, List<Map<String, Double>>> json = gson.fromJson(reader, Map.class);
 
-            graphView = new GraphView(json);
+            graphHandler = new GraphHandler(json);
 
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
@@ -56,6 +57,9 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             Timer time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
+
+            addMouseListener(this);
+            addMouseMotionListener(this);
 
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
@@ -113,43 +117,25 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
       return routes;
     }
 
-    /*private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
-        if (graphNode != null) {//Need to subtract origin to get proper location.
-            synchronized (graphNode) {
-                Double x =  xStart + (width / 2.0);
-                Node vector = getNode(graphNode.location());
-                Node node = new Node(vector.getX(), vector.getY(), vector.getZ(), graphNode.color(), graphNode.location());
-                node.setAnimators(createDelayedAnimator(vector.getX(), x, 1.0), createDelayedAnimator(vector.getY(), y, 1.0), createDelayedAnimator(vector.getZ(), 165.0, 1.0));
-                node.setTree(true);
-                nodes.add(node);
-                if (parent != null) {
-                  edges.add(new Edge<Node>(node, parent));
-                  node.setParent(parent);
-                }
-                width = width / graphNode.children().size();
-                for (int i = 0; i < graphNode.children().size(); i++) {
-                    GraphNodeRep graphNodeRep = graphNode.children().get(i);
-                    buildGraphNodes(graphNodeRep, xStart + (width * i), width, y + 80, node);
-                }
-            }
-        }
-    }*/
-
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
-        Dimension size = getSize();
-        graphView.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0));
+        graphHandler.rotateNodes(rotateAnimator.value());
 
-        drawEdges(g, graphView.getEdges(), graphView.getOrigin());
-        drawVectors(g, graphView.getNodes(), graphView.getOrigin());
+        Dimension size = getSize();
+        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0));
+
+        drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
+        drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
     }
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
+            //if (onTreeView && !node.isTree()) continue;
+            //if (!onTreeView && node.isTree()) continue;//?
             g.setColor(node.getColor());
             Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
@@ -161,8 +147,9 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin) {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
-            Vector node1 = origin.offsetAdd(n1);
             Node n2 = edge.getNode2();
+            //?if (!edge.inTree() && onTreeView) continue;
+            Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
             g.setColor(new Color(255, 255, 255, Math.min(n1.getColor().getAlpha(), n2.getColor().getAlpha())));
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
@@ -170,7 +157,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     }
 
     public void setRep(GraphNodeRep graphNode) {
-        graphView.setGraphNode(graphNode);
+        graphHandler.setGraphNode(graphNode);
         //Start timer for hints
         Timer timer = new Timer(650, this);
         timer.setActionCommand("show_hint");
@@ -182,12 +169,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         this.gameTree = gameTree;
     }
 
-    /*public void updateTree() {
-        resetTree();
-        buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, null);
-        selectExploredNodes(graphNodeRep);
-    }*/
-
     public void setThreadCom(ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
     }
@@ -198,14 +179,18 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-            //updateTree();
+            graphHandler.updateTree();
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
-            onTreeView = !onTreeView;
             humanPlaying();
             if (onTreeView) {
                 hintState = 1;
+                graphHandler.returnFromTree(this);
+                onTreeView = false;
+            } else {
+                onTreeView = true;
+                graphHandler.showTree(this);
+                //add(button);
             }
-            //else add(button);
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_hint")) {
             if (hintState < 4 && onTreeView) {
                 if (hintState == 1) {
@@ -221,6 +206,17 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
           //  hideHint();
         } else {
             super.actionPerformed(e);
+        }
+    }
+
+    @Override
+    public void animationCompleted() {
+        if (!onTreeView) {
+            graphHandler.cleanTree();
+            Double rotateValue = rotateAnimator.value();
+            removeAnimator(rotateAnimator);
+            rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0);
+            rotateAnimator.setLoops(true);
         }
     }
 

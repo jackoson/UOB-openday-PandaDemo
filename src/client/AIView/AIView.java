@@ -20,16 +20,11 @@ import com.google.gson.stream.*;
 public class AIView extends AnimatablePanel implements ActionListener, MouseListener, MouseMotionListener {
 
     private AnimatablePanel.Animator rotateAnimator;
-    private AnimatablePanel.Animator alphaAnimator = null;
-    private Set<Node> nodes;
-    private List<Edge<Node>> edges;
     private ThreadCommunicator threadCom;
-    private Vector origin;
+    private GraphView graphView;
 
     private boolean onTreeView = false;
-    private boolean firstPrune = true;
     private GameTree gameTree = null;
-    private GraphNodeRep graphNodeRep;
 
     private JPanel hintPanel;
     private JButton button;
@@ -63,20 +58,13 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             threadCom = null;
             setBackground(new Color(131, 226, 197));
             setPreferredSize(new Dimension(400, 800));
-            nodes = new TreeSet<Node>(new Comparator<Node>() {
-                public int compare(Node o1, Node o2) {
-                    Double o1z = o1.getZ();
-                    Double o2z = o2.getZ();
-                    if (o1z < o2z) return 1;
-                    else return -1;
-                }
-            });
-            edges = new ArrayList<Edge<Node>>();
+
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
             Gson gson = new Gson();
             Map<String, List<Map<String, Double>>> json = gson.fromJson(reader, Map.class);
-            parseJSON(json);
+
+            graphView = new GraphView(json);
 
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
@@ -178,47 +166,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         this.remove(hintPanel);
     }
 
-    private void parseJSON(Map<String, List<Map<String, Double>>> json) {
-        List<Map<String, Double>> nodes = json.get("nodes");
-        for (Map<String, Double> node : nodes) {
-            Double ox = node.get("x");
-            Double oy = node.get("y");/******SUBTRACT THE ORIGIN SO THE POINTS AREN'T OFF THE SCREEN******/
-            Double oz = node.get("z");
-            //Transform the points.
-
-            Double y = 2.0 * (oy / 2000) - 1.0;
-            Double phi = 2.0 * Math.PI * (ox / 2570);
-            Double theta = Math.asin(y);
-
-            Double radius = 60 + (oz * 40);
-
-            Double x = Math.cos(theta) * Math.cos(phi) * radius;
-            Double z = Math.cos(theta) * Math.sin(phi) * radius;
-            y = y * radius;
-
-            Color color = new Color(255, 113, 113);
-            if (oz == 2) color = new Color(42, 154, 164);
-            else if (oz == 3) color = new Color(242, 196, 109);
-
-            Node projectedNode = new Node(ox, oy, oz, color, node.get("node").intValue());
-            projectedNode.setAnimators(createAnimator(ox, x, 1.0), createAnimator(oy, y, 1.0), createAnimator(oz, z, 1.0));
-            this.nodes.add(projectedNode);
-        }
-        List<Map<String, Double>> connections = json.get("edges");
-        for (Map<String, Double> edge : connections) {
-            Node node1 = getNode(edge.get("n1").intValue());
-            Node node2 = getNode(edge.get("n2").intValue());
-            edges.add(new Edge<Node>(node1, node2));
-        }
-    }
-
-    private Node getNode(int location) {
-        for (Node node : nodes) {
-            if (node.location() == location) return node;
-        }
-        return null;
-    }
-
     private void buildGraphNodes(GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode != null) {//Need to subtract origin to get proper location.
             synchronized (graphNode) {
@@ -241,18 +188,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         }
     }
 
-    private void selectExploredNodes(GraphNodeRep graphNode) {
-        if (graphNode != null) {
-            synchronized (graphNode) {
-                for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                    Node n = getNode(graphNodeRep.location());
-                    n.setSelected(true);
-                    selectExploredNodes(graphNodeRep);
-                }
-            }
-        }
-    }
-
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -260,26 +195,16 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
         Dimension size = getSize();
-        Vector origin = new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0);
+        graphView.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0));
 
-        Double alpha = 255.0;
-        if (alphaAnimator != null) alpha = alphaAnimator.value();
-
-        drawEdges(g, edges, origin, alpha.intValue());
-        drawVectors(g, nodes, origin, alpha.intValue());
+        drawEdges(g, graphView.getEdges(), graphView.getOrigin());
+        drawVectors(g, graphView.getNodes(), graphView.getOrigin());
     }
 
-    private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin, int alpha) {
+    private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
-            Color color = node.getColor();
-            Vector vector = node.rotateYZ(rotateAnimator.value());
-            vector = vector.rotateXZ(rotateAnimator.value());
-            vector = origin.add(vector);
-            if (node.isTree()) {
-              g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 255 - alpha));
-            } else {
-              g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
-            }
+            g.setColor(node.getColor());
+            Vector vector = origin.offsetAdd(vector);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
             Double radius = diameter / 2;
             g.fillOval((int)(vector.getX() - radius), (int)(vector.getY() - radius), diameter.intValue(), diameter.intValue());
@@ -289,26 +214,16 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
     private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin, int alpha) {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
-            Vector node1 = n1.rotateYZ(rotateAnimator.value());
-            node1 = node1.rotateXZ(rotateAnimator.value());
-            node1 = origin.add(node1);
-
+            Vector node1 = origin.offsetAdd(n1);
             Node n2 = edge.getNode2();
-            Vector node2 = n2.rotateYZ(rotateAnimator.value());
-            node2 = node2.rotateXZ(rotateAnimator.value());
-            node2 = origin.add(node2);
-
-            if (n1.isTree() || n2.isTree()) {
-              g.setColor(new Color(255, 255, 255, 255 - alpha));
-            } else {
-              g.setColor(new Color(255, 255, 255, alpha));
-            }
+            Vector node2 = origin.offsetAdd(n2);
+            g.setColor(new Color(255, 255, 255, Math.min(n1.getColor().getAlpha(), n2.getColor().getAlpha())));
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
     }
 
     public void setRep(GraphNodeRep graphNode) {
-        graphNodeRep = graphNode;
+        graphView.setGraphNode(graphNode);
         //Start timer for hints
         Timer timer = new Timer(650, this);
         timer.setActionCommand("show_hint");
@@ -344,23 +259,10 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         timer.start();
     }
 
-    public void resetFirstPrune() {
-        firstPrune = true;
-    }
-
     public void updateTree() {
         resetTree();
         buildGraphNodes(graphNodeRep, -300.0, 600.0, -180.0, null);
         selectExploredNodes(graphNodeRep);
-    }
-
-    private void resetTree() {
-        Set<Node> treeVectors = new HashSet<Node>();
-        for (Node node : nodes) {
-            node.setSelected(false);
-            if (node.isTree()) treeVectors.add(node);
-        }
-        nodes.removeAll(treeVectors);
     }
 
     public void setThreadCom(ThreadCommunicator threadCom) {

@@ -1,12 +1,19 @@
 package client.aiview;
 
 import java.util.*;
+import client.view.AnimatablePanel.Animator;
 
 public class Vector {
 
     private Double x, y, z;
 
     public Vector(Double x, Double y,Double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public void set(Double x, Double y,Double z) {
         this.x = x;
         this.y = y;
         this.z = z;

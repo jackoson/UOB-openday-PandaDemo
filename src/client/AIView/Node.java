@@ -7,21 +7,24 @@ import java.awt.*;
 public class Node extends Vector {
 
     private Color color;
+    private Double alpha;
+    private Integer location;
+    private Node parent;
     private boolean selected;
     private boolean tree;
-    private Node parent;
-    private Integer location;
 
     private AnimatablePanel.Animator xAnimator = null;
     private AnimatablePanel.Animator yAnimator = null;
     private AnimatablePanel.Animator zAnimator = null;
+    private AnimatablePanel.Animator alphaAnimator = null;
 
     public Node(Double x, Double y, Double z, Color color, int location) {
         super(x, y, z);
         this.color = color;
+        this.location = location;
+        this.parent = null;
         this.selected = false;
         this.tree = false;
-        this.location = location;
     }
 
     public void setSelected(boolean selected) {
@@ -41,8 +44,10 @@ public class Node extends Vector {
     }
 
     public Color getColor() {
-        if (selected) return this.color;
-        else return Color.WHITE;
+        Double alpha = this.alpha;
+        if(alphaAnimator != null) alpha = alphaAnimator.value();
+        if (selected) return new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(alpha * 255));
+        else return new Color(255, 255, 255, (int)(alpha * 255));
     }
 
     public void setParent(Node p) {
@@ -61,13 +66,32 @@ public class Node extends Vector {
       return location;
     }
 
-    public void setAnimators(AnimatablePanel.Animator xAnimator, AnimatablePanel.Animator yAnimator, AnimatablePanel.Animator zAnimator) {
+    public void setAnimators(AnimatablePanel.Animator xAnimator, AnimatablePanel.Animator yAnimator, AnimatablePanel.Animator zAnimator, AnimatablePanel.Animator alphaAnimator) {
         this.xAnimator = xAnimator;
-        this.xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        if (this.xAnimator != null) this.xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         this.yAnimator = yAnimator;
-        this.yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        if (this.xAnimator != null) this.yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         this.zAnimator = zAnimator;
-        this.zAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        if (this.xAnimator != null) this.zAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        this.alphaAnimator = alphaAnimator;
+    }
+
+    public void reverseAnimation(Double duration, AnimatablePanel panel) {
+        if(this.xAnimator != null) {
+            xAnimator = panel.createAnimator(getX(), super.getX(), duration);
+            this.xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        }
+        if(this.yAnimator != null) {
+            yAnimator = panel.createAnimator(getY(), super.getY(), duration);
+            this.yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        }
+        if(this.zAnimator != null) {
+            zAnimator = panel.createAnimator(getZ(), super.getZ(), duration);
+            this.zAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
+        }
+        if(this.alphaAnimator != null) {
+            alphaAnimator = panel.createAnimator(alphaAnimator.value(), alpha, duration);
+        }
     }
 
     @Override

@@ -6,81 +6,71 @@ import client.view.AnimatablePanel.Animator;
 public class Vector {
 
     private Double x, y, z;
-    private Animator xAnimator = null, yAnimator = null, zAnimator = null;
 
     public Vector(Double x, Double y,Double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
-    
+
     public void set(Double x, Double y,Double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
-    
-    public void setAnimators(Animator xAnimator, Animator yAnimator, Animator zAnimator) {
-        this.xAnimator = xAnimator;
-        this.yAnimator = yAnimator;
-        this.zAnimator = zAnimator;
-    }
 
     public Vector add(Vector vector) {
-        Double x = this.x + vector.getX();
-        Double y = this.y + vector.getY();
-        Double z = this.z + vector.getZ();
+        Double x = this.getX() + vector.getX();
+        Double y = this.getY() + vector.getY();
+        Double z = this.getZ() + vector.getZ();
         return new Vector(x, y, z);
     }
 
     public Vector subtract(Vector vector) {
-        Double x = this.x - vector.getX();
-        Double y = this.y - vector.getY();
-        Double z = this.z - vector.getZ();
+        Double x = this.getX() - vector.getX();
+        Double y = this.getY() - vector.getY();
+        Double z = this.getZ() - vector.getZ();
         return new Vector(x, y, z);
     }
 
     public Vector rotateXY(double degrees) {
         Double angle = Math.toRadians(degrees);
-        Double x = (Math.cos(angle) * this.x) - (Math.sin(angle) * this.y);
-        Double y = (Math.sin(angle) * this.x) + (Math.cos(angle) * this.y);
+        Double x = (Math.cos(angle) * this.getX()) - (Math.sin(angle) * this.getY());
+        Double y = (Math.sin(angle) * this.getX()) + (Math.cos(angle) * this.getY());
         return new Vector(x, y, z);
     }
 
     public Vector rotateYZ(double degrees) {
         Double angle = Math.toRadians(degrees);
-        Double y = (Math.cos(angle) * this.y) - (Math.sin(angle) * this.z);
-        Double z = (Math.sin(angle) * this.y) + (Math.cos(angle) * this.z);
+        Double y = (Math.cos(angle) * this.getY()) - (Math.sin(angle) * this.getZ());
+        Double z = (Math.sin(angle) * this.getY()) + (Math.cos(angle) * this.getZ());
         return new Vector(x, y, z);
     }
 
     public Vector rotateXZ(double degrees) {
         Double angle = Math.toRadians(degrees);
-        Double x = (Math.cos(angle) * this.x) + (Math.sin(angle) * this.z);
-        Double z = (Math.cos(angle) * this.z) - (Math.sin(angle) * this.x);
+        Double x = (Math.cos(angle) * this.getX()) + (Math.sin(angle) * this.getZ());
+        Double z = (Math.cos(angle) * this.getZ()) - (Math.sin(angle) * this.getX());
         return new Vector(x, y, z);
     }
 
     public Vector scale(double s0, double s1, double s2) {
-        Double x = this.x * s0;
-        Double y = this.y * s1;
-        Double z = this.z * s1;
+        Double x = this.getX() * s0;
+        Double y = this.getY() * s1;
+        Double z = this.getZ() * s1;
         return new Vector(x, y, z);
     }
 
     public Double getX() {
-        if(xAnimator != null) return xAnimator.value();
-        return x;
+        return this.x;
     }
 
     public Double getY() {
-        if(yAnimator != null) return yAnimator.value();
-        return y;
+        return this.y;
     }
 
     public Double getZ() {
-        if(zAnimator != null) return zAnimator.value();
-        return z;
+        return this.z;
     }
 
     public String stringValue() {

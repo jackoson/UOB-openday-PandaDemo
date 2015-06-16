@@ -270,9 +270,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             } else {
                 replaying = false;
             }
-            String eventId = (String) threadCom.takeEvent();
-            Object eventObject = threadCom.takeEvent();
-            decodeEvents(eventId, eventObject);
+            ThreadCommunicator.Packet packet = threadCom.takeEvent();
+            decodeEvents(packet.getId(), packet.getObject());
 
             if (pda.isAccepted()) {
                 move = pda.createMove(model.getCurrentPlayer());

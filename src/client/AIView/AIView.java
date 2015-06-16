@@ -90,10 +90,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
         int loc = 0;
         int size = Math.min(treeNode.getChildren().size(), no);
         for (int i = 0; i < size; i++) {
-            if (treeNode.getChildren().get(i).getTrueLocation() == loc) {
-                loc = treeNode.getChildren().get(i).getTrueLocation();
-                continue;
-            }
+            if (treeNode.getChildren().get(i).getTrueLocation() == loc) continue;
+            loc = treeNode.getChildren().get(i).getTrueLocation();
             allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location, no - 2));
         }
 
@@ -165,6 +163,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
                     threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
+                    humanPlaying();
                 } else {
                     graphHandler.updateNodes();
                 }

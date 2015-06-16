@@ -107,10 +107,12 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
                 @SuppressWarnings("unchecked")
                 List<Integer> route = (List<Integer>) listView.highlightedRoute();
                 for (Integer i : route);
-                setRouteHint(route);
+                List<RouteHint> list = new ArrayList<RouteHint>();
+                list.add(new RouteHint(route, Color.BLACK));
+                setRouteHint(list);
             } else if (e.getActionCommand().equals("list_cell_unhighlighted")) {
                 // Player has moved their cursor out of a suggested route.
-                List<Integer> route = new ArrayList<Integer>();
+                List<RouteHint> route = new ArrayList<RouteHint>();
                 setRouteHint(route);
             }
         }
@@ -301,7 +303,7 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
      *
      * @param route the route to be added
      */
-    public void setRouteHint(List<Integer> route) {
+    public void setRouteHint(List<RouteHint> route) {
         board.setRouteHint(route);
     }
 

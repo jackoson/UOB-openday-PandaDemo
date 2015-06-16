@@ -33,7 +33,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     private Dimension mapSize;
     private double scaleFactor = 1.0;
     private FileAccess fileAccess;
-    private List<Integer> routeHint = new ArrayList<Integer>();
+    private List<RouteHint> routeHints = new ArrayList<RouteHint>();
     private Integer selectedNode = 0;
     private List<CounterAnimator> animators;
     private BoardAnimator boardAnimator = null;
@@ -92,7 +92,9 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
 
         drawCounters(g, locations);
 
-        if (routeHint.size() > 0) drawRoute(g, routeHint, Color.BLACK);
+        for (RouteHint routeHint : routeHints) {
+            if (routeHint.getRoute().size() > 0) drawRoute(g, routeHint.getRoute(), routeHint.getColor());
+        }
         if (selectedNode > 0) drawSelectedNode(g, selectedNode);
 
         if (cursorImage != null) g.drawImage(cursorImage, null, cursorPos.x + 10, cursorPos.y + 10);
@@ -398,8 +400,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      *
      * @param route the List of nodes in the route to be displayed.
      */
-    public void setRouteHint(List<Integer> route) {
-        routeHint = route;
+    public void setRouteHint(List<RouteHint> routes) {
+        routeHints = routes;
         repaint();
     }
 

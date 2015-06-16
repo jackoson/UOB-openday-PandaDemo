@@ -230,7 +230,11 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void run() {
         while (true) {
             try {
-                String updateId = (String) threadCom.takeUpdate();
+                Object id = threadCom.takeUpdate();
+                if (!(id instanceof String)) {
+                    System.err.println(ID: + id);
+                }
+                String updateId = (String) id;
                 Object updateObject = threadCom.takeUpdate();
                 decodeUpdate(updateId, updateObject);
             } catch (Exception e) {

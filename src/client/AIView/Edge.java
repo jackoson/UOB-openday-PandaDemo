@@ -1,10 +1,14 @@
 package client.aiview;
 
+import client.view.AnimatablePanel;
+
 public class Edge<X> {
 
     private X node1;
     private X node2;
     private boolean inTree;
+    private Double alpha;
+    private AnimatablePanel.Animator alphaAnimator;
 
     public Edge(X node1, X node2) {
         this.node1 = node1;
@@ -26,6 +30,22 @@ public class Edge<X> {
 
     public boolean inTree() {
         return inTree;
+    }
+
+    public setAnimator(AnimatablePanel.Animator alphaAnimator) {
+        this.alphaAnimator = alphaAnimator;
+    }
+
+    public void reverseAnimation(Double duration, AnimatablePanel panel) {
+        if(this.alphaAnimator != null) {
+            alphaAnimator = panel.createAnimator(alphaAnimator.value(), alpha, duration);
+        }
+    }
+
+    public Double getAlpha() {
+        Double alpha = this.alpha;
+        if (alphaAnimator != null) alpha = alphaAnimator.value();
+        return alpha;
     }
 
 }

@@ -184,7 +184,6 @@ public class GraphHandler {
     private void rebuildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode == null) return;
         synchronized (graphNode) {
-            //System.err.println("REP: "+ y);
             Double x =  xStart + (width / 2.0);
             Node node = getNode(graphNode.location());
             if (node == null) {
@@ -199,8 +198,6 @@ public class GraphHandler {
             node.forwardAnimators(1.0);
             node.setTree(true);
             if (parent != null)  {
-                //?Issue when both nodes in tree and have edge in 3d view
-                //?Also need to fade out edges when returning (and maybe in)
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
                 addEdge(e);

@@ -78,8 +78,28 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.addComponentListener(gameView);
         container.add(gameView);
         JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints(0, 0, 2, 1, 0.5, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
-        GridBagConstraints aiconstraints = new GridBagConstraints(3, 0, 1, 1, 0.5, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints constraints = new GridBagConstraints(0,
+                                                                0,
+                                                                2,
+                                                                1,
+                                                                0.5,
+                                                                1.0,
+                                                                GridBagConstraints.CENTER,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(0, 0, 0, 0),
+                                                                0,
+                                                                0);
+        GridBagConstraints aiconstraints = new GridBagConstraints(3,
+                                                                  0,
+                                                                  1,
+                                                                  1,
+                                                                  0.5,
+                                                                  1.0,
+                                                                  GridBagConstraints.CENTER,
+                                                                  GridBagConstraints.BOTH,
+                                                                  new Insets(0, 0, 0, 0),
+                                                                  0,
+                                                                  0);
         panel.add(container, constraints);
         panel.add(aiView, aiconstraints);
         window.add(panel);
@@ -212,11 +232,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         threadCom.clearEvents();
         threadCom.clearUpdates();
         if (demo) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                System.err.println("Waiting to start a new game interrupted.");
-            }
             threadCom = new ThreadCommunicator();
             demo = true;
             beginGame(kDemoTime);

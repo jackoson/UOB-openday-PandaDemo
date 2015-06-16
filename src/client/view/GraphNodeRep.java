@@ -1,26 +1,26 @@
 package client.view;
 
 import java.awt.*;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
+import java.util.ArrayList;
 
 public class GraphNodeRep {
 
     private Color color;
     private Integer location;
-    private Set<GraphNodeRep> children;
+    private List<GraphNodeRep> children;
 
     public GraphNodeRep(Color color, Integer location) {
         this.color = color;
         this.location = location;
-        this.children = new TreeSet<GraphNodeRep>();
+        this.children = new ArrayList<GraphNodeRep>();
     }
 
     public void addChild(GraphNodeRep child) {
         if (children.size() < 5) children.add(child);
     }
 
-    public Set<GraphNodeRep> children() {
+    public List<GraphNodeRep> children() {
         return children;
     }
 
@@ -30,15 +30,6 @@ public class GraphNodeRep {
 
     public Integer location() {
         return location;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof GraphNodeRep) {
-            GraphNodeRep gnr = (GraphNodeRep) object;
-            if (gnr.color().equals(this.color()) && gnr.location().equals(this.location())) return true;
-        }
-        return false;
     }
 
 }

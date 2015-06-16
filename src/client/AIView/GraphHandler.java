@@ -1,6 +1,7 @@
 package client.aiview;
 
 import client.view.*;
+import player.*;
 
 import java.util.*;
 import java.awt.Color;
@@ -13,7 +14,7 @@ public class GraphHandler {
     private Map<String, List<Map<String, Double>>> json;
     private Double angle = 0.0;
     private Vector origin = null;
-    private GraphNodeRep graphNode = null;
+    private TreeNode graphNode = null;
 
     private boolean animating;
 
@@ -73,19 +74,19 @@ public class GraphHandler {
         this.angle = angle;
     }
 
-    public void setGraphNode(GraphNodeRep graphNode) {
+    public void setGraphNode(TreeNode graphNode) {
         this.graphNode = graphNode;
     }
 
-    public GraphNodeRep graphNode() {
+    public TreeNode graphNode() {
         return graphNode;
     }
 
-    public void selectNodes(GraphNodeRep graphNode) {
+    public void selectNodes(TreeNode graphNode) {
         if (graphNode != null) {
             synchronized (graphNode) {
-                for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                    Node n = getNode(graphNodeRep.location());
+                for (TreeNode graphNodeRep : graphNode.getChildren()) {
+                    Node n = getNode(graphNodeRep.getTrueLocation());
                     n.setSelected(true);
                     selectNodes(graphNodeRep);
                 }
@@ -151,11 +152,11 @@ public class GraphHandler {
         }
     }
 
-    private void buildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
+    private void buildTree(AnimatablePanel panel, TreeNode graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode == null) return;
         synchronized (graphNode) {
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(graphNode.location());
+            Node node = getNode(graphNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
                 return;
@@ -173,19 +174,19 @@ public class GraphHandler {
                 addEdge(e);
                 node.setParent(parent);
             }
-            width = width / graphNode.children().size();
-            for (int i = 0; i < graphNode.children().size(); i++) {
-                GraphNodeRep graphNodeRep = graphNode.children().get(i);
+            width = width / graphNode.getChildren().size();
+            for (int i = 0; i < graphNode.getChildren().size(); i++) {
+                TreeNode graphNodeRep = graphNode.getChildren().get(i);
                 buildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
     }
 
-    private void rebuildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
+    private void rebuildTree(AnimatablePanel panel, TreeNode graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode == null) return;
         synchronized (graphNode) {
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(graphNode.location());
+            Node node = getNode(graphNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
                 return;
@@ -203,9 +204,9 @@ public class GraphHandler {
                 addEdge(e);
                 node.setParent(parent);
             }
-            width = width / graphNode.children().size();
-            for (int i = 0; i < graphNode.children().size(); i++) {
-                GraphNodeRep graphNodeRep = graphNode.children().get(i);
+            width = width / graphNode.getChildren().size();
+            for (int i = 0; i < graphNode.getChildren().size(); i++) {
+                TreeNode graphNodeRep = graphNode.getChildren().get(i);
                 rebuildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
@@ -245,6 +246,7 @@ public class GraphHandler {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
             //Can get rid of wayward nodes using  && n.inTree() but causes other problems
+            n.setTree(false);//?
             if(nodes.containsValue(n)) newAllNodes.add(n);
         }
         allNodes = newAllNodes;

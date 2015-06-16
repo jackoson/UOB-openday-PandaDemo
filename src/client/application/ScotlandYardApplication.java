@@ -306,7 +306,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             Integer roundNo = (Integer) object;
             gameView.updateRoundCounter(roundNo);
         } else if (id.equals("ai_set_rep")) {
-            GraphNodeRep rep = (GraphNodeRep) object;
+            TreeNode rep = (TreeNode) object;
             aiView.setRep(rep);
         } else if (id.equals("link_tree")) {
             GameTree gameTree = (GameTree) object;

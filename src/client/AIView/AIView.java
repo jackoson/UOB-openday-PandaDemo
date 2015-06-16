@@ -3,7 +3,7 @@ package client.aiview;
 import client.view.*;
 import client.view.Formatter;
 import client.application.*;
-import player.GameTree;
+import player.*;
 
 import scotlandyard.*;
 
@@ -80,6 +80,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
     public void mouseDragged(MouseEvent e) {}
 
     public void mouseMoved(MouseEvent e) {
+        /*
         if (!onTreeView) return;
         Node closestNode = findClosestNode(e.getPoint());
         if(closestNode != null) {
@@ -89,8 +90,9 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
             System.err.println("ROUTE: " + routes);
         }
         repaint();
+        */
     }
-
+/*
     public Node findClosestNode(Point position) {
       Double minDist = Double.POSITIVE_INFINITY;
       Node minNode = null;
@@ -121,7 +123,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
       else routes.get(1).add(n.location());
       return routes;
     }
-
+*/
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -162,7 +164,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
         }
     }
 
-    public void setRep(GraphNodeRep graphNode) {
+    public void setRep(TreeNode graphNode) {
         graphHandler.setGraphNode(graphNode);
     }
 

@@ -203,7 +203,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
 
     // Removes the GameView and shows the SetUpView view
     public void endGame() {
-        game.endGame();
+        game.endGame();//?Sometimes null
         gameView.setThreadCom(null);
         game = null;
         CardLayout cl = (CardLayout) container.getLayout();
@@ -230,13 +230,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
     public void run() {
         while (true) {
             try {
-                Object id = threadCom.takeUpdate();
-                if (!(id instanceof String)) {
-                    System.err.println("ID: " + id);
-                }
-                String updateId = (String) id;
-                Object updateObject = threadCom.takeUpdate();
-                decodeUpdate(updateId, updateObject);
+                ThreadCommunicator.Packet packet = threadCom.takeUpdate();
+                decodeUpdate(packet.getId(), packet.getObject());
             } catch (Exception e) {
                 System.err.println("Error taking items from the queue :" + e);
                 e.printStackTrace();
@@ -321,6 +316,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             aiView.stop();
         } else if (id.equals("ai_human_playing")) {
             aiView.humanPlaying();
+        } else if (id.equals("get_move")) {
+            Move move = (Move) object;
+            //For rating player moves
         }
     }
 

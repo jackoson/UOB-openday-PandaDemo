@@ -69,8 +69,9 @@ public class Dijkstra {
         }
         //Search through the graph
         while (unvisitedNodes.size() > 0) {
-            currentNode = minDistance(distances, unvisitedNodes);
-            if (currentNode == null) break;
+            Node<Integer> m = minDistance(distances, unvisitedNodes);
+            if (m == null) break;
+            currentNode = m;
             if (currentNode.data().equals(destination)) break;
             unvisitedNodes.remove(currentNode);
 

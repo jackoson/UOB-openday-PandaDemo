@@ -9,50 +9,34 @@ import java.util.concurrent.*;
  */
 
 public class ThreadCommunicator {
-    
-    private BlockingQueue<Object> eventQueue;
-    private BlockingQueue<Object> updateQueue;
-    
+
+    private BlockingQueue<Packet> eventQueue;
+    private BlockingQueue<Packet> updateQueue;
+
     /**
      * Constructor for ThreadCommunicator, creates BlockingQueues.
      */
     public ThreadCommunicator() {
-        eventQueue = new ArrayBlockingQueue<Object>(1024);
-        updateQueue = new ArrayBlockingQueue<Object>(1024);
+        eventQueue = new ArrayBlockingQueue<Packet>(1024);
+        updateQueue = new ArrayBlockingQueue<Packet>(1024);
     }
-    
-    /**
-     * Returns the object from the top of the event queue
-     * if there is one available, waits otherwise.
-     *
-     * @return the object from the top of the event queue
-     * if there is one available, waits otherwise.
-     */
-    public Object takeEvent() {
-        Object object = null;
+
+    public Packet takeEvent() {
         try {
-            object = eventQueue.take();
+            return eventQueue.take();
         } catch (InterruptedException e) {
             System.err.println(e);
         }
-        return object;
+        return null;
     }
-    
-    /**
-     * Returns the object from the top of the update queue
-     * if there is one available, waits otherwise.
-     *
-     * @return the object from the top of the update queue
-     * if there is one available, waits otherwise.
-     */
-    public Object takeUpdate() {
-        Object object = null;
+
+    public Packet takeUpdate() {
         try {
-            object = updateQueue.take();
+            return updateQueue.take();
         } catch (InterruptedException e) {
             System.err.println(e);
         }
-        return object;
+        return null;
     }
 
     /**
@@ -64,13 +48,12 @@ public class ThreadCommunicator {
      */
     public void putEvent(String id, Object object) {
         try {
-            eventQueue.put(id);
-            eventQueue.put(object);
+            eventQueue.put(new Packet(id, object));
         } catch (InterruptedException e) {
             System.err.println(e);
         }
     }
-    
+
     /**
      * Puts an update id and object onto the update queue
      * in accordance with our protocol.
@@ -80,25 +63,44 @@ public class ThreadCommunicator {
      */
     public void putUpdate(String id, Object object) {
         try {
-            updateQueue.put(id);
-            updateQueue.put(object);
+            updateQueue.put(new Packet(id, object));
         } catch (InterruptedException e) {
             System.err.println(e);
         }
     }
-    
+
     /**
      * Clears the event queue
      */
     public void clearEvents() {
         eventQueue.clear();
     }
-    
+
     /**
      * Clears the update queue
      */
     public void clearUpdates() {
         updateQueue.clear();
     }
-    
+
+    class Packet {
+
+        private String id;
+        private Object object;
+
+        public Packet(String id, Object object) {
+            this.id = id;
+            this.object = object;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public Object getObject() {
+            return object;
+        }
+
+    }
+
 }

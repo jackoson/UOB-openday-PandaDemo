@@ -69,7 +69,10 @@ public class GameTree implements Runnable {
             System.out.println("Depth: " + i + " Score: " + result);
             getMoves(root);
         }
+        System.err.println("TREE: " + threadCom);
         threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        threadCom.putUpdate("det_move", getDetMove());
+        threadCom.putEvent("det_move", getDetMove());
         threadCom.putUpdate("ai_end", true);
     }
 

@@ -66,7 +66,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(20, this);
+            Timer time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
         } catch (FileNotFoundException e) {
@@ -90,10 +90,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
         int loc = 0;
         int size = Math.min(treeNode.getChildren().size(), no);
         for (int i = 0; i < size; i++) {
-            if (treeNode.getChildren().get(i).getTrueLocation() == loc) {
-                loc = treeNode.getChildren().get(i).getTrueLocation();
-                continue;
-            }
+            if (treeNode.getChildren().get(i).getTrueLocation() == loc) continue;
+            loc = treeNode.getChildren().get(i).getTrueLocation();
             allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location, no - 2));
         }
 
@@ -171,6 +169,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
                     if (!graphHandler.animating()) threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
+                    humanPlaying();
                 } else {
                     graphHandler.updateNodes();
                 }
@@ -179,6 +178,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             humanPlaying();
             if (onTreeView) {
+                threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
                 graphHandler.returnFromTree(this);
                 onTreeView = false;
             } else {

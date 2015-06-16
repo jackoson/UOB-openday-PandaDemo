@@ -105,6 +105,13 @@ public class Dijkstra {
                       Node<Integer> currentNode,
                       Map<Node<Integer>, Node<Integer>> previousNodes,
                       Map<Route, Integer> tickets) {
+        if (currentNode.data() == null) {
+            System.err.println("CurrentNode.data() is null.");
+            if (currentNode == null) {
+                System.err.println("CurrentNode is null.");
+            }
+            System.err.println("Current Node: " + currentNode);
+        }
         Set<Edge<Integer, Route>> edges = graph.getEdges(currentNode.data());
         Double currentDistance = distances.get(currentNode);
         for (Edge<Integer, Route> e : edges) {

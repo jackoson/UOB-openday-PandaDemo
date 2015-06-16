@@ -143,6 +143,7 @@ public class GraphHandler {
     }
 
     public void showTree(AnimatablePanel panel) {
+        cleanTree(false);
         panel.cancelAllAnimations();
         animating = true;
         buildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
@@ -228,6 +229,7 @@ public class GraphHandler {
     public void cleanTree(boolean end) {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
+            //Can get rid of wayward nodes using  && (end || n.inTree()) but causes other problems
             if(nodes.containsValue(n)) newAllNodes.add(n);
             if (end) n.resetAnimators();
             if (end) n.setTree(false);
@@ -235,9 +237,7 @@ public class GraphHandler {
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
         for (Edge<Node> e : edges) {
-            //System.err.println("INS");
             if ((nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2())) || (!end && allNodes.contains(e.getNode1()) && allNodes.contains(e.getNode2()))) {
-                //System.err.println("IN");
                 e.setInTree(false);
                 newEdges.add(e);
             }

@@ -69,7 +69,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(1000, this);
+            Timer time = new Timer(20, this);
             time.setActionCommand("rep");
             time.start();
 

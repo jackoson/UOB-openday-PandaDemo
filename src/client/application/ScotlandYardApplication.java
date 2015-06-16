@@ -223,7 +223,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
 
     // Removes the GameView and shows the SetUpView view
     public void endGame() {
-        game.endGame();
+        game.endGame();//?Sometimes null
         gameView.setThreadCom(null);
         game = null;
         CardLayout cl = (CardLayout) container.getLayout();
@@ -280,8 +280,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             String message = (String) object;
             gameView.setNotification(message);
         } else if (id.equals("zoom_in")) {
-            Integer location = (Integer) object;
-            gameView.zoomToNode(location);
+            if(!aiView.onTreeView()) {
+                Integer location = (Integer) object;
+                gameView.zoomToNode(location);
+            }
         } else if (id.equals("zoom_out")) {
             gameView.zoomOut();
         } else if (id.equals("reset_timer")) {
@@ -329,6 +331,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             aiView.stop();
         } else if (id.equals("ai_human_playing")) {
             aiView.humanPlaying();
+        } else if (id.equals("get_move")) {
+            Move move = (Move) object;
+            //For rating player moves
         }
     }
 

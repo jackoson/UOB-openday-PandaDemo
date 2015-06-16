@@ -69,12 +69,10 @@ public class Dijkstra {
         }
         //Search through the graph
         while (unvisitedNodes.size() > 0) {
-            currentNode = minDistance(distances, unvisitedNodes);
-            try {
-                if (currentNode.data().equals(destination)) break;
-            } catch (Exception e) {
-                System.err.println(e);
-            }
+            Node<Integer> m = minDistance(distances, unvisitedNodes);
+            if (m == null) break;
+            currentNode = m;
+            if (currentNode.data().equals(destination)) break;
             unvisitedNodes.remove(currentNode);
 
             step(graph, distances, unvisitedNodes, currentNode, previousNodes, tickets);
@@ -105,15 +103,6 @@ public class Dijkstra {
                       Node<Integer> currentNode,
                       Map<Node<Integer>, Node<Integer>> previousNodes,
                       Map<Route, Integer> tickets) {
-        if (currentNode.data() == null) {
-            System.err.println("CurrentNode.data() is null.");
-            if (currentNode == null) {
-                System.err.println("CurrentNode is null.");
-            }
-            //Could just return if null, only happends very infrequently
-            System.err.println("Current Node: " + currentNode);
-
-        }
         Set<Edge<Integer, Route>> edges = graph.getEdges(currentNode.data());
         Double currentDistance = distances.get(currentNode);
         for (Edge<Integer, Route> e : edges) {

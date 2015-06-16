@@ -29,6 +29,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private boolean firstRound = true;
     private boolean replaying = false;
     private final boolean aiGame;
+    private Move aiMove = null;
 
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
@@ -270,6 +271,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             } else {
                 replaying = false;
             }
+            System.err.println("GAME: " + threadCom);
             ThreadCommunicator.Packet packet = threadCom.takeEvent();
             decodeEvents(packet.getId(), packet.getObject());
 
@@ -283,7 +285,9 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                     sendNotification("Invalid move, please try again.");
                 }
             } else if (outOfTime) {
-                move = moves.iterator().next();
+                if (moves.contains(aiMove)) {move = aiMove; System.err.println("Choosing AI Move");}
+                else move = moves.iterator().next();
+                aiMove = null;
                 sendNotification("Out of time, a move has been chosen for you.");
                 break;
             } else if (moves.iterator().next() instanceof MovePass) {
@@ -320,6 +324,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             pda.transition(location);
         } else if (id.equals("timer_fired")) {
             outOfTime = true;
+            wait(50);
         } else if (id.equals("ticket_clicked")) {
             Ticket ticket = (Ticket) object;
             threadCom.putUpdate("highlight_node", 0);
@@ -331,6 +336,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             pda.transition(ticket);
         } else if (id.equals("save_game")) {
             if (saveGame != null) fileAccess.saveGame(saveGame);
+        } else if (id.equals("det_move")) {
+            System.err.println("dasc");
+            Move move = (Move) object;
+            aiMove = move;
         }
     }
 

@@ -66,7 +66,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(20, this);
+            Timer time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
         } catch (FileNotFoundException e) {
@@ -96,6 +96,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
 
         return allHints;
+    }
+
+    public boolean onTreeView() {
+        return onTreeView;
     }
 
     public void paintComponent(Graphics g0) {
@@ -138,10 +142,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void setRep(TreeNode treeNode) {
         graphHandler.setTreeNode(treeNode);
+        setRepaints(false);
         running = true;
     }
 
     public void stop() {
+        setRepaints(true);
         running = false;
     }
 
@@ -162,8 +168,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
-                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
-                    humanPlaying();
+                    if (!graphHandler.animating()) threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
                 } else {
                     graphHandler.updateNodes();
                 }
@@ -172,11 +177,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             humanPlaying();
             if (onTreeView) {
+                threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
                 graphHandler.returnFromTree(this);
                 onTreeView = false;
             } else {
                 onTreeView = true;
                 graphHandler.showTree(this);
+                humanPlaying();
             }
         }else {
             super.actionPerformed(e);

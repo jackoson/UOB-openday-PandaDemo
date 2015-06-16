@@ -68,7 +68,10 @@ public class GameTree implements Runnable {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             getMoves(root);
         }
+        System.err.println("TREE: " + threadCom);
         threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        threadCom.putUpdate("det_move", getDetMove());
+        threadCom.putEvent("det_move", getDetMove());
         threadCom.putUpdate("ai_end", true);
     }
 

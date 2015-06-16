@@ -28,6 +28,8 @@ public class AnimatablePanel extends JPanel implements ActionListener {
     private Animator blue = null;
     private Animator alpha = null;
 
+    private boolean repaints = true;
+
     /**
      * Constructs a new AnimatablePanel object.
      */
@@ -138,7 +140,11 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             animationCompleted();
         }
         revalidate();
-        repaint();
+        if (repaints) repaint();
+    }
+
+    public void setRepaints(boolean repaints) {
+        this.repaints = repaints;
     }
 
     /**

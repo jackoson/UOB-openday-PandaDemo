@@ -29,11 +29,9 @@ public class GameTree implements Runnable {
     private final Integer round;
     private final Colour initialPlayer;
     private final List<GamePlayer> initialState;
-    private boolean pause = false;
 
     private Move mrXMove;
     private Move detMove;
-    private GraphNodeRep topRep;
 
     /**
      * Constructs a new GameTree object.
@@ -64,11 +62,10 @@ public class GameTree implements Runnable {
      */
     public void run() {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
-        topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
         threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", root);
         for (int i = 0; i < 5; i++) {
-            Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
+            Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             System.out.println("Depth: " + i + " Score: " + result);
             getMoves(root);
         }
@@ -88,16 +85,7 @@ public class GameTree implements Runnable {
         }
     }
 
-    public void pause() {
-        pause = true;
-    }
-
-    public void resume() {
-        pause = false;
-    }
-
-    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta, GraphNodeRep graphNode) {
-        checkPause();
+    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {//Need some synchronization with TreeNodes. ^^ does too.
         if (depth == 0) return node.getScore();
         boolean maximising = false;
         if (node.getPlayer().equals(Colour.Black)) maximising = true;
@@ -105,11 +93,7 @@ public class GameTree implements Runnable {
         if (maximising) {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                synchronized (graphNode) {
-                    graphNode.addChild(newGraphNode);
-                }
-                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
+                Double result = alphaBeta(child, depth - 1, alpha, beta);
                 if (result > v) {
                     v = result;
                     node.setBestChild(child);
@@ -123,11 +107,7 @@ public class GameTree implements Runnable {
         } else {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                GraphNodeRep newGraphNode = new GraphNodeRep(Formatter.colorForPlayer(node.getPlayer()), node.getTrueLocation());
-                synchronized (graphNode) {
-                    graphNode.addChild(newGraphNode);
-                }
-                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
+                Double result = alphaBeta(child, depth - 1, alpha, beta);
                 if (result < v) {
                     v = result;
                     node.setBestChild(child);
@@ -139,29 +119,6 @@ public class GameTree implements Runnable {
             }
             return v;
         }
-    }
-
-    private void checkPause() {
-        while (pause) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                System.err.println("GameTree pause interrupted.");
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public Integer randomNode() {
-        if (root == null) return -1;
-        TreeNode n = root;
-        Random r = new Random();
-        while (r.nextInt(3) < 1 && n.getChildren().size() > 0) {
-            List<TreeNode> children = n.getChildren();
-            int c = children.size();
-            n = children.get(r.nextInt(c));
-        }
-        return n.getTrueLocation();
     }
 
     // Adds all children to a specified node.

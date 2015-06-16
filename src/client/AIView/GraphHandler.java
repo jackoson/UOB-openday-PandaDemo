@@ -9,26 +9,19 @@ import java.awt.Color;
 public class GraphHandler {
 
     private Map<Integer, Node> nodes;
-    private Set<Node> allNodes;
+    private List<Node> allNodes;
     private List<Edge<Node>> edges;
     private Map<String, List<Map<String, Double>>> json;
     private Double angle = 0.0;
     private Vector origin = null;
-    private TreeNode graphNode = null;
+    private TreeNode treeNode = null;
 
     private boolean animating;
 
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
         nodes = new HashMap<Integer, Node>();
-        allNodes = new TreeSet<Node>(new Comparator<Node>() {//MAKE INTO A TREESET THAT LISTENS FOR CHANGES TO REORDER
-            public int compare(Node o1, Node o2) {
-                Double o1z = o1.getZ();
-                Double o2z = o2.getZ();
-                if (o1z < o2z) return 1;
-                else return -1;
-            }
-        });
+        allNodes = new ArrayList<Node>();
         edges = new ArrayList<Edge<Node>>();
         this.json = json;
         createSphere(json);
@@ -51,7 +44,18 @@ public class GraphHandler {
     }
 
     public Set<Node> getNodes() {
-        return allNodes;
+        Set<Node> orderedNodes = new TreeSet<Node>(new Comparator<Node>() {
+            public int compare(Node o1, Node o2) {
+                Double o1z = o1.getZ();
+                Double o2z = o2.getZ();
+                if (o1z < o2z) return 1;
+                else return -1;
+            }
+        });
+        for (Node node : allNodes) {
+            orderedNodes.add(node);
+        }
+        return orderedNodes;
     }
 
     public List<Edge<Node>> getEdges() {
@@ -74,21 +78,21 @@ public class GraphHandler {
         this.angle = angle;
     }
 
-    public void setGraphNode(TreeNode graphNode) {
-        this.graphNode = graphNode;
+    public void setTreeNode(TreeNode treeNode) {
+        this.treeNode = treeNode;
     }
 
-    public TreeNode graphNode() {
-        return graphNode;
+    public TreeNode treeNode() {
+        return treeNode;
     }
 
-    public void selectNodes(TreeNode graphNode) {
-        if (graphNode != null) {
-            synchronized (graphNode) {
-                for (TreeNode graphNodeRep : graphNode.getChildren()) {
-                    Node n = getNode(graphNodeRep.getTrueLocation());
+    public void selectNodes(TreeNode treeNode) {
+        if (treeNode != null) {
+            synchronized (treeNode) {
+                for (TreeNode treeNodeRep : treeNode.getChildren()) {
+                    Node n = getNode(treeNodeRep.getTrueLocation());
                     n.setSelected(true);
-                    selectNodes(graphNodeRep);
+                    selectNodes(treeNodeRep);
                 }
             }
         }
@@ -130,16 +134,19 @@ public class GraphHandler {
     }
 
     public void updateNodes() {
-        if (!animating) selectNodes(graphNode());
+        if (!animating) selectNodes(treeNode());
     }
 
     public void showTree(AnimatablePanel panel) {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
-        buildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
+        buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
+        }
+        for (Edge e : edges) {
+            if (!e.inTree()) e.setAnimator(panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
         panel.start();
     }
@@ -147,16 +154,15 @@ public class GraphHandler {
     public void updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            rebuildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
-            //panel.start();
+            rebuildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
         }
     }
 
-    private void buildTree(AnimatablePanel panel, TreeNode graphNode, Double xStart, Double width, Double y, Node parent) {
-        if (graphNode == null) return;
-        synchronized (graphNode) {
+    private void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent) {
+        if (treeNode == null) return;
+        synchronized (treeNode) {
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(graphNode.getTrueLocation());
+            Node node = getNode(treeNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
                 return;
@@ -171,23 +177,24 @@ public class GraphHandler {
             if (parent != null) {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
+                e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
                 addEdge(e);
                 node.setParent(parent);
             }
-            int size = Math.min(graphNode.getChildren().size(), 4); //Look at location to cut down duplication rather than just size
+            int size = Math.min(treeNode.getChildren().size(), 4); //Look at location to cut down duplication rather than just size
             width = width / size;
             for (int i = 0; i < size; i++) {
-                TreeNode graphNodeRep = graphNode.getChildren().get(i);
-                buildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
+                TreeNode treeNodeRep = treeNode.getChildren().get(i);
+                buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
     }
 
-    private void rebuildTree(AnimatablePanel panel, TreeNode graphNode, Double xStart, Double width, Double y, Node parent) {
-        if (graphNode == null) return;
-        synchronized (graphNode) {
+    private void rebuildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent) {
+        if (treeNode == null) return;
+        synchronized (treeNode) {
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(graphNode.getTrueLocation());
+            Node node = getNode(treeNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
                 return;
@@ -203,14 +210,16 @@ public class GraphHandler {
             if (parent != null)  {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
+                e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
+                e.forwardAnimators(1.0);
                 addEdge(e);
                 node.setParent(parent);
             }
-            int size = Math.min(graphNode.getChildren().size(), 4);
+            int size = Math.min(treeNode.getChildren().size(), 4);
             width = width / size;
             for (int i = 0; i < size; i++) {
-                TreeNode graphNodeRep = graphNode.getChildren().get(i);
-                rebuildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
+                TreeNode treeNodeRep = treeNode.getChildren().get(i);
+                rebuildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
     }
@@ -220,6 +229,9 @@ public class GraphHandler {
         for (Node n : allNodes) {
             n.reverseAnimation(1.0, panel);
         }
+        for (Edge e : edges) {
+            e.reverseAnimation(1.0, panel);
+        }
     }
 
     public void finishTreeBuild() {
@@ -227,7 +239,7 @@ public class GraphHandler {
     }
 
     public void cleanTree() {
-        Set<Node> newAllNodes = new HashSet<Node>();
+        List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
             if(nodes.containsValue(n)) newAllNodes.add(n);
             n.resetAnimators();
@@ -245,7 +257,7 @@ public class GraphHandler {
     }
 
     public void cleanRebuiltTree() {
-        Set<Node> newAllNodes = new HashSet<Node>();
+        List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
             n.setTree(false);
             if(nodes.containsValue(n)) newAllNodes.add(n);

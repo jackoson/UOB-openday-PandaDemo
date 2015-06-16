@@ -7,13 +7,14 @@ public class Edge<X> {
     private X node1;
     private X node2;
     private boolean inTree;
-    private Double alpha = 1.0;
+    private Double alpha;
     private AnimatablePanel.Animator alphaAnimator;
 
     public Edge(X node1, X node2) {
         this.node1 = node1;
         this.node2 = node2;
         inTree = false;
+        alpha = 1.0;
     }
 
     public X getNode1() {
@@ -33,6 +34,7 @@ public class Edge<X> {
     }
 
     public void setAnimator(AnimatablePanel.Animator alphaAnimator) {
+        if (alphaAnimator != null) alpha = alphaAnimator.value();
         this.alphaAnimator = alphaAnimator;
     }
 
@@ -40,6 +42,10 @@ public class Edge<X> {
         if(this.alphaAnimator != null) {
             alphaAnimator = panel.createAnimator(alphaAnimator.value(), alpha, duration);
         }
+    }
+
+    public void forwardAnimators(Double time) {
+        if(this.alphaAnimator != null) alphaAnimator.setTime(time);
     }
 
     public Double getAlpha() {

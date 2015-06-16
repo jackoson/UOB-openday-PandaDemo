@@ -64,7 +64,7 @@ public class GameTree implements Runnable {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", root);
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 5; i++) {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             System.out.println("Depth: " + i + " Score: " + result);
             getMoves(root);
@@ -92,7 +92,7 @@ public class GameTree implements Runnable {
         if (maximising) {
             Double v = Double.NEGATIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
+                Double result = alphaBeta(child, depth - 1, alpha, beta);
                 if (result > v) {
                     v = result;
                     node.setBestChild(child);
@@ -106,7 +106,7 @@ public class GameTree implements Runnable {
         } else {
             Double v = Double.POSITIVE_INFINITY;
             for (TreeNode child : node.getChildren()) {
-                Double result = alphaBeta(child, depth - 1, alpha, beta, newGraphNode);
+                Double result = alphaBeta(child, depth - 1, alpha, beta);
                 if (result < v) {
                     v = result;
                     node.setBestChild(child);

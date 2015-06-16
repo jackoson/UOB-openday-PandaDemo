@@ -1,6 +1,7 @@
 package client.aiview;
 
 import client.view.*;
+import player.*;
 
 import java.util.*;
 import java.awt.Color;
@@ -13,7 +14,7 @@ public class GraphHandler {
     private Map<String, List<Map<String, Double>>> json;
     private Double angle = 0.0;
     private Vector origin = null;
-    private GraphNodeRep graphNode = null;
+    private TreeNode treeNode = null;
 
     private boolean animating;
 
@@ -73,21 +74,21 @@ public class GraphHandler {
         this.angle = angle;
     }
 
-    public void setGraphNode(GraphNodeRep graphNode) {
-        this.graphNode = graphNode;
+    public void setTreeNode(TreeNode treeNode) {
+        this.treeNode = treeNode;
     }
 
-    public GraphNodeRep graphNode() {
-        return graphNode;
+    public TreeNode treeNode() {
+        return treeNode;
     }
 
-    public void selectNodes(GraphNodeRep graphNode) {
-        if (graphNode != null) {
-            synchronized (graphNode) {
-                for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                    Node n = getNode(graphNodeRep.location());
+    public void selectNodes(TreeNode treeNode) {
+        if (treeNode != null) {
+            synchronized (treeNode) {
+                for (TreeNode treeNodeRep : treeNode.getChildren()) {
+                    Node n = getNode(treeNodeRep.getTrueLocation());
                     n.setSelected(true);
-                    selectNodes(graphNodeRep);
+                    selectNodes(treeNodeRep);
                 }
             }
         }
@@ -129,14 +130,14 @@ public class GraphHandler {
     }
 
     public void updateNodes() {
-        if (!animating) selectNodes(graphNode());
+        if (!animating) selectNodes(treeNode());
     }
 
     public void showTree(AnimatablePanel panel) {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
-        buildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
+        buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
@@ -146,16 +147,16 @@ public class GraphHandler {
     public void updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            rebuildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
+            rebuildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
             panel.start();
         }
     }
 
-    private void buildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
-        if (graphNode == null) return;
-        synchronized (graphNode) {
+    private void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent) {
+        if (treeNode == null) return;
+        synchronized (treeNode) {
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(graphNode.location());
+            Node node = getNode(treeNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
                 return;
@@ -173,20 +174,19 @@ public class GraphHandler {
                 addEdge(e);
                 node.setParent(parent);
             }
-            width = width / graphNode.children().size();
-            int i = 0;
-            for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                buildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
-                i++;
+            width = width / treeNode.getChildren().size();
+            for (int i = 0; i < treeNode.getChildren().size(); i++) {
+                TreeNode treeNodeRep = treeNode.getChildren().get(i);
+                buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
     }
 
-    private void rebuildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
-        if (graphNode == null) return;
-        synchronized (graphNode) {
+    private void rebuildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent) {
+        if (treeNode == null) return;
+        synchronized (treeNode) {
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(graphNode.location());
+            Node node = getNode(treeNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
                 return;
@@ -204,11 +204,10 @@ public class GraphHandler {
                 addEdge(e);
                 node.setParent(parent);
             }
-            width = width / graphNode.children().size();
-            int i = 0;
-            for (GraphNodeRep graphNodeRep : graphNode.children()) {
-                rebuildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
-                i++;
+            width = width / treeNode.getChildren().size();
+            for (int i = 0; i < treeNode.getChildren().size(); i++) {
+                TreeNode treeNodeRep = treeNode.getChildren().get(i);
+                rebuildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
             }
         }
     }
@@ -247,6 +246,7 @@ public class GraphHandler {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
             //Can get rid of wayward nodes using  && n.inTree() but causes other problems
+            n.setTree(false);//?
             if(nodes.containsValue(n)) newAllNodes.add(n);
         }
         allNodes = newAllNodes;

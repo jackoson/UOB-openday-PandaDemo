@@ -3,7 +3,7 @@ package client.aiview;
 import client.view.*;
 import client.view.Formatter;
 import client.application.*;
-import player.GameTree;
+import player.*;
 
 import scotlandyard.*;
 
@@ -19,7 +19,7 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends AnimatablePanel implements ActionListener, MouseMotionListener {
+public class AIView extends AnimatablePanel implements ActionListener {
 
     private AnimatablePanel.Animator rotateAnimator;
     private ThreadCommunicator threadCom;
@@ -67,59 +67,11 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
             Timer time = new Timer(20, this);
             time.setActionCommand("rep");
             time.start();
-
-            addMouseMotionListener(this);
-
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    public void mouseDragged(MouseEvent e) {}
-
-    public void mouseMoved(MouseEvent e) {
-        if (!onTreeView) return;
-        Node closestNode = findClosestNode(e.getPoint());
-        if(closestNode != null) {
-            closestNode.setSelected(true);
-
-            List<List<Integer>> routes = findRoutes(closestNode, true);
-            System.err.println("ROUTE: " + routes);
-        }
-        repaint();
-    }
-
-    public Node findClosestNode(Point position) {
-      Double minDist = Double.POSITIVE_INFINITY;
-      Node minNode = null;
-      for (Node node : graphHandler.getNodes()) {
-          if (!node.inTree()) continue;
-        Vector v = graphHandler.getOrigin().offsetAdd(node);
-        Double x = v.getX();
-        Double y = v.getY();
-
-        Double squareDistance = Math.pow(x - position.getX(), 2) + Math.pow(y - position.getY(), 2);
-        if (squareDistance < minDist && squareDistance < 100) {
-          minDist = squareDistance;
-          minNode = node;
-        }
-      }
-      return minNode;
-    }
-
-    public List<List<Integer>> findRoutes(Node n, boolean mrX) {
-      if (n == null){
-        List<List<Integer>> list = new ArrayList<List<Integer>>();
-        list.add(new ArrayList<Integer>());
-        list.add(new ArrayList<Integer>());
-        return list;
-      }
-      List<List<Integer>> routes = findRoutes(n.parent(), !mrX);
-      if(mrX) routes.get(0).add(n.location());
-      else routes.get(1).add(n.location());
-      return routes;
     }
 
     public void paintComponent(Graphics g0) {
@@ -139,8 +91,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
-            //if (onTreeView && !node.inTree()) continue;
-            //if (!onTreeView && node.inTree()) continue;//?
             g.setColor(node.getColor());
             Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
@@ -150,7 +100,6 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
     }
 
     private void drawEdges(Graphics2D g, List<Edge<Node>> edges, Vector origin) {
-        //System.err.println("Count: " + edges.size());
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Node n2 = edge.getNode2();
@@ -162,8 +111,8 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
         }
     }
 
-    public void setRep(GraphNodeRep graphNode) {
-        graphHandler.setGraphNode(graphNode);
+    public void setRep(TreeNode treeNode) {
+        graphHandler.setTreeNode(treeNode);
     }
 
     public void setGameTree(GameTree gameTree) {

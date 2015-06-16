@@ -17,7 +17,7 @@ public class GraphNodeRep {
     }
 
     public void addChild(GraphNodeRep child) {
-        if (children.size() < 5) children.add(child);
+        /*if (children.size() < 5)*/ children.add(child);
     }
 
     public List<GraphNodeRep> children() {

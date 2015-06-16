@@ -75,6 +75,22 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
+    public List<RouteHint> makeSpiders(TreeNode treeNode) {
+        if (treeNode == null) return new ArrayList<RouteHint>();
+
+        List<RouteHint> allHints = new ArrayList<RouteHint>();
+        List<Integer> locs = new ArrayList<Integer>();
+        locs.add(treeNode.getTrueLocation());
+        locs.add(ModelHelper.getLocation(treeNode.getMove()));
+        RouteHint hint = new RouteHint(locs, Colour.Black);
+        allHints.add(hint);
+        for (TreeNode n : treeNode.getChildren()) {
+            allHints.addAll(makeSpiders(n));
+        }
+
+        return allHints;
+    }
+
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;

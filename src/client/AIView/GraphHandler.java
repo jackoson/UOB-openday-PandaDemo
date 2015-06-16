@@ -145,6 +145,9 @@ public class GraphHandler {
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
+        for (Edge e : edges) {
+            if (!e.inTree()) e.setAnimator(panel.createDelayedAnimator(1.0, 0.0, 1.0));
+        }
         panel.start();
     }
 
@@ -174,6 +177,7 @@ public class GraphHandler {
             if (parent != null) {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
+                e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
                 addEdge(e);
                 node.setParent(parent);
             }
@@ -206,6 +210,8 @@ public class GraphHandler {
             if (parent != null)  {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
+                e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
+                e.forwardAnimators(1.0);
                 addEdge(e);
                 node.setParent(parent);
             }
@@ -222,6 +228,9 @@ public class GraphHandler {
         animating = true;
         for (Node n : allNodes) {
             n.reverseAnimation(1.0, panel);
+        }
+        for (Edge e : edges) {
+            e.reverseAnimation(1.0, panel);
         }
     }
 

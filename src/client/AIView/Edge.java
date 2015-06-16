@@ -34,6 +34,7 @@ public class Edge<X> {
     }
 
     public void setAnimator(AnimatablePanel.Animator alphaAnimator) {
+        if (alphaAnimator != null) alpha = alphaAnimator.value();
         this.alphaAnimator = alphaAnimator;
     }
 
@@ -41,6 +42,10 @@ public class Edge<X> {
         if(this.alphaAnimator != null) {
             alphaAnimator = panel.createAnimator(alphaAnimator.value(), alpha, duration);
         }
+    }
+
+    public void forwardAnimators(Double time) {
+        if(this.alphaAnimator != null) alphaAnimator.setTime(time);
     }
 
     public Double getAlpha() {

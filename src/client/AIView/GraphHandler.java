@@ -133,8 +133,6 @@ public class GraphHandler {
     }
 
     public void updateTree(AnimatablePanel panel) {
-        System.err.println("Update:" + graphNode().children().size());
-        //resetTree();
         if (!animating) {
             cleanTree(false);
             rebuildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
@@ -176,9 +174,10 @@ public class GraphHandler {
                 node.setParent(parent);
             }
             width = width / graphNode.children().size();
-            for (int i = 0; i < graphNode.children().size(); i++) {
-                GraphNodeRep graphNodeRep = graphNode.children().get(i);
+            int i = 0;
+            for (GraphNodeRep graphNodeRep : graphNode.children()) {
                 buildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
+                i++;
             }
         }
     }
@@ -208,9 +207,10 @@ public class GraphHandler {
                 node.setParent(parent);
             }
             width = width / graphNode.children().size();
-            for (int i = 0; i < graphNode.children().size(); i++) {
-                GraphNodeRep graphNodeRep = graphNode.children().get(i);
+            int i = 0;
+            for (GraphNodeRep graphNodeRep : graphNode.children()) {
                 rebuildTree(panel, graphNodeRep, xStart + (width * i), width, y + 80, node);
+                i++;
             }
         }
     }

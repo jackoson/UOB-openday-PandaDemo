@@ -27,6 +27,10 @@ public class GraphHandler {
         createSphere(json);
     }
 
+    public boolean animating() {
+        return animating;
+    }
+
     public void addNode(Node node) {
         Node n = nodes.get(node.location());
         if (n == null) {

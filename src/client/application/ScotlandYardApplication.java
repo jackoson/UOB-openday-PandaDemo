@@ -270,8 +270,10 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             String message = (String) object;
             gameView.setNotification(message);
         } else if (id.equals("zoom_in")) {
-            Integer location = (Integer) object;
-            gameView.zoomToNode(location);
+            if(!aiView.onTreeView()) {
+                Integer location = (Integer) object;
+                gameView.zoomToNode(location);
+            }
         } else if (id.equals("zoom_out")) {
             gameView.zoomOut();
         } else if (id.equals("reset_timer")) {

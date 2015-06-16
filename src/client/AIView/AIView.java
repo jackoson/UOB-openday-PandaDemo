@@ -100,6 +100,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
         return allHints;
     }
 
+    public boolean onTreeView() {
+        return onTreeView;
+    }
+
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
@@ -140,10 +144,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void setRep(TreeNode treeNode) {
         graphHandler.setTreeNode(treeNode);
+        setRepaints(false);
         running = true;
     }
 
     public void stop() {
+        setRepaints(true);
         running = false;
     }
 
@@ -164,7 +170,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
-                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
+                    if (!graphHandler.animating()) threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
                 } else {
                     graphHandler.updateNodes();
                 }

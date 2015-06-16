@@ -21,7 +21,7 @@ public class GraphHandler {
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
         nodes = new HashMap<Integer, Node>();
-        allNodes = new List<Node>();
+        allNodes = new ArrayList<Node>();
         edges = new ArrayList<Edge<Node>>();
         this.json = json;
         createSphere(json);
@@ -53,7 +53,7 @@ public class GraphHandler {
             }
         });
         for (Node node : allNodes) {
-            nodes.add(node);
+            orderedNodes.add(node);
         }
         return orderedNodes;
     }
@@ -152,7 +152,6 @@ public class GraphHandler {
         if (!animating) {
             cleanRebuiltTree();
             rebuildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
-            //panel.start();
         }
     }
 
@@ -231,7 +230,7 @@ public class GraphHandler {
     }
 
     public void cleanTree() {
-        Set<Node> newAllNodes = new HashSet<Node>();
+        List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
             if(nodes.containsValue(n)) newAllNodes.add(n);
             n.resetAnimators();
@@ -249,7 +248,7 @@ public class GraphHandler {
     }
 
     public void cleanRebuiltTree() {
-        Set<Node> newAllNodes = new HashSet<Node>();
+        List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
             n.setTree(false);
             if(nodes.containsValue(n)) newAllNodes.add(n);

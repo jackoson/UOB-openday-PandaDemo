@@ -26,6 +26,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
     private GraphHandler graphHandler;
 
     private boolean onTreeView = false;
+    private boolean running = false;
     private GameTree gameTree = null;
 
     private JPanel hintPanel;
@@ -141,8 +142,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
-            //if (onTreeView && !node.inTree()) continue;
-            //if (!onTreeView && node.inTree()) continue;//?
+            if (onTreeView && !node.inTree()) continue;
             g.setColor(node.getColor());
             Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
@@ -166,6 +166,11 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
 
     public void setRep(TreeNode graphNode) {
         graphHandler.setGraphNode(graphNode);
+        running = true;
+    }
+
+    public void stop() {
+        running = false;
     }
 
     public void setGameTree(GameTree gameTree) {
@@ -182,8 +187,11 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-            if (onTreeView) graphHandler.updateTree(this);
-            if(!onTreeView) graphHandler.updateNodes();
+            if (running){
+                if (onTreeView) graphHandler.updateTree(this);
+                if(!onTreeView) graphHandler.updateNodes();
+                repaint();
+            }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             humanPlaying();
             if (onTreeView) {

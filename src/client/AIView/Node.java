@@ -75,7 +75,6 @@ public class Node extends Vector {
         this.zAnimator = zAnimator;
         if (this.xAnimator != null) this.zAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         this.alphaAnimator = alphaAnimator;
-        if (this.alphaAnimator != null) this.alphaAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
     }
 
     public void reverseAnimation(Double duration, AnimatablePanel panel) {

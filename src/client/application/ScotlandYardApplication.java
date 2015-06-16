@@ -311,6 +311,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("link_tree")) {
             GameTree gameTree = (GameTree) object;
             aiView.setGameTree(gameTree);
+        }  else if (id.equals("ai_end")) {
+            aiView.stop();
         } else if (id.equals("ai_human_playing")) {
             aiView.humanPlaying();
         }

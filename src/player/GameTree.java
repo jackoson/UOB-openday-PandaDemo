@@ -72,6 +72,7 @@ public class GameTree implements Runnable {
             System.out.println("Depth: " + i + " Score: " + result);
             getMoves(root);
         }
+        threadCom.putUpdate("ai_end", true);
     }
 
     private void getMoves(TreeNode node) {

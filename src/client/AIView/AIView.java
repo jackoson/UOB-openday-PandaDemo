@@ -159,7 +159,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseMoti
             if (!edge.inTree() && onTreeView) continue;
             Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
-            g.setColor(new Color(255, 255, 255, Math.min(n1.getColor().getAlpha(), n2.getColor().getAlpha())));
+            g.setColor(new Color(255, 255, 255, (int)(255 * edge.getAlpha())));
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
     }

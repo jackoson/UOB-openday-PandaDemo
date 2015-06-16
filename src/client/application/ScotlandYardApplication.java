@@ -232,7 +232,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             try {
                 Object id = threadCom.takeUpdate();
                 if (!(id instanceof String)) {
-                    System.err.println(ID: + id);
+                    System.err.println("ID: " + id);
                 }
                 String updateId = (String) id;
                 Object updateObject = threadCom.takeUpdate();

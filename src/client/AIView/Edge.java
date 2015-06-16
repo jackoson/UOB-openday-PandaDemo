@@ -7,7 +7,7 @@ public class Edge<X> {
     private X node1;
     private X node2;
     private boolean inTree;
-    private Double alpha;
+    private Double alpha = 1.0;
     private AnimatablePanel.Animator alphaAnimator;
 
     public Edge(X node1, X node2) {
@@ -32,7 +32,7 @@ public class Edge<X> {
         return inTree;
     }
 
-    public setAnimator(AnimatablePanel.Animator alphaAnimator) {
+    public void setAnimator(AnimatablePanel.Animator alphaAnimator) {
         this.alphaAnimator = alphaAnimator;
     }
 

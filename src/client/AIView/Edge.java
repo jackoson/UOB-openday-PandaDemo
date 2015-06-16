@@ -1,5 +1,7 @@
 package client.aiview;
 
+import java.awt.Color;
+
 public class Edge<X> {
 
     private X node1;

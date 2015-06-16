@@ -26,6 +26,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private GraphHandler graphHandler;
 
     private boolean onTreeView = false;
+    private boolean running = false;
     private GameTree gameTree = null;
 
     private JPanel hintPanel;
@@ -91,6 +92,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
+            if (node.getColor().getAlpha() == 0) continue;
             g.setColor(node.getColor());
             Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
@@ -103,16 +105,21 @@ public class AIView extends AnimatablePanel implements ActionListener {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Node n2 = edge.getNode2();
-            if (!edge.inTree() && onTreeView) continue;
+            if (edge.getAlpha() == 0) continue;
             Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
-            g.setColor(new Color(255, 255, 255, Math.min(n1.getColor().getAlpha(), n2.getColor().getAlpha())));
+            g.setColor(new Color(255, 255, 255, edge.getAlpha()));
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
     }
 
     public void setRep(TreeNode treeNode) {
         graphHandler.setTreeNode(treeNode);
+        running = true;
+    }
+
+    public void stop() {
+        running = false;
     }
 
     public void setGameTree(GameTree gameTree) {
@@ -129,8 +136,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-            if (onTreeView) graphHandler.updateTree(this);
-            if(!onTreeView) graphHandler.updateNodes();
+            if (running){
+                if (onTreeView) graphHandler.updateTree(this);
+                if(!onTreeView) graphHandler.updateNodes();
+                repaint();
+            }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
             humanPlaying();
             if (onTreeView) {

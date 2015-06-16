@@ -9,7 +9,7 @@ import java.awt.Color;
 public class GraphHandler {
 
     private Map<Integer, Node> nodes;
-    private Set<Node> allNodes;
+    private List<Node> allNodes;
     private List<Edge<Node>> edges;
     private Map<String, List<Map<String, Double>>> json;
     private Double angle = 0.0;
@@ -21,14 +21,7 @@ public class GraphHandler {
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
         nodes = new HashMap<Integer, Node>();
-        allNodes = new TreeSet<Node>(new Comparator<Node>() {//MAKE INTO A TREESET THAT LISTENS FOR CHANGES TO REORDER
-            public int compare(Node o1, Node o2) {
-                Double o1z = o1.getZ();
-                Double o2z = o2.getZ();
-                if (o1z < o2z) return 1;
-                else return -1;
-            }
-        });
+        allNodes = new List<Node>();
         edges = new ArrayList<Edge<Node>>();
         this.json = json;
         createSphere(json);
@@ -51,7 +44,18 @@ public class GraphHandler {
     }
 
     public Set<Node> getNodes() {
-        return allNodes;
+        Set<Node> orderedNodes = new TreeSet<Node>(new Comparator<Node>() {
+            public int compare(Node o1, Node o2) {
+                Double o1z = o1.getZ();
+                Double o2z = o2.getZ();
+                if (o1z < o2z) return 1;
+                else return -1;
+            }
+        });
+        for (Node node : allNodes) {
+            nodes.add(node);
+        }
+        return orderedNodes;
     }
 
     public List<Edge<Node>> getEdges() {
@@ -148,7 +152,7 @@ public class GraphHandler {
         if (!animating) {
             cleanRebuiltTree();
             rebuildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
-            panel.start();
+            //panel.start();
         }
     }
 
@@ -167,15 +171,16 @@ public class GraphHandler {
             }
             node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
             node.setTree(true);
-            node.setSelected(false);
+            node.setSelected(true);
             if (parent != null) {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
                 addEdge(e);
                 node.setParent(parent);
             }
-            width = width / treeNode.getChildren().size();
-            for (int i = 0; i < treeNode.getChildren().size(); i++) {
+            int size = Math.min(treeNode.getChildren().size(), 4); //Look at location to cut down duplication rather than just size
+            width = width / size;
+            for (int i = 0; i < size; i++) {
                 TreeNode treeNodeRep = treeNode.getChildren().get(i);
                 buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
             }
@@ -198,14 +203,16 @@ public class GraphHandler {
             node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
             node.forwardAnimators(1.0);
             node.setTree(true);
+            node.setSelected(true);
             if (parent != null)  {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
                 addEdge(e);
                 node.setParent(parent);
             }
-            width = width / treeNode.getChildren().size();
-            for (int i = 0; i < treeNode.getChildren().size(); i++) {
+            int size = Math.min(treeNode.getChildren().size(), 4);
+            width = width / size;
+            for (int i = 0; i < size; i++) {
                 TreeNode treeNodeRep = treeNode.getChildren().get(i);
                 rebuildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
             }
@@ -233,8 +240,7 @@ public class GraphHandler {
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
         for (Edge<Node> e : edges) {
-            if ((nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2()))) {
-                e.setInTree(false);
+            if (!e.inTree()) {
                 newEdges.add(e);
             }
         }
@@ -245,15 +251,13 @@ public class GraphHandler {
     public void cleanRebuiltTree() {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
-            //Can get rid of wayward nodes using  && n.inTree() but causes other problems
-            n.setTree(false);//?
+            n.setTree(false);
             if(nodes.containsValue(n)) newAllNodes.add(n);
         }
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
         for (Edge<Node> e : edges) {
-            if (allNodes.contains(e.getNode1()) && allNodes.contains(e.getNode2())) {
-                e.setInTree(false);
+            if (!e.inTree()) {
                 newEdges.add(e);
             }
         }

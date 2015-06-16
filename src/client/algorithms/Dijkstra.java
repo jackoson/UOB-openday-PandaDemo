@@ -110,7 +110,9 @@ public class Dijkstra {
             if (currentNode == null) {
                 System.err.println("CurrentNode is null.");
             }
+            //Could just return if null, only happends very infrequently
             System.err.println("Current Node: " + currentNode);
+
         }
         Set<Edge<Integer, Route>> edges = graph.getEdges(currentNode.data());
         Double currentDistance = distances.get(currentNode);

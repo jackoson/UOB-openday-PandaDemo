@@ -76,7 +76,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation, int no) {
+    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation) {
         if (treeNode == null) return new ArrayList<RouteHint>();
 
         List<RouteHint> allHints = new ArrayList<RouteHint>();
@@ -88,11 +88,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
             allHints.add(new RouteHint(locs, Color.WHITE));
         }
         int loc = 0;
-        int size = Math.min(treeNode.getChildren().size(), no);
+        int size = Math.min(treeNode.getChildren().size(), 4);
         for (int i = 0; i < size; i++) {
             if (treeNode.getChildren().get(i).getTrueLocation() == loc) continue;
             loc = treeNode.getChildren().get(i).getTrueLocation();
-            allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location, no - 2));
+            allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location));
         }
 
         return allHints;
@@ -162,7 +162,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
-                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
+                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
                     humanPlaying();
                 } else {
                     graphHandler.updateNodes();

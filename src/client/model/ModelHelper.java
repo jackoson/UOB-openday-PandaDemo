@@ -263,7 +263,7 @@ public class ModelHelper {
     }
 
     public static Integer getLocation(Move move) {
-        if (move instanceof MovePass) return null;
+        if (move == null || move instanceof MovePass) return null;
         else if (move instanceof MoveTicket) {
             MoveTicket moveTicket = (MoveTicket) move;
             return moveTicket.target;

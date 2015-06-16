@@ -3,6 +3,7 @@ package client.aiview;
 import client.view.*;
 import client.view.Formatter;
 import client.application.*;
+import client.model.*;
 import player.*;
 
 import scotlandyard.*;
@@ -75,17 +76,25 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    public List<RouteHint> makeSpiders(TreeNode treeNode) {
+    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation, int no) {
         if (treeNode == null) return new ArrayList<RouteHint>();
 
         List<RouteHint> allHints = new ArrayList<RouteHint>();
         List<Integer> locs = new ArrayList<Integer>();
-        locs.add(treeNode.getTrueLocation());
-        locs.add(ModelHelper.getLocation(treeNode.getMove()));
-        RouteHint hint = new RouteHint(locs, Colour.Black);
-        allHints.add(hint);
-        for (TreeNode n : treeNode.getChildren()) {
-            allHints.addAll(makeSpiders(n));
+        Integer location = treeNode.getTrueLocation();
+        if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
+            locs.add(location);
+            locs.add(previousLocation);
+            allHints.add(new RouteHint(locs, Color.WHITE));
+        }
+        int loc = 0;
+        int size = Math.min(treeNode.getChildren().size(), no);
+        for (int i = 0; i < size; i++) {
+            if (treeNode.getChildren().get(i).getTrueLocation() == loc) {
+                loc = treeNode.getChildren().get(i).getTrueLocation();
+                continue;
+            }
+            allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location, no - 2));
         }
 
         return allHints;
@@ -155,7 +164,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
-                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode()));
+                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
                 } else {
                     graphHandler.updateNodes();
                 }

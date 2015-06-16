@@ -5,7 +5,7 @@ import client.algorithms.*;
 import client.application.*;
 import client.model.*;
 import client.view.Formatter;
-import client.view.GraphNodeRep;
+import client.view.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -69,6 +69,7 @@ public class GameTree implements Runnable {
             System.out.println("Depth: " + i + " Score: " + result);
             getMoves(root);
         }
+        threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         threadCom.putUpdate("ai_end", true);
     }
 

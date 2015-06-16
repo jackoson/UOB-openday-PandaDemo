@@ -136,9 +136,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
-            if (running){
-                if (onTreeView) graphHandler.updateTree(this);
-                if(!onTreeView) graphHandler.updateNodes();
+            if (running) {
+                if (onTreeView) {
+                    graphHandler.updateTree(this);
+                    threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode()));
+                } else {
+                    graphHandler.updateNodes();
+                }
                 repaint();
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {

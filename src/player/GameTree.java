@@ -66,7 +66,6 @@ public class GameTree implements Runnable {
         threadCom.putUpdate("ai_set_rep", root);
         for (int i = 0; i < 5; i++) {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            System.out.println("Depth: " + i + " Score: " + result);
             getMoves(root);
         }
         threadCom.putUpdate("show_route", new ArrayList<RouteHint>());

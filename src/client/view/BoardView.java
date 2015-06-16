@@ -20,7 +20,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
 
     private static final long serialVersionUID = -4785796174751700452L;
 
-    private final static int border = 1800;
+    private final static int border = 1600;
     private final static int halfBorder = 1000;
 
     private BufferedImage map;

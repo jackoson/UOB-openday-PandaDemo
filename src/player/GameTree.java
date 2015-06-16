@@ -31,7 +31,8 @@ public class GameTree implements Runnable {
     private final List<GamePlayer> initialState;
     private boolean pause = false;
 
-    private Move move;
+    private Move mrXMove;
+    private Move detMove;
     private GraphNodeRep topRep;
 
     /**
@@ -54,7 +55,8 @@ public class GameTree implements Runnable {
         this.initialPlayer = initialPlayer;
         this.initialState = initialState;
         this.threadCom = threadCom;
-        this.move = null;
+        this.mrXMove = MovePass.instance(Colour.Black);
+        this.detMove = MovePass.instance(Colour.Blue);
     }
 
     /**
@@ -65,8 +67,24 @@ public class GameTree implements Runnable {
         topRep = new GraphNodeRep(Formatter.colorForPlayer(initialPlayer), root.getTrueLocation());
         threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", topRep);
-        Double result = alphaBeta(root, 5, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
-        this.move = root.getBestChild().getMove();
+        for (int i = 0; i < 6; i++) {
+            Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, topRep);
+            System.out.println("Depth: " + i + " Score: " + result);
+            getMoves(root);
+        }
+    }
+
+    private void getMoves(TreeNode node) {
+        if (node.getBestChild() != null && node.getBestChild().getMove() != null) {
+            synchronized (mrXMove) {
+                mrXMove = node.getBestChild().getMove();
+            }
+            if (node.getBestChild().getBestChild() != null && node.getBestChild().getBestChild().getMove() != null) {
+                synchronized (detMove) {
+                    detMove = node.getBestChild().getBestChild().getMove();
+                }
+            }
+        }
     }
 
     public void pause() {
@@ -150,6 +168,7 @@ public class GameTree implements Runnable {
     // @param maximising the boolean which decides whether the new nodes are maximising.
     // @return the node with children added.
     private TreeNode addChildren(TreeNode parent, boolean maximising) {
+        if (parent.getChildren().size() > 0) return parent;
         int nextRound = parent.getRound();
         if (maximising) nextRound++;
         Colour nextPlayer = ModelHelper.getNextPlayer(parent.getState(), ModelHelper.getPlayerOfColour(parent.getState(), parent.getPlayer())).colour();
@@ -163,8 +182,12 @@ public class GameTree implements Runnable {
         return parent;
     }
 
-    public Move getMove() {
-        return this.move;
+    public Move getMrXMove() {
+        return mrXMove;
+    }
+
+    public Move getDetMove() {
+        return detMove;
     }
 
     // Plays the specified Move in the specified game state.

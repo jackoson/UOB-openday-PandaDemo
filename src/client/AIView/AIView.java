@@ -43,8 +43,9 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             setLayout(new CardLayout());
             //add(new TutorialView(), "TUTORIAL");
             ratingView = new RatingView(fileAccess);
-            //add(ratingView, "RATING");
+            add(ratingView, "RATING");
             ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
+            ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
             hintsView = new HintsView();
             //add(hintsView, "HINTS");
 

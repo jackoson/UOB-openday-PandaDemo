@@ -20,7 +20,7 @@ public class GraphHandler {
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
         nodes = new HashMap<Integer, Node>();
-        allNodes = new TreeSet<Node>(new Comparator<Node>() {
+        allNodes = new TreeSet<Node>(new Comparator<Node>() {//MAKE INTO A TREESET THAT LISTENS FOR CHANGES TO REORDER
             public int compare(Node o1, Node o2) {
                 Double o1z = o1.getZ();
                 Double o2z = o2.getZ();

@@ -29,7 +29,7 @@ public class RatingView extends JPanel {
         add(iconLabel, contstraints);
 
         String message = "Nice move!";
-        if (!goodMove) message = "Hmmmm :(, good effort!";
+        if (!goodMove) message = "Hmmmm, good effort.";
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         messageLabel.setFont(Formatter.defaultFontOfSize(30));
         messageLabel.setForeground(new Color(255, 255, 255, 204));

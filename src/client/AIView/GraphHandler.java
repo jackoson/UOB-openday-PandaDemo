@@ -132,18 +132,8 @@ public class GraphHandler {
         if (!animating) selectNodes(graphNode());
     }
 
-    public void updateTree(AnimatablePanel panel) {
-        System.err.println("Update:" + graphNode().children().size());
-        //resetTree();
-        if (!animating) {
-            cleanTree(false);
-            rebuildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
-            panel.start();
-        }
-    }
-
     public void showTree(AnimatablePanel panel) {
-        cleanTree(false);
+        cleanTree();
         panel.cancelAllAnimations();
         animating = true;
         buildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
@@ -151,6 +141,14 @@ public class GraphHandler {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
         panel.start();
+    }
+
+    public void updateTree(AnimatablePanel panel) {
+        if (!animating) {
+            cleanRebuiltTree();
+            rebuildTree(panel, graphNode(), -300.0, 600.0, -180.0, null);
+            panel.start();
+        }
     }
 
     private void buildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
@@ -186,6 +184,7 @@ public class GraphHandler {
     private void rebuildTree(AnimatablePanel panel, GraphNodeRep graphNode, Double xStart, Double width, Double y, Node parent) {
         if (graphNode == null) return;
         synchronized (graphNode) {
+            //System.err.println("REP: "+ y);
             Double x =  xStart + (width / 2.0);
             Node node = getNode(graphNode.location());
             if (node == null) {
@@ -226,23 +225,39 @@ public class GraphHandler {
         animating = false;
     }
 
-    public void cleanTree(boolean end) {
+    public void cleanTree() {
         Set<Node> newAllNodes = new HashSet<Node>();
         for (Node n : allNodes) {
-            //Can get rid of wayward nodes using  && (end || n.inTree()) but causes other problems
             if(nodes.containsValue(n)) newAllNodes.add(n);
-            if (end) n.resetAnimators();
-            if (end) n.setTree(false);
+            n.resetAnimators();
+            n.setTree(false);
         }
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
         for (Edge<Node> e : edges) {
-            if ((nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2())) || (!end && allNodes.contains(e.getNode1()) && allNodes.contains(e.getNode2()))) {
+            if ((nodes.containsValue(e.getNode1()) && nodes.containsValue(e.getNode2()))) {
                 e.setInTree(false);
                 newEdges.add(e);
             }
         }
         edges = newEdges;
         animating = false;
+    }
+
+    public void cleanRebuiltTree() {
+        Set<Node> newAllNodes = new HashSet<Node>();
+        for (Node n : allNodes) {
+            //Can get rid of wayward nodes using  && n.inTree() but causes other problems
+            if(nodes.containsValue(n)) newAllNodes.add(n);
+        }
+        allNodes = newAllNodes;
+        List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();
+        for (Edge<Node> e : edges) {
+            if (allNodes.contains(e.getNode1()) && allNodes.contains(e.getNode2())) {
+                e.setInTree(false);
+                newEdges.add(e);
+            }
+        }
+        edges = newEdges;
     }
 }

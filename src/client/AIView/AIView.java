@@ -4,6 +4,7 @@ import client.view.*;
 import client.view.Formatter;
 import client.application.*;
 import player.GameTree;
+
 import scotlandyard.*;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ import java.io.*;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 
-public class AIView extends AnimatablePanel implements ActionListener, MouseListener, MouseMotionListener {
+public class AIView extends AnimatablePanel implements ActionListener, MouseMotionListener {
 
     private AnimatablePanel.Animator rotateAnimator;
     private ThreadCommunicator threadCom;
@@ -59,11 +60,10 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(1000, this);
+            Timer time = new Timer(20, this);
             time.setActionCommand("rep");
             time.start();
 
-            addMouseListener(this);
             addMouseMotionListener(this);
 
         } catch (FileNotFoundException e) {
@@ -72,12 +72,7 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             System.exit(1);
         }
     }
-
-    public void mousePressed(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
-    public void mouseClicked(MouseEvent e) {}
+    
     public void mouseDragged(MouseEvent e) {}
 
     public void mouseMoved(MouseEvent e) {
@@ -121,6 +116,45 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
       if(mrX) routes.get(0).add(n.location());
       else routes.get(1).add(n.location());
       return routes;
+    }
+
+    private void addHint(String message) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(4, 10, 10, 0);
+
+        hintPanel = new JPanel(new GridBagLayout());
+        hintPanel.setPreferredSize(new Dimension(500, 140));
+        hintPanel.setOpaque(true);
+        hintPanel.setBackground(Color.WHITE);
+        Border whiteBorder = new LineBorder(Color.WHITE, 10);
+        Border blueBorder = new LineBorder(new Color(131, 226, 197), 1);
+        Border compBorder = new CompoundBorder(whiteBorder, blueBorder);
+        hintPanel.setBorder(compBorder);
+
+        String firstWord = message.split(" ")[0];
+        String theRest = message.replace(firstWord, "");
+
+        JTextPane messageLabel = new JTextPane();
+        messageLabel.setContentType("text/html");
+        messageLabel.setText("<html><font size=+4 face='Helvetica Neue'>" + firstWord + "</font><font face='Helvetica Neue'>" + theRest + "</font></html>");
+        messageLabel.setFont(Formatter.defaultFontOfSize(12));
+        messageLabel.setEditable(false);
+        messageLabel.setHighlighter(null);
+        hintPanel.add(messageLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(20, 20, 20, 20);
+        add(hintPanel, gbc);
+    }
+
+    private void removeHint() {
+        this.remove(hintPanel);
     }
 
     public void paintComponent(Graphics g0) {
@@ -176,6 +210,30 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
         this.gameTree = gameTree;
     }
 
+    public void showHint(String text) {
+        if (gameTree == null) return;
+        if (onTreeView) {
+            System.err.println("R:" + gameTree.randomNode());
+            gameTree.pause();
+            addHint(text);
+
+            Timer timer = new Timer(5000, this);
+            timer.setActionCommand("hide_hint");
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
+    public void hideHint() {
+        if (gameTree == null) return;
+        gameTree.resume();
+        removeHint();
+        Timer timer = new Timer(350, this);
+        timer.setActionCommand("show_hint");
+        timer.setRepeats(false);
+        timer.start();
+    }
+
     public void setThreadCom(ThreadCommunicator threadCom) {
         this.threadCom = threadCom;
     }
@@ -197,21 +255,21 @@ public class AIView extends AnimatablePanel implements ActionListener, MouseList
             } else {
                 onTreeView = true;
                 graphHandler.showTree(this);
-                //add(button);
+                add(button);
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("show_hint")) {
             if (hintState < 4 && onTreeView) {
                 if (hintState == 1) {
-                //    showHint("Hint number one.");
+                    showHint("Hint number one.");
                 } else if (hintState == 2) {
-                //    showHint("Hint number two.");
+                    showHint("Hint number two.");
                 } else if (hintState == 3) {
-              //      showHint("Hint number three.");
+                    showHint("Hint number three.");
                 }
                 hintState++;
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("hide_hint")) {
-          //  hideHint();
+            hideHint();
         } else {
             super.actionPerformed(e);
         }

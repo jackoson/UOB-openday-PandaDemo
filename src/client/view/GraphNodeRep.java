@@ -20,7 +20,7 @@ public class GraphNodeRep {
         for(GraphNodeRep c : children) {
             if (child.location() == c.location()) locOccupied = true;
         }
-        if (!locOccupied) */if (children.size() < 5) children.add(child);
+        if (!locOccupied) */if (children.size() < 5) children.add(child); //?Need to locations
     }
 
     public List<GraphNodeRep> children() {

@@ -78,6 +78,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         List<RouteHint> allHints = new ArrayList<RouteHint>();
         List<Integer> locs = new ArrayList<Integer>();
         Integer location = treeNode.getTrueLocation();
+        if (!treeNode.getPlayer().equals(Colour.Black))location = previousLocation;
         if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
             locs.add(location);
             locs.add(previousLocation);
@@ -145,6 +146,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void stop() {
         setRepaints(true);
         running = false;
+        System.err.println("Stop" + onTreeView);
+        humanPlaying(!onTreeView);
     }
 
     public void setGameTree(GameTree gameTree) {

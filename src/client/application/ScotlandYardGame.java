@@ -285,6 +285,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                     sendNotification("Invalid move, please try again.");
                 }
             } else if (outOfTime || humanPlaying) {
+                System.err.println("Out: " + humanPlaying);
                 if (moves.contains(aiMove)) move = aiMove;
                 else move = moves.iterator().next();
                 sendNotification("Out of time, a move has been chosen for you.");

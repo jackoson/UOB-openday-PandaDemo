@@ -76,6 +76,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
+
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -133,7 +134,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         graphHandler.rotateNodes(rotateAnimator.value());
 
         Dimension size = getSize();
-        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0));
+        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 100, 0.0));
 
         drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
         drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
@@ -167,6 +168,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         setRepaints(false);
         running = true;
         switchToView(BUTTON);
+        showTree();
     }
 
     public void stop() {
@@ -174,6 +176,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         running = false;
         humanPlaying(onTreeView);
         switchToView(TUTORIAL);
+        showSphere();
 
     }
 
@@ -194,6 +197,22 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private void switchToView(String view) {
         CardLayout layout = (CardLayout) getLayout();
         layout.show(this, view);
+    }
+
+    public void showTree() {
+        if (onTreeView) return;
+        humanPlaying(true);
+        onTreeView = true;
+        graphHandler.showTree(this);
+        System.err.println("Switch");
+    }
+
+    public void showSphere() {
+        if (!onTreeView) return;
+        threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        graphHandler.returnFromTree(this);
+        onTreeView = false;
+        humanPlaying(false);
     }
 
     public void actionPerformed(ActionEvent e) {

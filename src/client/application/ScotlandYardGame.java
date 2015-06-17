@@ -293,7 +293,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                     pda.reset();
                     sendNotification("Invalid move, please try again.");
                 }
-            } else if (outOfTime || humanPlaying) {
+            } else if (outOfTime) {
                 System.err.println("Out: " + humanPlaying);
                 if (moves.contains(aiMove)) move = aiMove;
                 else move = moves.iterator().next();

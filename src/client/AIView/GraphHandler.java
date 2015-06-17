@@ -145,7 +145,7 @@ public class GraphHandler {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
-        buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, false);
+        buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
@@ -158,7 +158,7 @@ public class GraphHandler {
     public void updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, true);
+            buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true);
             for (Node n : allNodes) {
                 if (!n.inTree()) {
                     n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));

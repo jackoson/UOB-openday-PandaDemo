@@ -15,6 +15,7 @@ import java.awt.event.*;
 public class GeneHunt implements Player {
 
     private ScotlandYardView view;
+    private ScotlandYardGame game;
     private Graph<Integer, Route> graph;
     private Dijkstra dijkstra;
     private PageRank pageRank;
@@ -28,7 +29,7 @@ public class GeneHunt implements Player {
      * @param graphFilename the path to the file that contains the Graph.
      * @param guiThreadCom the ThreadCommunicator object to communicate with the Event handling thread (GUI thread).
      */
-    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom) {
+    public GeneHunt(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom, ScotlandYardGame game) {
         try {
             this.view = view;
             ScotlandYardGraphReader graphReader = new ScotlandYardGraphReader();
@@ -37,6 +38,7 @@ public class GeneHunt implements Player {
             this.pageRank = new PageRank(graph);
             this.pageRank.iterate(100);
             this.threadCom = threadCom;
+            this.game = game;
         } catch (Exception e) {
             System.err.println("Error creating a new AI player :" + e);
             e.printStackTrace();
@@ -57,7 +59,7 @@ public class GeneHunt implements Player {
         threadCom.putUpdate("valid_moves", new HashSet<Move>());
         Colour player = view.getCurrentPlayer();
         if (threadCom != null) updateUI(player);
-        GameTree gameTree = new GameTree(graph, pageRank, dijkstra, view.getRound(), player, getPlayers(location, player), threadCom);
+        GameTree gameTree = new GameTree(graph, pageRank, dijkstra, view.getRound(), player, getPlayers(location, player), threadCom, game);
         Thread gameTreeThread = new Thread(gameTree);
         gameTreeThread.start();
         joinThread(gameTreeThread);

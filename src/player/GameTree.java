@@ -25,6 +25,7 @@ public class GameTree implements Runnable {
     public final Dijkstra dijkstra;
     public final ThreadCommunicator threadCom;
     private TreeNode root;
+    private ScotlandYardGame game;
 
     private final Integer round;
     private final Colour initialPlayer;
@@ -45,7 +46,7 @@ public class GameTree implements Runnable {
      */
     public GameTree(Graph<Integer, Route> graph,
                     PageRank pageRank, Dijkstra dijkstra, int round, Colour initialPlayer,
-                    List<GamePlayer> initialState, ThreadCommunicator threadCom) {
+                    List<GamePlayer> initialState, ThreadCommunicator threadCom, ScotlandYardGame game) {
         this.graph = graph;
         this.pageRank = pageRank;
         this.dijkstra = dijkstra;
@@ -55,6 +56,7 @@ public class GameTree implements Runnable {
         this.threadCom = threadCom;
         this.mrXMove = MovePass.instance(Colour.Black);
         this.detMove = MovePass.instance(Colour.Blue);
+        this.game = game;
     }
 
     /**
@@ -67,11 +69,10 @@ public class GameTree implements Runnable {
         for (int i = 0; i < 5; i++) {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             getMoves(root);
+            game.setAiMove(getDetMove());
         }
-        System.err.println("TREE: " + threadCom);
         threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         threadCom.putUpdate("det_move", getDetMove());
-        threadCom.putEvent("det_move", getDetMove());
         threadCom.putUpdate("ai_end", true);
     }
 
@@ -86,6 +87,7 @@ public class GameTree implements Runnable {
                 }
             }
         }
+        System.err.println("Updating best moves" + detMove);
     }
 
     private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {//Need some synchronization with TreeNodes. ^^ does too.

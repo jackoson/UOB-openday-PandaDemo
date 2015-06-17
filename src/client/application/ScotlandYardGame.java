@@ -210,7 +210,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         mrXTickets.put(Ticket.Double, 2);
         mrXTickets.put(Ticket.Secret, 5);
         Player player = this;
-        if (demo) player = new GeneHunt(model, graphName, threadCom);
+        if (demo) player = new GeneHunt(model, graphName, threadCom, this);
         model.join(player, colours[0], mrXLocation, mrXTickets);
         players.add(new GamePlayer(player, colours[0], 0, mrXTickets));
 
@@ -271,7 +271,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             } else {
                 replaying = false;
             }
-            System.err.println("GAME: " + threadCom);
             ThreadCommunicator.Packet packet = threadCom.takeEvent();
             decodeEvents(packet.getId(), packet.getObject());
 
@@ -285,9 +284,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                     sendNotification("Invalid move, please try again.");
                 }
             } else if (outOfTime) {
-                if (moves.contains(aiMove)) {move = aiMove; System.err.println("Choosing AI Move");}
-                else move = moves.iterator().next();
-                aiMove = null;
+                if (moves.contains(aiMove)) {move = aiMove; System.err.println("Choosing AI Move" + move);}
+                else {move = moves.iterator().next(); System.err.println("Choosing Next Move" + aiMove);}
                 sendNotification("Out of time, a move has been chosen for you.");
                 break;
             } else if (moves.iterator().next() instanceof MovePass) {
@@ -324,7 +322,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             pda.transition(location);
         } else if (id.equals("timer_fired")) {
             outOfTime = true;
-            wait(50);
         } else if (id.equals("ticket_clicked")) {
             Ticket ticket = (Ticket) object;
             threadCom.putUpdate("highlight_node", 0);
@@ -336,10 +333,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             pda.transition(ticket);
         } else if (id.equals("save_game")) {
             if (saveGame != null) fileAccess.saveGame(saveGame);
-        } else if (id.equals("det_move")) {
-            System.err.println("dasc");
-            Move move = (Move) object;
-            aiMove = move;
         }
     }
 
@@ -459,6 +452,11 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      */
     public void saveGame() {
         if (!replaying && saveGame != null) fileAccess.saveGame(saveGame);
+    }
+
+    public void setAiMove(Move m) {
+        System.err.println("Recieving detective move from game Tree: " + m);
+        aiMove = m;
     }
 
 }

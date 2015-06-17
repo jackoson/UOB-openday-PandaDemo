@@ -82,7 +82,7 @@ public class GeneHuntFactory implements PlayerFactory {
             case GUI:
                 return gui(view);
             default:
-                return new GeneHunt(view, graphFilename, threadCom);
+                return new GeneHunt(view, graphFilename, threadCom, gui(view));
         }
     }
 
@@ -124,7 +124,7 @@ public class GeneHuntFactory implements PlayerFactory {
 
     private GeneHunt ai(ScotlandYardView view, String graphFilename, ThreadCommunicator threadCom) {
         if (ai == null) {
-            ai = new GeneHunt(view, graphFilename, threadCom);
+            ai = new GeneHunt(view, graphFilename, threadCom, gui(view));
         }
         return ai;
     }

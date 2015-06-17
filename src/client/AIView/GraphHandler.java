@@ -145,7 +145,7 @@ public class GraphHandler {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
-        buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
+        buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, false);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
@@ -158,43 +158,17 @@ public class GraphHandler {
     public void updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            rebuildTree(panel, treeNode(), -300.0, 600.0, -180.0, null);
-        }
-    }
-
-    private void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent) {
-        if (treeNode == null) return;
-        synchronized (treeNode) {
-            Double x =  xStart + (width / 2.0);
-            Node node = getNode(treeNode.getTrueLocation());
-            if (node == null) {
-                System.err.println("Null node when creating tree.");
-                return;
-            }
-            if (node.inTree()){
-                node = new Node(node.getX(), node.getY(), node.getZ(), node.getColor(), node.location());
-                allNodes.add(node);
-            }
-            node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
-            node.setTree(true);
-            node.setSelected(true);
-            if (parent != null) {
-                Edge<Node> e = new Edge<Node>(node, parent);
-                e.setInTree(true);
-                e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
-                addEdge(e);
-                node.setParent(parent);
-            }
-            int size = Math.min(treeNode.getChildren().size(), 4); //Look at location to cut down duplication rather than just size
-            width = width / size;
-            for (int i = 0; i < size; i++) {
-                TreeNode treeNodeRep = treeNode.getChildren().get(i);
-                buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
+            buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, true);
+            for (Node n : allNodes) {
+                if (!n.inTree()) {
+                    n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
+                    n.forwardAnimators(1.0);
+                }
             }
         }
     }
 
-    private void rebuildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent) {
+    private void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding) {
         if (treeNode == null) return;
         synchronized (treeNode) {
             Double x =  xStart + (width / 2.0);
@@ -208,14 +182,14 @@ public class GraphHandler {
                 allNodes.add(node);
             }
             node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
-            node.forwardAnimators(1.0);
+            if (rebuilding) node.forwardAnimators(1.0);
             node.setTree(true);
             node.setSelected(true);
             if (parent != null)  {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setInTree(true);
                 e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
-                e.forwardAnimators(1.0);
+                if (rebuilding) e.forwardAnimators(1.0);
                 addEdge(e);
                 node.setParent(parent);
             }
@@ -223,7 +197,7 @@ public class GraphHandler {
             width = width / size;
             for (int i = 0; i < size; i++) {
                 TreeNode treeNodeRep = treeNode.getChildren().get(i);
-                rebuildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node);
+                buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding);
             }
         }
     }
@@ -263,8 +237,8 @@ public class GraphHandler {
     public void cleanRebuiltTree() {
         List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
-            n.setTree(false);
             if(nodes.containsValue(n)) newAllNodes.add(n);
+            n.setTree(false);
         }
         allNodes = newAllNodes;
         List<Edge<Node>> newEdges = new ArrayList<Edge<Node>>();

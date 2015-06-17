@@ -155,8 +155,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
         this.threadCom = threadCom;
     }
 
-    public void humanPlaying() {
-        if (onTreeView) threadCom.putEvent("timer_fired", true);
+    public void humanPlaying(boolean human) {
+        if (human) threadCom.putEvent("human_playing", true);
+        else threadCom.putEvent("ai_playing", true);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -171,15 +172,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 repaint();
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
-            humanPlaying();
             if (onTreeView) {
                 threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
                 graphHandler.returnFromTree(this);
                 onTreeView = false;
+                humanPlaying(false);
             } else {
                 onTreeView = true;
                 graphHandler.showTree(this);
-                humanPlaying();
+                System.err.println("Switch");
+                humanPlaying(true);
             }
         }else {
             super.actionPerformed(e);

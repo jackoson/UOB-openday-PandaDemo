@@ -29,6 +29,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private boolean firstRound = true;
     private boolean replaying = false;
     private final boolean aiGame;
+    private boolean demo = false;
     private Move aiMove = null;
 
     private final int kDetectiveWait = 3000;
@@ -126,6 +127,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
 
     public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, boolean demo) {
         aiGame = false;
+        this.demo = demo;
         try {
             this.threadCom = threadCom;
             this.numPlayers = 2;
@@ -177,6 +179,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         wait(5000);
         if (!aiGame) threadCom.putUpdate("end_game", true);
         threadCom.putUpdate("clear_log", true);
+        threadCom.putUpdate("clear_notificaton", true);
     }
 
     // Returns the List of GamePlayer objects that contain all
@@ -284,13 +287,13 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                     sendNotification("Invalid move, please try again.");
                 }
             } else if (outOfTime) {
-                if (moves.contains(aiMove)) {move = aiMove; System.err.println("Choosing AI Move" + move);}
-                else {move = moves.iterator().next(); System.err.println("Choosing Next Move" + aiMove);}
-                sendNotification("Out of time, a move has been chosen for you.");
+                if (moves.contains(aiMove)) move = aiMove;
+                else move = moves.iterator().next();
+                if (!demo) sendNotification("Out of time, a move has been chosen for you.");
                 break;
             } else if (moves.iterator().next() instanceof MovePass) {
                 move = moves.iterator().next();
-                sendNotification("You don't have any valid moves.");
+                if (!demo) sendNotification("You don't have any valid moves.");
                 break;
             }
         }
@@ -355,7 +358,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param moves the Set of valid Moves the player can make.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
         updateTickets(player);
-        if (player.equals(Colour.Black) && !replaying && !aiGame) {
+        if (player.equals(Colour.Black) && !replaying && !aiGame && !demo) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
         }
@@ -432,7 +435,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @return the message at the end of a game.
     private String getWinningMessage(Set<Colour> players) {
         if (players.contains(Colour.Black)) return "Mr X wins!";
-        return "Detectives win!";
+        else if (players.size() == 1) return "Detective wins!";
+        else return "Detectives win!";
     }
 
     // Returns the tickets a player has.

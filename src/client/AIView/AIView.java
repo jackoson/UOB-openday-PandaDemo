@@ -48,7 +48,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             //add(ratingView, "RATING");
             ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
             ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-            hintsView = new HintsView();
+            hintsView = new HintsView(fileAccess);
             //add(hintsView, "HINTS");
             add(new ButtonView(this), "BUTTON");
 
@@ -81,7 +81,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
             locs.add(location);
             locs.add(previousLocation);
-            allHints.add(new RouteHint(locs, Color.WHITE));
+            allHints.add(new RouteHint(locs, new Color(200, 200, 200, 127)));
         }
         int loc = 0;
         int size = Math.min(treeNode.getChildren().size(), 4);

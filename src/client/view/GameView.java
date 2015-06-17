@@ -191,6 +191,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         notify.notify(message);
     }
 
+    public void clearNotification() {
+        notify.clear();
+    }
+
     /**
      * Updates the tickets displayed in the PlayerTicketView.
      *

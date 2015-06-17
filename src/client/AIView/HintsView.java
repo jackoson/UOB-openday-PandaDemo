@@ -1,6 +1,7 @@
 package client.aiview;
 
 import client.view.Formatter;
+import client.application.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -12,9 +13,11 @@ public class HintsView extends JPanel {
     private String messageTwo = "MessageTwo, this is also a great hint.";
     private String messageThree = "messageThree, this is a great hint too.";
 
-    public HintsView() {
+    public HintsView(FileAccess fileAccess) {
         setOpaque(false);
         setLayout(new BorderLayout());
+
+        //JButton exitButton = new JButton("", fileAccess.getExitButton());
         //Add the button in the top left corner;
     }
 

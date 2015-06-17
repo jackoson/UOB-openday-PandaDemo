@@ -15,7 +15,7 @@ import java.util.*;
  */
 
 public class NotifyView extends JPanel implements ActionListener {
-  
+
     private static final long serialVersionUID = -2670731963459120119L;
 
     private BufferedImage background;
@@ -23,7 +23,7 @@ public class NotifyView extends JPanel implements ActionListener {
     private Timer timer;
     private JLabel label;
     private Queue<String> queue;
-    
+
     private final int kNotifyTime = 3000;
 
     /**
@@ -44,7 +44,7 @@ public class NotifyView extends JPanel implements ActionListener {
         label.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(label);
     }
-    
+
     /**
      * Draws the view.
      *
@@ -55,7 +55,7 @@ public class NotifyView extends JPanel implements ActionListener {
         Graphics2D g = (Graphics2D) g0;
         if (visible) g.drawImage(background, 0, 0, 500, 100, null);
     }
-    
+
     /**
      * Adds a message to the queue to be displayed to the user.
      *
@@ -65,14 +65,20 @@ public class NotifyView extends JPanel implements ActionListener {
         queue.add(text);
         pollQueue();
     }
-    
+
+    public void clear() {
+        queue.clear();
+        visible = false;
+        repaint();
+    }
+
     // Polls the queue and updates the message if one is not currently
     // displayed or the timer for the last message has gone off.
     private void pollQueue() {
         String head = queue.peek();
         if (head != null && !visible) setText(queue.poll());
     }
-    
+
     // Sets the message in the JLabel.
     // @param text the message to be shown in the JLabel.
     private void setText(String text) {
@@ -82,11 +88,11 @@ public class NotifyView extends JPanel implements ActionListener {
         timer.start();
         repaint();
     }
-    
+
     /**
      * Is called when the timer runs out. Timer is for
      * 3 seconds and determines how long the messages are visible for.
-     * 
+     *
      * @param e the ActionEvent from the timer.
      */
     public void actionPerformed(ActionEvent e) {
@@ -96,5 +102,5 @@ public class NotifyView extends JPanel implements ActionListener {
         repaint();
         pollQueue();
     }
-  
+
 }

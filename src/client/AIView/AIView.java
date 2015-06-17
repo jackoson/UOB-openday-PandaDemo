@@ -148,7 +148,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (edge.getAlpha() == 0.0) continue;
             Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
-            g.setColor(new Color(255, 255, 255, (int) (edge.getAlpha() * 255)));
+            g.setColor(edge.getColor());
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
     }

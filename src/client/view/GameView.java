@@ -311,6 +311,10 @@ public class GameView extends JPanel implements ComponentListener, ActionListene
         board.setRouteHint(route);
     }
 
+    public void setCurrentPlayer(Colour colour) {
+        board.setCurrentPlayer(colour);
+    }
+
     /**
      * Unused method from the ComponentListener interface.
      */

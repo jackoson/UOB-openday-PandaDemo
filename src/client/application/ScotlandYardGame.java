@@ -377,6 +377,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
         threadCom.putUpdate("reset_timer", true);
         threadCom.putUpdate("valid_moves", moves);
+        threadCom.putUpdate("current_player", model.getCurrentPlayer());
         threadCom.putUpdate("zoom_in", location);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
     }

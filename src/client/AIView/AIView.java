@@ -77,18 +77,18 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
         List<RouteHint> allHints = new ArrayList<RouteHint>();
         List<Integer> locs = new ArrayList<Integer>();
-        Integer location = treeNode.getTrueLocation();
-        if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
+        Integer location = previousLocation;
+        if (!treeNode.getPlayer().equals(Colour.Black)) location = treeNode.getTrueLocation();
+        if (location != null && previousLocation != null && !treeNode.getPlayer().equals(Colour.Black)) {
             locs.add(location);
             locs.add(previousLocation);
-            allHints.add(new RouteHint(locs, new Color(200, 200, 200, 127)));
+            allHints.add(new RouteHint(locs, new Color(0, 0, 0, 127)));
         }
         int loc = 0;
-        int size = Math.min(treeNode.getChildren().size(), 4);
-        for (int i = 0; i < size; i++) {
-            if (treeNode.getChildren().get(i).getTrueLocation() == loc) continue;
-            loc = treeNode.getChildren().get(i).getTrueLocation();
-            allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location));
+        for (TreeNode child : treeNode.getChildren()) {
+            if (child.getTrueLocation() == loc) continue;
+            else loc = child.getTrueLocation();
+            allHints.addAll(makeSpiders(child, location));
         }
 
         return allHints;
@@ -155,8 +155,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
         this.threadCom = threadCom;
     }
 
-    public void humanPlaying() {
-        if (onTreeView) threadCom.putEvent("timer_fired", true);
+    public void humanPlaying(boolean human) {
+        if (human) threadCom.putEvent("human_playing", true);
+        else threadCom.putEvent("ai_playing", true);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -171,15 +172,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 repaint();
             }
         } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
-            humanPlaying();
             if (onTreeView) {
                 threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
                 graphHandler.returnFromTree(this);
                 onTreeView = false;
+                humanPlaying(false);
             } else {
                 onTreeView = true;
                 graphHandler.showTree(this);
-                humanPlaying();
+                System.err.println("Switch");
+                humanPlaying(true);
             }
         }else {
             super.actionPerformed(e);

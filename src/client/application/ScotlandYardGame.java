@@ -31,6 +31,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private final boolean aiGame;
     private boolean demo = false;
     private Move aiMove = null;
+    private boolean humanPlaying = false;
 
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
@@ -286,7 +287,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                     pda.reset();
                     sendNotification("Invalid move, please try again.");
                 }
-            } else if (outOfTime) {
+            } else if (outOfTime || humanPlaying) {
                 if (moves.contains(aiMove)) move = aiMove;
                 else move = moves.iterator().next();
                 if (!demo) sendNotification("Out of time, a move has been chosen for you.");
@@ -336,6 +337,12 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
             pda.transition(ticket);
         } else if (id.equals("save_game")) {
             if (saveGame != null) fileAccess.saveGame(saveGame);
+        } else if (id.equals("human_playing")) {
+            System.err.println("Human Playing.");
+            humanPlaying = true;
+        } else if (id.equals("ai_playing")) {
+            System.err.println("AI Playing.");
+            humanPlaying = false;
         }
     }
 
@@ -366,7 +373,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         threadCom.putUpdate("valid_moves", moves);
         threadCom.putUpdate("zoom_in", location);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
-        threadCom.putUpdate("ai_human_playing", true);
     }
 
     // Updates the UI at the end of a turn.
@@ -459,7 +465,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     }
 
     public void setAiMove(Move m) {
-        System.err.println("Recieving detective move from game Tree: " + m);
         aiMove = m;
     }
 

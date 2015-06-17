@@ -76,6 +76,12 @@ public class ModelHelper {
         return winners;
     }
 
+    public static boolean isGameOver(List<GamePlayer> players, Colour currentPlayer, Graph<Integer, Route> graph, Integer round) {
+        if (((round >= (getRounds().size() - 1) && currentPlayer.equals(Colour.Black)) || validMoves(players.get(0), players, graph, true).size() == 0
+              || players.size() == 1 || onMrX(players) || detectivesNoValidMoves(players, graph))) return true;
+        return false;
+    }
+
     /**
      * Returns true if all detectives have no valid Moves.
      *

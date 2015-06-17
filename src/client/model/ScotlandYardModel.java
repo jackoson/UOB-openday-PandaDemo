@@ -182,8 +182,7 @@ public class ScotlandYardModel extends ScotlandYard {
 
     @Override
     public boolean isGameOver() {
-        if (isReady() && ((roundCounter >= (rounds.size() - 1) && currentPlayer.colour().equals(Colour.Black)) || validMoves(Colour.Black).size() == 0
-              || getPlayers().size() == 1 || ModelHelper.onMrX(players) || ModelHelper.detectivesNoValidMoves(players, graph))) return true;
+        if (isReady() && ModelHelper.isGameOver(players, currentPlayer.colour(), graph, roundCounter)) return true;
         return false;
     }
 

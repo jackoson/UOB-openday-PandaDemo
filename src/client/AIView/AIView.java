@@ -42,7 +42,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             setBackground(new Color(131, 226, 197));
             setPreferredSize(new Dimension(400, 800));
 
-            //setLayout(new CardLayout());
+            setLayout(new CardLayout());
             //add(new TutorialView(), "TUTORIAL");
             ratingView = new RatingView(fileAccess);
             //add(ratingView, "RATING");
@@ -50,11 +50,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
             hintsView = new HintsView();
             //add(hintsView, "HINTS");
-
-            JButton button = Formatter.button("Switch");
-            button.addActionListener(this);
-            button.setActionCommand("switch_views");
-            add(button);
+            add(new ButtonView(this), "BUTTON");
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);

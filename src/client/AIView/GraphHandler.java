@@ -27,11 +27,11 @@ public class GraphHandler {
         createSphere(json);
     }
 
-    public boolean animating() {
+    public synchronized boolean animating() {
         return animating;
     }
 
-    public void addNode(Node node) {
+    public synchronized void addNode(Node node) {
         Node n = nodes.get(node.location());
         if (n == null) {
             nodes.put(node.location(), node);
@@ -39,15 +39,15 @@ public class GraphHandler {
         allNodes.add(node);
     }
 
-    public void addEdge(Edge<Node> edge) {
+    public synchronized void addEdge(Edge<Node> edge) {
         edges.add(edge);
     }
 
-    public Node getNode(int location) {
+    public synchronized Node getNode(int location) {
         return nodes.get(location);
     }
 
-    public Set<Node> getNodes() {
+    public synchronized Set<Node> getNodes() {
         Set<Node> orderedNodes = new TreeSet<Node>(new Comparator<Node>() {
             public int compare(Node o1, Node o2) {
                 Double o1z = o1.getZ();
@@ -62,19 +62,19 @@ public class GraphHandler {
         return orderedNodes;
     }
 
-    public List<Edge<Node>> getEdges() {
+    public synchronized List<Edge<Node>> getEdges() {
         return edges;
     }
 
-    public void setOrigin(Vector origin) {
+    public synchronized void setOrigin(Vector origin) {
         this.origin = origin;
     }
 
-    public Vector getOrigin() {
+    public synchronized Vector getOrigin() {
         return origin;
     }
 
-    public void rotateNodes(Double angle) {
+    public synchronized void rotateNodes(Double angle) {
         Double diff = angle - this.angle;
         for (Node node : allNodes) {
             node.rotate(diff);
@@ -82,15 +82,15 @@ public class GraphHandler {
         this.angle = angle;
     }
 
-    public void setTreeNode(TreeNode treeNode) {
+    public synchronized void setTreeNode(TreeNode treeNode) {
         this.treeNode = treeNode;
     }
 
-    public TreeNode treeNode() {
+    public synchronized TreeNode treeNode() {
         return treeNode;
     }
 
-    public void selectNodes(TreeNode treeNode) {
+    public synchronized void selectNodes(TreeNode treeNode) {
         if (treeNode != null) {
             synchronized (treeNode) {
                 for (TreeNode treeNodeRep : treeNode.getChildren()) {
@@ -102,13 +102,13 @@ public class GraphHandler {
         }
     }
 
-    public void deselectNodes() {
+    public synchronized void deselectNodes() {
         for (Node node : allNodes) {
             node.setSelected(false);
         }
     }
 
-    private void createSphere(Map<String, List<Map<String, Double>>> json) {
+    private synchronized void createSphere(Map<String, List<Map<String, Double>>> json) {
         List<Map<String, Double>> items = json.get("nodes");
         for (Map<String, Double> item : items) {
             Double ox = item.get("x");
@@ -137,15 +137,15 @@ public class GraphHandler {
         }
     }
 
-    public void updateNodes() {
+    public synchronized void updateNodes() {
         if (!animating) selectNodes(treeNode());
     }
 
-    public void showTree(AnimatablePanel panel) {
+    public synchronized void showTree(AnimatablePanel panel) {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
-        buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, false);
+        buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
@@ -155,10 +155,10 @@ public class GraphHandler {
         panel.start();
     }
 
-    public void updateTree(AnimatablePanel panel) {
+    public synchronized void updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, true);
+            buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true);
             for (Node n : allNodes) {
                 if (!n.inTree()) {
                     n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
@@ -168,7 +168,7 @@ public class GraphHandler {
         }
     }
 
-    private void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding) {
+    private synchronized void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding) {
         if (treeNode == null) return;
         synchronized (treeNode) {
             Double x =  xStart + (width / 2.0);
@@ -203,7 +203,7 @@ public class GraphHandler {
         }
     }
 
-    public void returnFromTree(AnimatablePanel panel) {
+    public synchronized void returnFromTree(AnimatablePanel panel) {
         animating = true;
         for (Node n : allNodes) {
             n.reverseAnimation(1.0, panel);
@@ -213,11 +213,11 @@ public class GraphHandler {
         }
     }
 
-    public void finishTreeBuild() {
+    public synchronized void finishTreeBuild() {
         animating = false;
     }
 
-    public void cleanTree() {
+    public synchronized void cleanTree() {
         List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
             if(nodes.containsValue(n)) newAllNodes.add(n);
@@ -235,7 +235,7 @@ public class GraphHandler {
         animating = false;
     }
 
-    public void cleanRebuiltTree() {
+    public synchronized void cleanRebuiltTree() {
         List<Node> newAllNodes = new ArrayList<Node>();
         for (Node n : allNodes) {
             if(nodes.containsValue(n)) newAllNodes.add(n);

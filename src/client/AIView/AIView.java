@@ -133,7 +133,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         graphHandler.rotateNodes(rotateAnimator.value());
 
         Dimension size = getSize();
-        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0, 0.0));
+        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 200, 0.0));
 
         drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
         drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());

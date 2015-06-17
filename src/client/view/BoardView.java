@@ -37,7 +37,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     private Integer selectedNode = 0;
     private List<CounterAnimator> animators;
     private BoardAnimator boardAnimator = null;
-    private Animator pulseAnimator;
+    private AnimatablePanel.Animator pulseAnimator;
     private Colour currentPlayer;
 
     private Set<Move> validMoves;
@@ -63,7 +63,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         locations = new HashMap<Colour, Point>();
         animators = new ArrayList<CounterAnimator>();
         validMoves = new HashSet<Move>();
-        pulseAnimator = createAnimator(0.0 ,1.0, 1.0);
+        pulseAnimator = createAnimator(0.0, 1.0, 1.0);
         pulseAnimator.setLoops(true);
         currentPlayer = null;
     }
@@ -99,9 +99,10 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         updateAnimatedCounter();
         updateAnimatedBoard();
 
-        g.drawImage(map, -viewPos.x, -viewPos.y, (int)(mapSize.getWidth() * scaleFactor), (int)(mapSize.getHeight() * scaleFactor), null);
+        g.drawImage(map, -viewPos.x, -viewPos.y, (int) (mapSize.getWidth() * scaleFactor), (int) (mapSize.getHeight() * scaleFactor), null);
 
         drawCounters(g, locations);
+
         for (RouteHint routeHint : routeHints) {
             if (routeHint.getRoute().size() > 0) drawRoute(g, routeHint.getRoute(), routeHint.getColor());
         }
@@ -136,9 +137,9 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         if (currentPlayer == null || !(colour.equals(currentPlayer))) return;
         Color c = Formatter.colorForPlayer(colour);
         g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 255));
-        g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
-        int radius = (size) + (int)(pulseAnimator.value() * 80.0 * scaleFactor);
-        g.drawOval(x - (radius/2) + (size/2), y - (radius/2) + (size/2), radius, radius);
+        g.setStroke(new BasicStroke(Math.max((int) (4.0 * (scaleFactor)), 2)));
+        int radius = size + (int) (pulseAnimator.value() * 80.0 * scaleFactor);
+        g.drawOval(x - (radius / 2) + (size / 2), y - (radius / 2) + (size / 2), radius, radius);
     }
 
     /**
@@ -151,20 +152,20 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Map<Integer, Point> positions = fileAccess.getPositions();
         g.setColor(color);
-        g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
-        int radius = (int)(58.0 * scaleFactor);
-        for (int i = 0; i < route.size()-1; i++) {
+        g.setStroke(new BasicStroke(Math.max((int) (4.0 * (scaleFactor)), 2)));
+        int radius = (int) (58.0 * scaleFactor);
+        for (int i = 0; i < route.size() - 1; i++) {
             Point startPos = transformPointForMap(positions.get(route.get(i)));
-            Point endPos = transformPointForMap(positions.get(route.get(i+1)));
+            Point endPos = transformPointForMap(positions.get(route.get(i + 1)));
             double angle = Math.atan2(startPos.x - endPos.x, startPos.y - endPos.y);
-            int circleOffsetX = (int)(Math.sin(angle)*radius/2);
-            int circleOffsetY = (int)(Math.cos(angle)*radius/2);
+            int circleOffsetX = (int) (Math.sin(angle) * (radius / 2));
+            int circleOffsetY = (int) (Math.cos(angle) * (radius / 2));
 
             g.drawLine(startPos.x - circleOffsetX, startPos.y - circleOffsetY, endPos.x  + circleOffsetX, endPos.y + circleOffsetY);
-            g.drawOval(startPos.x - radius/2, startPos.y - radius/2, radius, radius);
+            g.drawOval(startPos.x - radius / 2, startPos.y - radius / 2, radius, radius);
         }
-        Point startPos = transformPointForMap(positions.get(route.get(route.size()-1)));
-        g.drawOval(startPos.x - radius/2, startPos.y - radius/2, radius, radius);
+        Point startPos = transformPointForMap(positions.get(route.get(route.size() - 1)));
+        g.drawOval(startPos.x - (radius / 2), startPos.y - (radius / 2), radius, radius);
     }
 
     // Draws a circle around the currently selected node.
@@ -176,17 +177,17 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         Point p = positions.get(location);
         p = transformPointForMap(p);
 
-        int radius = (int)(50.0 * scaleFactor);;
-        g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
+        int radius = (int) (50.0 * scaleFactor);;
+        g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)), 2)));
         g.setColor(new Color(20, 155, 247));
-        g.drawOval(p.x - (radius/2), p.y - (radius/2), radius, radius);
+        g.drawOval(p.x - (radius / 2), p.y - (radius / 2), radius, radius);
     }
 
     // Transforms a point based on the map scale.
     // @param d the point to be transformed.
     private Point transformPointForMap(Point d) {
-        int xPos = (int)unscalePoint(d.x) - viewPos.x;
-        int yPos = (int)unscalePoint(d.y) - viewPos.y;
+        int xPos = (int) unscalePoint(d.x) - viewPos.x;
+        int yPos = (int) unscalePoint(d.y) - viewPos.y;
         return new Point(xPos, yPos);
     }
 

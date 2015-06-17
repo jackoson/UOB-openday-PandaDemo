@@ -36,6 +36,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private RatingView ratingView;
     private HintsView hintsView;
 
+    List<RouteHint> prev = new ArrayList<RouteHint>();
+
     public AIView(FileAccess fileAccess) {
         try {
             threadCom = null;
@@ -82,16 +84,30 @@ public class AIView extends AnimatablePanel implements ActionListener {
         if (location != null && previousLocation != null && !treeNode.getPlayer().equals(Colour.Black)) {
             locs.add(location);
             locs.add(previousLocation);
-            allHints.add(new RouteHint(locs, new Color(0, 0, 0, 127)));
+            RouteHint hint = new RouteHint(locs, new Color(0, 0, 0, 127));
+            if (!prevContains(hint)) {
+                allHints.add(hint);
+                prev.add(hint);
+            }
         }
-        int loc = 0;
         for (TreeNode child : treeNode.getChildren()) {
-            if (child.getTrueLocation() == loc) continue;
-            else loc = child.getTrueLocation();
             allHints.addAll(makeSpiders(child, location));
         }
 
         return allHints;
+    }
+
+    private boolean prevContains(RouteHint route) {
+        for (RouteHint hint : prev) {
+            if (hint.getRoute().size() == route.getRoute().size()) {
+                boolean equal = true;
+                for (Integer h : hint.getRoute()) {
+                    if (!route.getRoute().contains(h)) equal = false;
+                }
+                if (equal) return true;
+            }
+        }
+        return false;
     }
 
     public boolean onTreeView() {
@@ -156,8 +172,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void humanPlaying(boolean human) {
-        if (human) threadCom.putEvent("human_playing", true);
-        else threadCom.putEvent("ai_playing", true);
+        if (human) {
+            gameTree = null;
+            threadCom.putEvent("human_playing", true);
+        } else {
+            threadCom.putEvent("ai_playing", true);
+        }
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -165,7 +185,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
-                    if (!graphHandler.animating()) threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                    if (!graphHandler.animating()) {
+                        prev.clear();
+                        threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                    }
                 } else {
                     graphHandler.updateNodes();
                 }

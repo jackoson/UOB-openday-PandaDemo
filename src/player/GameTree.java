@@ -68,22 +68,32 @@ public class GameTree implements Runnable {
         threadCom.putUpdate("ai_set_rep", root);
         for (int i = 0; i < 5; i++) {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            getMoves(root);
             game.setAiMove(getDetMove());
         }
+        //Run detective game tree
+        GamePlayer mrX = ModelHelper.getPlayerOfColour(initialState, Colour.Black);
+        initialState.remove(mrX);
+        Integer newLoc = game.mrXLocatation();
+        if (newLoc != 0) mrX.setLocation(newLoc);
+
+        initialState.add(mrX);
+        TreeNode detRoot = new TreeNode(null, initialState, initialPlayer, round, null, this);
+        Double result = alphaBeta(root, 2, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
+        getMoves(root, detRoot);
         threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         threadCom.putUpdate("det_move", getDetMove());
         threadCom.putUpdate("ai_end", true);
     }
 
-    private void getMoves(TreeNode node) {
+    private void getMoves(TreeNode node, TreeNode detNode) {
         if (node.getBestChild() != null && node.getBestChild().getMove() != null) {
             synchronized (mrXMove) {
                 mrXMove = node.getBestChild().getMove();
             }
-            if (node.getBestChild().getBestChild() != null && node.getBestChild().getBestChild().getMove() != null) {
+            if (detNode.getBestChild() != null && detNode.getBestChild().getMove() != null && detNode.getBestChild().getBestChild() != null && detNode.getBestChild().getBestChild().getMove() != null) {
                 synchronized (detMove) {
-                    detMove = node.getBestChild().getBestChild().getMove();
+                    detMove = detNode.getBestChild().getBestChild().getMove();
                 }
             }
         }

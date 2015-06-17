@@ -44,7 +44,6 @@ public class GeneHunt implements Player {
             e.printStackTrace();
             System.exit(1);
         }
-
     }
 
     /**
@@ -83,7 +82,7 @@ public class GeneHunt implements Player {
         threadCom.putUpdate("stop_timer", true);
         threadCom.putUpdate("ai_reset_prune", true);
         threadCom.putUpdate("zoom_out", true);
-        threadCom.putUpdate("send_notification", "Gene is thinking about " + getPlayerMessage(player) + "'s Move");
+        threadCom.putUpdate("send_notification", "The AI is thinking about " + getPlayerMessage(player) + "'s Move");
         updateTickets(player);
     }
 

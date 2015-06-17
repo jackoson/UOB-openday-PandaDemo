@@ -91,7 +91,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         g.drawImage(map, -viewPos.x, -viewPos.y, (int)(mapSize.getWidth() * scaleFactor), (int)(mapSize.getHeight() * scaleFactor), null);
 
         drawCounters(g, locations);
-
         for (RouteHint routeHint : routeHints) {
             if (routeHint.getRoute().size() > 0) drawRoute(g, routeHint.getRoute(), routeHint.getColor());
         }

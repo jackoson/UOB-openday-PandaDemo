@@ -81,10 +81,10 @@ public class RandomPlayerFactory implements PlayerFactory {
     public void finish() {
         if (gui != null) gui.update();
     }
-    
+
     private GeneHunt ai(ScotlandYardView view, String mapFilename) {
         if (ai == null) {
-            ai = new GeneHunt(view, mapFilename, null);
+            ai = new GeneHunt(view, mapFilename, null, null);
         }
         return ai;
     }

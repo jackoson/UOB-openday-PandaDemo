@@ -29,6 +29,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private boolean firstRound = true;
     private boolean replaying = false;
     private final boolean aiGame;
+    private boolean demo = false;
     private Move aiMove = null;
     private boolean humanPlaying = false;
 
@@ -127,6 +128,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
 
     public ScotlandYardGame(String graphName, ThreadCommunicator threadCom, boolean demo) {
         aiGame = false;
+        this.demo = demo;
         try {
             this.threadCom = threadCom;
             this.numPlayers = 2;
@@ -178,6 +180,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         wait(5000);
         if (!aiGame) threadCom.putUpdate("end_game", true);
         threadCom.putUpdate("clear_log", true);
+        threadCom.putUpdate("clear_notificaton", true);
     }
 
     // Returns the List of GamePlayer objects that contain all
@@ -251,6 +254,11 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         return mrXLocations[random.nextInt(12)];
     }
 
+    public Integer mrXLocatation() {
+        if (model != null) return model.getPlayerLocation(Colour.Black);
+        return 0;
+    }
+
     /**
      * Returns the Move chosen by the player.
      * Also updates the views for the start of a Move.
@@ -288,11 +296,11 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 System.err.println("Out: " + humanPlaying);
                 if (moves.contains(aiMove)) move = aiMove;
                 else move = moves.iterator().next();
-                sendNotification("Out of time, a move has been chosen for you.");
+                if (!demo) sendNotification("Out of time, a move has been chosen for you.");
                 break;
             } else if (moves.iterator().next() instanceof MovePass) {
                 move = moves.iterator().next();
-                sendNotification("You don't have any valid moves.");
+                if (!demo) sendNotification("You don't have any valid moves.");
                 break;
             }
         }
@@ -336,10 +344,10 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         } else if (id.equals("save_game")) {
             if (saveGame != null) fileAccess.saveGame(saveGame);
         } else if (id.equals("human_playing")) {
-            System.err.println("Human Playing.");
+            System.err.println("Setting Human Playing.");
             humanPlaying = true;
         } else if (id.equals("ai_playing")) {
-            System.err.println("AI Playing.");
+            System.err.println("Setting AI Playing.");
             humanPlaying = false;
         }
     }
@@ -363,7 +371,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @param moves the Set of valid Moves the player can make.
     private void updateUI(Integer location, Colour player, Set<Move> moves) {
         updateTickets(player);
-        if (player.equals(Colour.Black) && !replaying && !aiGame) {
+        if (player.equals(Colour.Black) && !replaying && !aiGame && !demo) {
             threadCom.putUpdate("send_notification", "Detectives, Please look away.");
             wait(kDetectiveWait);
         }
@@ -439,7 +447,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     // @return the message at the end of a game.
     private String getWinningMessage(Set<Colour> players) {
         if (players.contains(Colour.Black)) return "Mr X wins!";
-        return "Detectives win!";
+        else if (players.size() == 1) return "Detective wins!";
+        else return "Detectives win!";
     }
 
     // Returns the tickets a player has.

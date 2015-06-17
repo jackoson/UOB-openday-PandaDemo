@@ -48,7 +48,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             //add(ratingView, "RATING");
             ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
             ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-            hintsView = new HintsView();
+            hintsView = new HintsView(fileAccess);
             //add(hintsView, "HINTS");
             add(new ButtonView(this), "BUTTON");
 
@@ -141,13 +141,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
         graphHandler.setTreeNode(treeNode);
         setRepaints(false);
         running = true;
+        switchToView(0);
     }
 
     public void stop() {
         setRepaints(true);
         running = false;
-        System.err.println("Stop" + onTreeView);
-        humanPlaying(!onTreeView);
+        humanPlaying(onTreeView);
+        switchToView(1);
+
     }
 
     public void setGameTree(GameTree gameTree) {
@@ -159,8 +161,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void humanPlaying(boolean human) {
+        System.err.println("Sending" + human);
         if (human) threadCom.putEvent("human_playing", true);
         else threadCom.putEvent("ai_playing", true);
+    }
+
+    private void switchToView(Integer view) {
+        if (onTreeView) return;
+        //if (view == 0) setBackground(Color.YELLOW);
+        //if (view == 1) setBackground(Color.RED);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -181,10 +190,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 onTreeView = false;
                 humanPlaying(false);
             } else {
+                humanPlaying(true);
                 onTreeView = true;
                 graphHandler.showTree(this);
                 System.err.println("Switch");
-                humanPlaying(true);
             }
         }else {
             super.actionPerformed(e);

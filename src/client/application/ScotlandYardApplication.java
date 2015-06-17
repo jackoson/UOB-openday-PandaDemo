@@ -332,6 +332,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("get_move")) {
             Move move = (Move) object;
             //For rating player moves
+        } else if (id.equals("clear_notificaton")) {
+            gameView.clearNotification();
         }
     }
 

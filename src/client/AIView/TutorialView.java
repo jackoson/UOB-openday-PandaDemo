@@ -16,7 +16,7 @@ public class TutorialView extends JPanel {
     };
 
     public TutorialView() {
-        setBackground(Formatter.aiBackgroundColor());
+        setOpaque(false);
         setLayout(new BorderLayout());
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
@@ -32,8 +32,10 @@ public class TutorialView extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(0, 40, 200, 40));
 
         JPanel spacer = new JPanel();
-        spacer.setPreferredSize(new Dimension(100, 200));
+        spacer.setMinimumSize(new Dimension(100, 300));
+        spacer.setOpaque(false);
         panel.add(spacer);
+
         for (String bullet : bullets) {
             JEditorPane bulletLabel = new JEditorPane();
             bulletLabel.setContentType("text/html");

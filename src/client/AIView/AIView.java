@@ -41,7 +41,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private String TUTORIAL = "TUTORIAL";
     private String RATING = "RATING";
     private String HINTS = "HINTS";
-    private String BUTTON = "BUTTON";
 
     /*
     ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
@@ -60,8 +59,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             add(ratingView, "RATING");
             hintsView = new HintsView(fileAccess);
             add(hintsView, "HINTS");
-            add(new ButtonView(this), "BUTTON");
-            switchToView(BUTTON);
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
@@ -76,6 +73,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
             Timer time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
+
+            switchToView(HINTS);
+            //showTree();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -130,13 +130,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
-        graphHandler.rotateNodes(rotateAnimator.value());
+        synchronized (graphHandler) {
+            graphHandler.rotateNodes(rotateAnimator.value());
 
-        Dimension size = getSize();
-        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 200, 0.0));
+            Dimension size = getSize();
+            graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 200, 0.0));
 
-        drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
-        drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
+            drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
+            drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
+        }
     }
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
@@ -163,18 +165,23 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void setRep(TreeNode treeNode) {
-        graphHandler.setTreeNode(treeNode);
-        setRepaints(false);
-        running = true;
-        switchToView(BUTTON);
+        synchronized (graphHandler) {
+            graphHandler.setTreeNode(treeNode);
+            setRepaints(false);
+            running = true;
+            switchToView(HINTS);
+            showTree();
+        }
     }
 
     public void stop() {
-        setRepaints(true);
-        running = false;
-        humanPlaying(onTreeView);
-        switchToView(TUTORIAL);
-
+        synchronized (graphHandler) {
+            setRepaints(true);
+            running = false;
+            humanPlaying(onTreeView);
+            switchToView(TUTORIAL);
+            showSphere();
+        }
     }
 
     public void setGameTree(GameTree gameTree) {
@@ -186,9 +193,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void humanPlaying(boolean human) {
-        System.err.println("Sending" + human);
-        if (human) threadCom.putEvent("human_playing", true);
-        else threadCom.putEvent("ai_playing", true);
+        if (threadCom != null) {
+            if (human) threadCom.putEvent("human_playing", true);
+            else threadCom.putEvent("ai_playing", true);
+        }
     }
 
     private void switchToView(String view) {
@@ -196,47 +204,54 @@ public class AIView extends AnimatablePanel implements ActionListener {
         layout.show(this, view);
     }
 
+    private void showSphere() {
+        if (!onTreeView) return;
+        threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        graphHandler.returnFromTree(this);
+        onTreeView = false;
+        humanPlaying(false);
+    }
+
+    private void showTree() {
+        if (onTreeView) return;
+        humanPlaying(true);
+        onTreeView = true;
+        graphHandler.showTree(this);
+    }
+
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
             if (running) {
-                if (onTreeView) {
-                    graphHandler.updateTree(this);
-                    if (!graphHandler.animating()) {
-                        prev.clear();
-                        threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                synchronized (graphHandler) {
+                    if (onTreeView) {
+                        graphHandler.updateTree(this);
+                        if (!graphHandler.animating()) {
+                            prev.clear();
+                            threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                        }
+                    } else {
+                        graphHandler.updateNodes();
                     }
-                } else {
-                    graphHandler.updateNodes();
                 }
                 repaint();
             }
-        } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
-            if (onTreeView) {
-                threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
-                graphHandler.returnFromTree(this);
-                onTreeView = false;
-                humanPlaying(false);
-            } else {
-                humanPlaying(true);
-                onTreeView = true;
-                graphHandler.showTree(this);
-                System.err.println("Switch");
-            }
-        }else {
+        } else {
             super.actionPerformed(e);
         }
     }
 
     @Override
     public void animationCompleted() {
-        if (!onTreeView) {
-            graphHandler.cleanTree();
-            Double rotateValue = rotateAnimator.value();
-            removeAnimator(rotateAnimator);
-            rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0);
-            rotateAnimator.setLoops(true);
-        } else {
-            graphHandler.finishTreeBuild();
+        synchronized (graphHandler) {
+            if (!onTreeView) {
+                graphHandler.cleanTree();
+                Double rotateValue = rotateAnimator.value();
+                removeAnimator(rotateAnimator);
+                rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0);
+                rotateAnimator.setLoops(true);
+            } else {
+                graphHandler.finishTreeBuild();
+            }
         }
     }
 

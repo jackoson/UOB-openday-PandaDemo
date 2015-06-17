@@ -16,13 +16,13 @@ public class TutorialView extends JPanel {
     };
 
     public TutorialView() {
-        setBackground(Formatter.aiBackgroundColor());
+        setOpaque(false);
         setLayout(new BorderLayout());
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setForeground(new Color(255, 255, 255, 204));
-        titleLabel.setFont(Formatter.boldFontOfSize(48));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(100, 30, 30, 30));
+        titleLabel.setFont(Formatter.defaultFontOfSize(35));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(30, 30, 100, 30));
         add(titleLabel, BorderLayout.NORTH);
 
         //Panel for bullet points.
@@ -30,6 +30,12 @@ public class TutorialView extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setOpaque(false);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 40, 200, 40));
+
+        JPanel spacer = new JPanel();
+        spacer.setMinimumSize(new Dimension(100, 300));
+        spacer.setPreferredSize(new Dimension(100, 300));
+        spacer.setOpaque(false);
+        panel.add(spacer);
 
         for (String bullet : bullets) {
             JEditorPane bulletLabel = new JEditorPane();

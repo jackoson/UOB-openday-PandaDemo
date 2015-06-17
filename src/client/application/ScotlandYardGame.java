@@ -268,6 +268,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
      * @return the Move chosen by the player.
      */
     public Move notify(int location, Set<Move> moves) {
+        threadCom.putUpdate("current_player", model.getCurrentPlayer());
         updateUI(location, model.getCurrentPlayer(), moves);
         outOfTime = false;
         pda.reset();
@@ -377,7 +378,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
         }
         threadCom.putUpdate("reset_timer", true);
         threadCom.putUpdate("valid_moves", moves);
-        threadCom.putUpdate("current_player", model.getCurrentPlayer());
         threadCom.putUpdate("zoom_in", location);
         if (!replaying) threadCom.putUpdate("send_notification", getMessage(player));
     }

@@ -30,6 +30,10 @@ public class AnimatablePanel extends JPanel implements ActionListener {
 
     private boolean repaints = true;
 
+    public enum AnimatorState {
+        RUNNING, FINISHED, LOOPING
+    }
+
     /**
      * Constructs a new AnimatablePanel object.
      */
@@ -121,11 +125,13 @@ public class AnimatablePanel extends JPanel implements ActionListener {
      */
     public void actionPerformed(ActionEvent e) {
         boolean finished = true;
+        boolean looping = false;
         List<Animator> finishedAnimators = new ArrayList<Animator>();
         for (Animator a : activeAnimators) {
-            boolean f = a.step();
-            if (f) finishedAnimators.add(a);
-            finished &= f;
+            AnimatorState f = a.step();
+            if (f == AnimatorState.FINISHED) finishedAnimators.add(a);
+            finished &= (f != AnimatorState.RUNNING);
+            looping |= (f == AnimatorState.LOOPING);
         }
         for (Animator a : finishedAnimators) {
             activeAnimators.remove(a);
@@ -136,8 +142,10 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         if(red != null && green != null && blue != null && alpha != null) setBackground(new Color((int)(255*red.value()), (int)(255*green.value()), (int)(255*blue.value()), (int)(255*alpha.value())));
 
         if (finished) {
-            timer.stop();
             animationCompleted();
+            if (!looping) {
+                timer.stop();
+            }
         }
         revalidate();
         if (repaints) repaint();
@@ -258,17 +266,18 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         /**
          * Steps through the animation.
          */
-        public boolean step() {
+        public AnimatorState step() {
             time += kTimeInterval;
             if (time >= duration) {
                 if (loops) {
                     time = 0.0;
                 } else {
                     time = duration;
-                    return true;
+                    return AnimatorState.FINISHED;
                 }
             }
-            return false;
+            if (loops) return AnimatorState.LOOPING;
+            return AnimatorState.RUNNING;
         }
 
         /**

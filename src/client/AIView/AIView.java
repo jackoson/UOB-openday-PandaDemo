@@ -38,21 +38,30 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     List<RouteHint> prev = new ArrayList<RouteHint>();
 
+    private String TUTORIAL = "TUTORIAL";
+    private String RATING = "RATING";
+    private String HINTS = "HINTS";
+    private String BUTTON = "BUTTON";
+
+    /*
+    ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
+    ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
+    */
+
     public AIView(FileAccess fileAccess) {
         try {
             threadCom = null;
-            setBackground(new Color(131, 226, 197));
+            setBackground(Formatter.aiBackgroundColor());
             setPreferredSize(new Dimension(400, 800));
 
             setLayout(new CardLayout());
-            //add(new TutorialView(), "TUTORIAL");
+            add(new TutorialView(), "TUTORIAL");
             ratingView = new RatingView(fileAccess);
-            //add(ratingView, "RATING");
-            ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-            ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
+            add(ratingView, "RATING");
             hintsView = new HintsView(fileAccess);
-            //add(hintsView, "HINTS");
+            add(hintsView, "HINTS");
             add(new ButtonView(this), "BUTTON");
+            switchToView(BUTTON);
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
@@ -157,14 +166,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
         graphHandler.setTreeNode(treeNode);
         setRepaints(false);
         running = true;
-        switchToView(0);
+        switchToView(BUTTON);
     }
 
     public void stop() {
         setRepaints(true);
         running = false;
         humanPlaying(onTreeView);
-        switchToView(1);
+        switchToView(TUTORIAL);
 
     }
 
@@ -182,10 +191,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
         else threadCom.putEvent("ai_playing", true);
     }
 
-    private void switchToView(Integer view) {
-        if (onTreeView) return;
-        //if (view == 0) setBackground(Color.YELLOW);
-        //if (view == 1) setBackground(Color.RED);
+    private void switchToView(String view) {
+        CardLayout layout = (CardLayout) getLayout();
+        layout.show(this, view);
     }
 
     public void actionPerformed(ActionEvent e) {

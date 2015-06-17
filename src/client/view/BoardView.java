@@ -21,8 +21,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
 
     private static final long serialVersionUID = -4785796174751700452L;
 
-    private final static int border = 1600;
-    private final static int halfBorder = 1000;
+    private final static int border = 60;
 
     private BufferedImage map;
     private Map<Colour, BufferedImage> counters;
@@ -51,6 +50,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * @param fileAccess the FileAccess object that contains all images.
      */
     public BoardView(FileAccess fileAccess) {
+        setBackground(Formatter.aiBackgroundColor());
         this.fileAccess = fileAccess;
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -217,7 +217,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * Zooms out so the map fits in the view.
      */
     public void zoomOut() {
-        zoomToCoordinates((int) (mapSize.getWidth() / 2.0) - halfBorder, (int) (mapSize.getHeight() / 2.0) - halfBorder, false);
+        zoomToCoordinates((int) (mapSize.getWidth() / 2.0) - border, (int) (mapSize.getHeight() / 2.0) - border, false);
     }
 
     /**
@@ -338,8 +338,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         double mapRatio = mapSize.getWidth() / mapSize.getHeight();
         double viewRatio = size.getWidth() / (size.getHeight() - 40);
 
-        if (viewRatio > mapRatio) return (size.getHeight() - 40) / (mapSize.getHeight() - border);//
-        else return size.getWidth() / (mapSize.getWidth() - border);//
+        if (viewRatio > mapRatio) return (size.getHeight() - 40) / (mapSize.getHeight());
+        else return size.getWidth() / (mapSize.getWidth());
     }
 
     // Returns an adjusted Point so the map can never be panned off the screen.
@@ -350,7 +350,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         int xDiff = (int)((mapSize.getWidth() * scaleFactor) - size.getWidth());
         int yDiff = (int)((mapSize.getHeight() * scaleFactor) - (size.getHeight() - 40));
 
-        int boundBorder = halfBorder - 100;
+        int boundBorder = border - 100;
         int halfXDiff = (int) (xDiff / 2.0);
         int halfYDiff = (int) (yDiff / 2.0);
 
@@ -360,7 +360,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         else if (point.x > (xDiff - boundBorder) && scaleFactor == 1.0) point.x = (xDiff - boundBorder);
 
         if (yDiff < 0) point.y = yDiff/2;
-        else if (point.y < (halfBorder - 100) && scaleFactor == 1.0) point.y = (halfBorder - 100);
+        else if (point.y < (border - 100) && scaleFactor == 1.0) point.y = (border - 100);
         else if ((point.y < halfYDiff || point.y > halfYDiff) && scaleFactor != 1.0) point.y = halfYDiff;
         else if (point.y > (yDiff - boundBorder) && scaleFactor == 1.0) point.y = (yDiff - boundBorder);
 
@@ -370,13 +370,13 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     // Returns the scaled version of a pixel coordinate.
     // @return the scaled version of a pixel coordinate.
     private int scalePoint(int pos) {
-        return (int)((double)pos / scaleFactor) - halfBorder;
+        return (int)((double)pos / scaleFactor) - border;
     }
 
     // Returns the unscaled version of a pixel coordinate.
     // @return the unscaled version of a pixel coordinate.
     private int unscalePoint(int pos) {
-        return (int)((double)(pos + halfBorder) * scaleFactor);
+        return (int)((double)(pos + border) * scaleFactor);
     }
 
     /**

@@ -31,6 +31,9 @@ public class TutorialView extends JPanel {
         panel.setOpaque(false);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 40, 200, 40));
 
+        JPanel spacer = new JPanel();
+        spacer.setPreferredSize(new Dimension(100, 200));
+        panel.add(spacer);
         for (String bullet : bullets) {
             JEditorPane bulletLabel = new JEditorPane();
             bulletLabel.setContentType("text/html");

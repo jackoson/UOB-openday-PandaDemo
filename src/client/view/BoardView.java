@@ -63,8 +63,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         locations = new HashMap<Colour, Point>();
         animators = new ArrayList<CounterAnimator>();
         validMoves = new HashSet<Move>();
-        pulseAnimator = createAnimator(0.0 ,1.0, 1.0);
-        pulseAnimator.setLoops(true);
+        pulseAnimator = createAnimator(0.0 ,1.0, 10.0);
+        //pulseAnimator.setLoops(true);
         currentPlayer = null;
     }
 
@@ -98,7 +98,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         updateAnimatedCounter();
         updateAnimatedBoard();
-
         g.drawImage(map, -viewPos.x, -viewPos.y, (int)(mapSize.getWidth() * scaleFactor), (int)(mapSize.getHeight() * scaleFactor), null);
 
         drawCounters(g, locations);
@@ -133,12 +132,14 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     // @param colour the Colour of the player whose counter is to be drawn.
     private void drawCounter(Graphics2D g, int x, int y, int size, Colour colour) {
         g.drawImage(counters.get(colour), x, y, size, size, null);
+        /*
         if (currentPlayer == null || !(colour.equals(currentPlayer))) return;
         Color c = Formatter.colorForPlayer(colour);
         g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 255));
         g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
         int radius = (size) + (int)(pulseAnimator.value() * 80.0 * scaleFactor);
         g.drawOval(x - (radius/2) + (size/2), y - (radius/2) + (size/2), radius, radius);
+        */
     }
 
     /**

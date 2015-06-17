@@ -4,6 +4,7 @@ import scotlandyard.*;
 import client.application.*;
 import client.algorithms.*;
 import client.model.*;
+import client.view.Formatter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,6 +37,8 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     private Integer selectedNode = 0;
     private List<CounterAnimator> animators;
     private BoardAnimator boardAnimator = null;
+    private Animator pulseAnimator;
+    private Colour currentPlayer;
 
     private Set<Move> validMoves;
     private BufferedImage cursorImage;
@@ -60,6 +63,14 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         locations = new HashMap<Colour, Point>();
         animators = new ArrayList<CounterAnimator>();
         validMoves = new HashSet<Move>();
+        pulseAnimator = createAnimator(0.0 ,1.0, 1.0);
+        pulseAnimator.setLoops(true);
+        currentPlayer = null;
+    }
+
+    public void setCurrentPlayer(Colour colour) {
+        System.err.println("Setting current player" + colour);
+        currentPlayer = colour;
     }
 
     /**
@@ -105,6 +116,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     private void drawCounters(Graphics2D g, Map<Colour, Point> locations) {
         int size = (int) ((double) counters.get(Colour.Black).getWidth() * scaleFactor);
         int offset = (int) ((double) size / 2.0);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (Map.Entry<Colour, Point> entry : locations.entrySet()) {
             Point d = transformPointForMap(entry.getValue());
             int xPos = d.x - offset;
@@ -121,6 +133,12 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     // @param colour the Colour of the player whose counter is to be drawn.
     private void drawCounter(Graphics2D g, int x, int y, int size, Colour colour) {
         g.drawImage(counters.get(colour), x, y, size, size, null);
+        if (currentPlayer == null || !(colour.equals(currentPlayer))) return;
+        Color c = Formatter.colorForPlayer(colour);
+        g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 255));
+        g.setStroke(new BasicStroke(Math.max((int)(4.0 * (scaleFactor)),2)));
+        int radius = (size) + (int)(pulseAnimator.value() * 80.0 * scaleFactor);
+        g.drawOval(x - (radius/2) + (size/2), y - (radius/2) + (size/2), radius, radius);
     }
 
     /**

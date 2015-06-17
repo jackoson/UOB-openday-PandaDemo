@@ -187,6 +187,7 @@ public class GraphHandler {
             node.setSelected(true);
             if (parent != null)  {
                 Edge<Node> e = new Edge<Node>(node, parent);
+                e.setSelected(true);
                 e.setInTree(true);
                 e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
                 if (rebuilding) e.forwardAnimators(1.0);

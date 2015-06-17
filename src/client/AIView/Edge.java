@@ -1,5 +1,7 @@
 package client.aiview;
 
+import java.awt.*;
+
 import client.view.AnimatablePanel;
 
 public class Edge<X> {
@@ -9,12 +11,14 @@ public class Edge<X> {
     private boolean inTree;
     private Double alpha;
     private AnimatablePanel.Animator alphaAnimator;
+    private boolean selected;
 
     public Edge(X node1, X node2) {
         this.node1 = node1;
         this.node2 = node2;
         inTree = false;
         alpha = 1.0;
+        selected = false;
     }
 
     public X getNode1() {
@@ -52,6 +56,19 @@ public class Edge<X> {
         Double alpha = this.alpha;
         if (alphaAnimator != null) alpha = alphaAnimator.value();
         return alpha;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public Color getColor() {
+        Node n = (Node)node1;
+        Color color = n.getColor();
+        Double alpha = this.alpha;
+        if(alphaAnimator != null) alpha = alphaAnimator.value();
+        if (selected) return new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(alpha * 255));
+        else return new Color(255, 255, 255, (int)(alpha * 255));
     }
 
 }

@@ -334,6 +334,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
             //For rating player moves
         } else if (id.equals("clear_notificaton")) {
             gameView.clearNotification();
+        } else if (id.equals("current_player")) {
+            Colour colour = (Colour) object;
+            gameView.setCurrentPlayer(colour);
         }
     }
 

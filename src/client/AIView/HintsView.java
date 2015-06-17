@@ -18,7 +18,7 @@ public class HintsView extends JPanel {
         setLayout(new BorderLayout());
 
         JLabel label = new JLabel("The AI is thinking", SwingConstants.CENTER);
-        label.setFont(Formatter.defaultFontOfSize(35));
+        label.setFont(Formatter.defaultFontOfSize(40));
         label.setForeground(Color.WHITE);
         label.setBorder(BorderFactory.createEmptyBorder(30, 10, 30, 10));
 

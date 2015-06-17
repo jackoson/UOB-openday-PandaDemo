@@ -168,6 +168,14 @@ public class GraphHandler {
         }
     }
 
+    private synchronized void highlightBestPath(TreeNode treeNode) {
+        if (treeNode == null) return;
+        synchronized (treeNode) {
+            Node n = getNode(treeNode.getTrueLocation());
+            TreeNode bestChild = treeNode.getBestChild();
+        }
+    }
+
     private synchronized void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding) {
         if (treeNode == null) return;
         synchronized (treeNode) {
@@ -250,4 +258,5 @@ public class GraphHandler {
         }
         edges = newEdges;
     }
+
 }

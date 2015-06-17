@@ -36,11 +36,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private RatingView ratingView;
     private HintsView hintsView;
 
-    List<RouteHint> prev = new ArrayList<RouteHint>();
-
     private String TUTORIAL = "TUTORIAL";
     private String RATING = "RATING";
     private String HINTS = "HINTS";
+
+    private Move detBestMove = null;
 
     /*
     ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
@@ -81,43 +81,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation) {
-        if (treeNode == null) return new ArrayList<RouteHint>();
-
-        List<RouteHint> allHints = new ArrayList<RouteHint>();
-        List<Integer> locs = new ArrayList<Integer>();
-        Integer location = treeNode.getTrueLocation();
-        if (!treeNode.getPlayer().equals(Colour.Black))location = previousLocation;
-        if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
-            locs.add(location);
-            locs.add(previousLocation);
-
-            RouteHint hint = new RouteHint(locs, new Color(0, 0, 0, 127));
-            if (!prevContains(hint)) {
-                allHints.add(hint);
-                prev.add(hint);
-            }
-        }
-        for (TreeNode child : treeNode.getChildren()) {
-            allHints.addAll(makeSpiders(child, location));
-        }
-
-        return allHints;
-    }
-
-    private boolean prevContains(RouteHint route) {
-        for (RouteHint hint : prev) {
-            if (hint.getRoute().size() == route.getRoute().size()) {
-                boolean equal = true;
-                for (Integer h : hint.getRoute()) {
-                    if (!route.getRoute().contains(h)) equal = false;
-                }
-                if (equal) return true;
-            }
-        }
-        return false;
     }
 
     public boolean onTreeView() {
@@ -202,14 +165,27 @@ public class AIView extends AnimatablePanel implements ActionListener {
         onTreeView = false;
     }
 
+    public void rateMove(Move move) {
+        if (detBestMove != null) {
+            boolean goodMove;
+            /*Work out if good move*/
+            
+            //ratingView.update(goodMove, detBestMove, reason);
+            switchToView(RATING);
+        }
+    }
+
+    public void setDetBestMove(Move move) {
+        detBestMove = move;
+    }
+
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
                     if (!graphHandler.animating()) {
-                        prev.clear();
-                        threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                        //threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
                     }
                 } else {
                     graphHandler.updateNodes();

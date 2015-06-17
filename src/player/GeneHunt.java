@@ -63,6 +63,7 @@ public class GeneHunt implements Player {
         gameTreeThread.start();
         joinThread(gameTreeThread);
         Move move = gameTree.getMrXMove();
+        threadCom.putUpdate("detective_best_move", gameTree.getDetMove());
         if (move == null || !moves.contains(move)) move = moves.iterator().next();
         gameTree = null;
         return move;

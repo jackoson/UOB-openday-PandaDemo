@@ -46,7 +46,7 @@ public class FileAccess {
         mapPositions = makePositions();
         cursors = new HashMap<Set<Ticket>, BufferedImage>();
         try {
-            map = ImageIO.read(this.getClass().getResource("/resources/map_large.jpg"));
+            map = ImageIO.read(this.getClass().getResource("/resources/map_large.png"));
             notify = ImageIO.read(this.getClass().getResource("/resources/notify.png"));
             setupBackground = ImageIO.read(this.getClass().getResource("/resources/setupBackground.png"));
             warningIcon = ImageIO.read(this.getClass().getResource("/resources/warningIcon.jpg"));

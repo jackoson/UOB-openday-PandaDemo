@@ -16,7 +16,7 @@ public class TutorialView extends JPanel {
     };
 
     public TutorialView() {
-        setBackground(new Color(47, 128, 131));
+        setBackground(Formatter.aiBackgroundColor());
         setLayout(new BorderLayout());
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);

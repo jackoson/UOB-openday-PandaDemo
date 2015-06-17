@@ -16,7 +16,7 @@ public class RatingView extends JPanel {
     public RatingView(FileAccess fileAccess) {
         this.fileAccess = fileAccess;
         setLayout(new GridBagLayout());
-        setBackground(new Color(47, 128, 131));
+        setBackground(Formatter.aiBackgroundColor());
     }
 
     public void update(boolean goodMove, Move suggestedMove, String reason) {

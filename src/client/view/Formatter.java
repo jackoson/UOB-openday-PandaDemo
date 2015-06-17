@@ -76,7 +76,7 @@ public class Formatter {
     }
 
     static public Color aiBackgroundColor() {
-        return new Color(12, 214, 126);
+        return new Color(50, 50, 50);
     }
 
 

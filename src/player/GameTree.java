@@ -90,7 +90,11 @@ public class GameTree implements Runnable {
         System.err.println("Updating best moves" + detMove);
     }
 
-    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {//Need some synchronization with TreeNodes. ^^ does too.
+    private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
+        if (ModelHelper.isGameOver(node.getState(), node.getPlayer(), graph, node.getRound())) {
+            if (ModelHelper.getWinningPlayers(node.getState(), node.getPlayer(), graph, node.getRound()).contains(Colour.Black)) return Double.POSITIVE_INFINITY;
+            else return Double.NEGATIVE_INFINITY;
+        }
         if (depth == 0) return node.getScore();
         boolean maximising = false;
         if (node.getPlayer().equals(Colour.Black)) maximising = true;

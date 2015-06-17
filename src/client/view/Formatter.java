@@ -11,7 +11,7 @@ import javax.swing.*;
  */
 
 public class Formatter {
-  
+
     /**
      * Returns the default Font of a specified size.
      *
@@ -21,7 +21,7 @@ public class Formatter {
     static public Font defaultFontOfSize(int size) {
         return new Font("Helvetica Neue", Font.PLAIN, size);
     }
-    
+
     /**
      * Returns the bold Font of a specified size.
      *
@@ -31,7 +31,7 @@ public class Formatter {
     static public Font boldFontOfSize(int size) {
         return new Font("Helvetica Neue", Font.BOLD, size);
     }
-    
+
     /**
      * Returns the grey Color used throughout the UI.
      *
@@ -40,7 +40,7 @@ public class Formatter {
     static public Color greyColor() {
         return new Color(100, 100, 100);
     }
-    
+
     /**
      * Returns the primary Color used throughout the UI.
      *
@@ -49,7 +49,7 @@ public class Formatter {
     static public Color primaryColor() {
         return new Color(51,135,253);
     }
-    
+
     /**
      * Returns the secondary Color used throughout the UI.
      *
@@ -58,7 +58,7 @@ public class Formatter {
     static public Color secondaryColor() {
         return new Color(251, 68, 60, 255);
     }
-    
+
     /**
      * Returns the Color associated with a player.
      *
@@ -74,8 +74,12 @@ public class Formatter {
         if (player.equals(Colour.White)) return new Color(191, 191, 191);
         return null;
     }
-    
-    
+
+    static public Color aiBackgroundColor() {
+        return new Color(12, 214, 126);
+    }
+
+
     /**
      * Returns a JButton with the correct text and styling.
      *
@@ -93,7 +97,7 @@ public class Formatter {
         button.setPreferredSize(new Dimension(320, 40));
         return button;
     }
-    
+
     /**
      * Returns a JList with the correct items and styling.
      *
@@ -108,12 +112,12 @@ public class Formatter {
         list.setCellRenderer(new CustomCellRenderer());
         return list;
     }
-    
+
     // A class to style a JList.
     static private class CustomCellRenderer extends JLabel implements ListCellRenderer<Object> {
-        
+
         private static final long serialVersionUID = -8212787301551146954L;
-        
+
         /**
          * Returns the styled component.
          *
@@ -146,6 +150,6 @@ public class Formatter {
             setOpaque(true);
             return this;
         }
-        
+
     }
 }

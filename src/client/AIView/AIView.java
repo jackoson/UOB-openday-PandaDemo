@@ -42,7 +42,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             setBackground(new Color(131, 226, 197));
             setPreferredSize(new Dimension(400, 800));
 
-            //setLayout(new CardLayout());
+            setLayout(new CardLayout());
             //add(new TutorialView(), "TUTORIAL");
             ratingView = new RatingView(fileAccess);
             //add(ratingView, "RATING");
@@ -50,11 +50,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
             hintsView = new HintsView();
             //add(hintsView, "HINTS");
-
-            JButton button = Formatter.button("Switch");
-            button.addActionListener(this);
-            button.setActionCommand("switch_views");
-            add(button);
+            add(new ButtonView(this), "BUTTON");
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
@@ -76,7 +72,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation, int no) {
+    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation) {
         if (treeNode == null) return new ArrayList<RouteHint>();
 
         List<RouteHint> allHints = new ArrayList<RouteHint>();
@@ -88,11 +84,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
             allHints.add(new RouteHint(locs, Color.WHITE));
         }
         int loc = 0;
-        int size = Math.min(treeNode.getChildren().size(), no);
+        int size = Math.min(treeNode.getChildren().size(), 4);
         for (int i = 0; i < size; i++) {
             if (treeNode.getChildren().get(i).getTrueLocation() == loc) continue;
             loc = treeNode.getChildren().get(i).getTrueLocation();
-            allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location, no - 2));
+            allHints.addAll(makeSpiders(treeNode.getChildren().get(i), location));
         }
 
         return allHints;
@@ -168,8 +164,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             if (running) {
                 if (onTreeView) {
                     graphHandler.updateTree(this);
-                    if (!graphHandler.animating()) threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null, 12));
-                    humanPlaying();
+                    if (!graphHandler.animating()) threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
                 } else {
                     graphHandler.updateNodes();
                 }
@@ -184,6 +179,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             } else {
                 onTreeView = true;
                 graphHandler.showTree(this);
+                humanPlaying();
             }
         }else {
             super.actionPerformed(e);

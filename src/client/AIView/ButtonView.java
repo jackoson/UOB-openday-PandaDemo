@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class ButtonView extends JPanel {
-
     public ButtonView(ActionListener listener) {
         setOpaque(false);
         setLayout(new BorderLayout());

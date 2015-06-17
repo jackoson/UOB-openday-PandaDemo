@@ -36,8 +36,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private RatingView ratingView;
     private HintsView hintsView;
 
-    List<RouteHint> prev = new ArrayList<RouteHint>();
-
     private String TUTORIAL = "TUTORIAL";
     private String RATING = "RATING";
     private String HINTS = "HINTS";
@@ -82,43 +80,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    public List<RouteHint> makeSpiders(TreeNode treeNode, Integer previousLocation) {
-        if (treeNode == null) return new ArrayList<RouteHint>();
-
-        List<RouteHint> allHints = new ArrayList<RouteHint>();
-        List<Integer> locs = new ArrayList<Integer>();
-        Integer location = treeNode.getTrueLocation();
-        if (!treeNode.getPlayer().equals(Colour.Black))location = previousLocation;
-        if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
-            locs.add(location);
-            locs.add(previousLocation);
-
-            RouteHint hint = new RouteHint(locs, new Color(0, 0, 0, 127));
-            if (!prevContains(hint)) {
-                allHints.add(hint);
-                prev.add(hint);
-            }
-        }
-        for (TreeNode child : treeNode.getChildren()) {
-            allHints.addAll(makeSpiders(child, location));
-        }
-
-        return allHints;
-    }
-
-    private boolean prevContains(RouteHint route) {
-        for (RouteHint hint : prev) {
-            if (hint.getRoute().size() == route.getRoute().size()) {
-                boolean equal = true;
-                for (Integer h : hint.getRoute()) {
-                    if (!route.getRoute().contains(h)) equal = false;
-                }
-                if (equal) return true;
-            }
-        }
-        return false;
     }
 
     public boolean onTreeView() {
@@ -219,10 +180,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
             if (running) {
                 if (onTreeView) {
-                    graphHandler.updateTree(this);
                     if (!graphHandler.animating()) {
-                        prev.clear();
-                        threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                        graphHandler.cleanSpiders();
+                        threadCom.putUpdate("show_route", graphHandler.updateTree(this));
                     }
                 } else {
                     graphHandler.updateNodes();

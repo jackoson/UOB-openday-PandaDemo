@@ -6,6 +6,8 @@ import player.*;
 import java.util.*;
 import java.awt.Color;
 
+import scotlandyard.*;
+
 public class GraphHandler {
 
     private Map<Integer, Node> nodes;
@@ -15,6 +17,7 @@ public class GraphHandler {
     private Double angle = 0.0;
     private Vector origin = null;
     private TreeNode treeNode = null;
+    List<RouteHint> prev = new ArrayList<RouteHint>();
 
     private boolean animating;
 
@@ -141,11 +144,11 @@ public class GraphHandler {
         if (!animating) selectNodes(treeNode());
     }
 
-    public void showTree(AnimatablePanel panel) {
+    public List<RouteHint> showTree(AnimatablePanel panel) {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
-        buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false);
+        List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false, null);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
@@ -153,29 +156,49 @@ public class GraphHandler {
             if (!e.inTree()) e.setAnimator(panel.createDelayedAnimator(1.0, 0.0, 1.0));
         }
         panel.start();
+        return spider;
     }
 
-    public void updateTree(AnimatablePanel panel) {
+    public List<RouteHint> updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true);
+            List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true, null);
             for (Node n : allNodes) {
                 if (!n.inTree()) {
                     n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
                     n.forwardAnimators(1.0);
                 }
             }
+            return spider;
         }
+        return null;
     }
 
-    private void buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding) {
-        if (treeNode == null) return;
+    private List<RouteHint> buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding, Integer previousLocation) {
+        if (treeNode == null) return new ArrayList<RouteHint>();
         synchronized (treeNode) {
+            //Spiders
+            List<RouteHint> allHints = new ArrayList<RouteHint>();
+            List<Integer> locs = new ArrayList<Integer>();
+            Integer location = treeNode.getTrueLocation();
+            if (!treeNode.getPlayer().equals(Colour.Black))location = previousLocation;
+            if (location != null && previousLocation != null && treeNode.getPlayer().equals(Colour.Black)) {
+                locs.add(location);
+                locs.add(previousLocation);
+
+                RouteHint hint = new RouteHint(locs, new Color(0, 0, 0, 127));
+                if (!prevContains(hint)) {
+                    allHints.add(hint);
+                    prev.add(hint);
+                }
+            }
+
+            //Tree
             Double x =  xStart + (width / 2.0);
             Node node = getNode(treeNode.getTrueLocation());
             if (node == null) {
                 System.err.println("Null node when creating tree.");
-                return;
+                return allHints;
             }
             if (node.inTree()){
                 node = new Node(node.getTrueX(), node.getTrueY(), node.getTrueZ(), node.getColor(), node.location());
@@ -198,9 +221,28 @@ public class GraphHandler {
             width = width / size;
             for (int i = 0; i < size; i++) {
                 TreeNode treeNodeRep = treeNode.getChildren().get(i);
-                buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding);
+                allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, location));
+            }
+
+            return allHints;
+        }
+    }
+
+    private boolean prevContains(RouteHint route) {
+        for (RouteHint hint : prev) {
+            if (hint.getRoute().size() == route.getRoute().size()) {
+                boolean equal = true;
+                for (Integer h : hint.getRoute()) {
+                    if (!route.getRoute().contains(h)) equal = false;
+                }
+                if (equal) return true;
             }
         }
+        return false;
+    }
+
+    public void cleanSpiders() {
+        prev.clear();
     }
 
     public void returnFromTree(AnimatablePanel panel) {

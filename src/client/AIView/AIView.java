@@ -75,7 +75,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0, true);
             alphaAnimator = null;
 
-            time = new Timer(1000, this);
+            time = new Timer(500, this);
             time.setActionCommand("rep");
             time.start();
 
@@ -169,7 +169,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void showTree() {
         if (onTreeView) return;
         setRepaints(false);
-        time = new Timer(1000, this);
+        time = new Timer(500, this);
         time.setActionCommand("rep");
         time.start();
         if (gameTree != null) gameTree.pause();

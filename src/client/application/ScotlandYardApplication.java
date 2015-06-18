@@ -98,7 +98,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                                                                   0,
                                                                   1,
                                                                   1,
-                                                                  0.5,
+                                                                  0.6,
                                                                   1.0,
                                                                   GridBagConstraints.CENTER,
                                                                   GridBagConstraints.BOTH,
@@ -342,12 +342,6 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("current_player")) {
             Colour colour = (Colour) object;
             gameView.setCurrentPlayer(colour);
-        } else if (id.equals("human_move")) {
-            Move move = (Move) object;
-            aiView.rateMove(move);
-        } else if (id.equals("detective_best_move")) {
-            Move move = (Move) object;
-            aiView.setDetBestMove(move);
         }
     }
 

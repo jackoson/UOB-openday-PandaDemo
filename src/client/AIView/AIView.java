@@ -35,20 +35,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private JPanel hintPanel;
     private JButton button;
 
-    private RatingView ratingView;
     private MessageView hintsView;
     private MessageView tutorialView;
 
     private String TUTORIAL = "TUTORIAL";
-    private String RATING = "RATING";
     private String HINTS = "HINTS";
-
-    private Move detBestMove = null;
-
-    /*
-    ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-    ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-    */
 
     private String[] aiHints = {
         "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> AI works by exploring every possible move for each player in turn, generating the above structure called a game tree. Using this tree, it can determine the best possible move for a player, employing a minimax algorithm to do so.</font></html>",
@@ -69,8 +60,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             setPreferredSize(new Dimension(400, 800));
 
             setLayout(new CardLayout());
-            ratingView = new RatingView(fileAccess);
-            add(ratingView, "RATING");
             hintsView = new MessageView("The AI is thinking", aiHints, false);
             add(hintsView, "HINTS");
             tutorialView = new MessageView("How to play:", tutorialHints, true);
@@ -105,7 +94,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g0) {
-        //System.err.println("Updating: " + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -113,7 +101,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
         graphHandler.rotateNodes(rotateAnimator.value());
         Dimension size = getSize();
-        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 200, 0.0));
+        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 100, 0.0));
 
         drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
         drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
@@ -207,21 +195,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
         rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0, true);
         onTreeView = false;
         System.gc();
-    }
-
-    public void rateMove(Move move) {
-        if (detBestMove != null) {
-            boolean goodMove;
-            /*Work out if good move*/
-
-            //ratingView.update(goodMove, detBestMove, reason);
-            tutorialView.stop();
-            switchToView(RATING);
-        }
-    }
-
-    public void setDetBestMove(Move move) {
-        detBestMove = move;
     }
 
     public void actionPerformed(ActionEvent e) {

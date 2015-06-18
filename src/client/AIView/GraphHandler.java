@@ -151,7 +151,7 @@ public class GraphHandler {
         panel.cancelAllAnimations();
         animating = true;
         treeMap.clear();
-        List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false, true);
+        List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 590.0, -180.0, null, false, true);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null);
         }
@@ -162,7 +162,7 @@ public class GraphHandler {
     public synchronized List<RouteHint> updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true, true);
+            List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 590.0, -180.0, null, true, true);
             for (Node n : allNodes) {
                 if (!n.inTree()) {
                     n.setAnimators(null, null, null);

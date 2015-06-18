@@ -342,6 +342,8 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         } else if (id.equals("current_player")) {
             Colour colour = (Colour) object;
             gameView.setCurrentPlayer(colour);
+        } else if (id.equals("ai_thought")) {
+            aiView.setTitle("The AI has finished thinking");
         }
     }
 

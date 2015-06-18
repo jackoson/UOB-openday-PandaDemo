@@ -141,6 +141,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         graphHandler.setTreeNode(treeNode);
         tutorialView.stop();
         hintsView.start(gameTree);
+        setTitle("The AI is thinking");
         switchToView(HINTS);
         showTree();
     }
@@ -174,11 +175,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
         time.start();
         if (gameTree != null) gameTree.pause();
         graphHandler.showTree(this);
-        Double rotateValue = rotateAnimator.value();
-        removeAnimator(rotateAnimator);
-        rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 2.0, false);
+        //Double rotateValue = rotateAnimator.value();
+        //removeAnimator(rotateAnimator);
+        //rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 2.0, false);
         alphaAnimator = createAnimator(1.0, 0.0, 1.0, false);
         onTreeView = true;
+    }
+
+    public void setTitle(String title) {
+        hintsView.setTitle(title);
     }
 
     public void showSphere() {
@@ -194,7 +199,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
         removeAnimator(rotateAnimator);
         rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0, true);
         onTreeView = false;
-        System.gc();
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -203,12 +207,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 if (onTreeView) {
                     if (!graphHandler.animating()) {
                         graphHandler.cleanSpiders();
-                        final AnimatablePanel p = this;
-                        new Thread(new Runnable() {
-                            public void run() {
-                                threadCom.putUpdate("show_route", graphHandler.updateTree(p));
-                            }
-                        }).start();
+                        GraphHandler.TreeWorker worker = graphHandler.new TreeWorker(this, threadCom);
+                        worker.execute();
                     }
                 } else {
                     graphHandler.updateNodes();

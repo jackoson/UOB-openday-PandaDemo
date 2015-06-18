@@ -82,7 +82,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         Dimension size = getSize();
         if (scaleFactor != 1.0) scaleFactor = fitScaleFactor(size);
         viewPos = adjustForBounds(viewPos);
-        //repaint();
+        repaint();
     }
 
     /**
@@ -91,7 +91,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * @param g0 the Graphics object to draw to.
      */
     public void paintComponent(Graphics g0) {
-        //System.err.println("Updating: " + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
 
@@ -200,7 +199,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      */
     public void highlightNode(Integer location) {
         selectedNode = location;
-        //repaint();
+        repaint();
     }
 
     /**
@@ -234,7 +233,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
                 locations.put(player.colour(), positions.get(player.location()));
             }
         }
-        //repaint();
+        repaint();
     }
 
     /**
@@ -420,7 +419,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      */
     public void setRouteHint(List<RouteHint> routes) {
         routeHints = routes;
-        //repaint();
+        repaint();
     }
 
     /**
@@ -448,7 +447,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
             viewPos.x = mouseDownViewPos.x - offsetX;
             viewPos.y = mouseDownViewPos.y - offsetY;
             viewPos = adjustForBounds(viewPos);
-            //repaint();
+            repaint();
         }
     }
 
@@ -495,7 +494,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         } else {
             cursorImage = null;
         }
-        //repaint();
+        repaint();
     }
 
     // Returns the Set of Tickets for which you can use to get the specified node.

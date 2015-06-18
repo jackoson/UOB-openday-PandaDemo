@@ -4,7 +4,9 @@ import client.view.*;
 import player.*;
 
 import java.util.*;
+import javax.swing.SwingWorker;
 import java.awt.Color;
+import client.application.ThreadCommunicator;
 
 import scotlandyard.*;
 
@@ -21,6 +23,49 @@ public class GraphHandler {
     List<RouteHint> prev = new ArrayList<RouteHint>();
 
     private boolean animating;
+
+    class TreeWorker extends SwingWorker<List<RouteHint>, Integer> {
+        private AnimatablePanel panel;
+        private ThreadCommunicator threadCom;
+
+        public TreeWorker(AnimatablePanel panel, ThreadCommunicator threadCom) {
+            this.panel = panel;
+            this.threadCom = threadCom;
+        }
+
+        @Override
+        public List<RouteHint> doInBackground() {
+            return updateTree(panel);
+        }
+
+        @Override
+        protected void done() {
+            try {
+                if (threadCom != null) threadCom.putUpdate("show_route", get());
+
+            } catch (Exception ex) {
+                System.err.println(ex);
+            }
+        }
+    }
+/*
+    class BuildWorker extends SwingWorker<List<RouteHint>, Integer> {
+        private AnimatablePanel panel;
+
+        public BuildWorker(AnimatablePanel panel) {
+            this.panel = panel;
+        }
+
+        @Override
+        public List<RouteHint> doInBackground() {
+            return showTree(panel);
+        }
+
+        @Override
+        protected void done() {
+        }
+    }
+    */
 
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
@@ -163,12 +208,14 @@ public class GraphHandler {
         if (!animating) {
             cleanRebuiltTree();
             List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 590.0, -180.0, null, true, true);
+            /*
             for (Node n : allNodes) {
                 if (!n.inTree()) {
                     n.setAnimators(null, null, null);
-                    n.forwardAnimators(1.0);
+                    //n.forwardAnimators(1.0);
                 }
             }
+            */
             return spider;
         }
         return null;
@@ -210,7 +257,7 @@ public class GraphHandler {
                     allNodes.add(node);
                 }
                 node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0));
-                if (rebuilding) node.forwardAnimators(1.0);
+                node.forwardAnimators(1.0);//if (rebuilding)
                 node.setTree(true);
                 node.setSelected(true);
                 if (parent != null)  {
@@ -226,14 +273,15 @@ public class GraphHandler {
             else node.setBest(false);
 
             TreeNode bestChildTreeNode = treeNode.getBestChild();
-
+            int bestIndex = treeNode.getChildren().indexOf(bestChildTreeNode);
             int size = Math.min(treeNode.getChildren().size(), 4);
             width = width / size;
+            allHints.addAll(buildTree(panel, bestChildTreeNode, xStart + (width * Math.min(bestIndex, 3)), width, y + 80, node, rebuilding, bestChild));
+            if (bestIndex >= size) size--;
             for (int i = 0; i < size; i++) {
                 TreeNode treeNodeRep = treeNode.getChildren().get(i);
-                boolean best = false;
-                if (treeNodeRep == bestChildTreeNode) best = true;
-                allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, (best && bestChild)));
+                if (treeNodeRep == bestChildTreeNode) continue;
+                allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, false));
             }
 
             return allHints;

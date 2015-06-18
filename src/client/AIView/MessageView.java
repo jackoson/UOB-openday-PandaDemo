@@ -13,6 +13,7 @@ public class MessageView extends JPanel implements ActionListener {
 
     private String[] messages;
     private boolean next;
+    private JLabel label;
     private JButton skipButton;
     private JTextPane hintPane;
     private Timer timer;
@@ -26,10 +27,10 @@ public class MessageView extends JPanel implements ActionListener {
         this.messages = messages;
         this.next = next;
 
-        timer = new Timer(10000, this);
+        timer = new Timer(8000, this);
         timer.setRepeats(false);
 
-        JLabel label = new JLabel(title, SwingConstants.CENTER);
+        label = new JLabel(title, SwingConstants.CENTER);
         label.setFont(Formatter.defaultFontOfSize(40));
         label.setForeground(Color.WHITE);
         label.setBorder(BorderFactory.createEmptyBorder(30, 10, 30, 10));
@@ -77,6 +78,10 @@ public class MessageView extends JPanel implements ActionListener {
     public void stop() {
         gameTree = null;
         timer.stop();
+    }
+
+    public void setTitle(String title) {
+        label.setText(title);
     }
 
     public void actionPerformed(ActionEvent e) {

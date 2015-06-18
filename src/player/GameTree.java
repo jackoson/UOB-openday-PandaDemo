@@ -96,7 +96,7 @@ public class GameTree implements Runnable {
 
         while (!canFinish) {
             try {
-                Thread.sleep(20);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 System.out.println(e);
                 e.printStackTrace();

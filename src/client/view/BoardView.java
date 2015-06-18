@@ -68,6 +68,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     }
 
     public void setCurrentPlayer(Colour colour) {
+        System.err.println("UpdatingPLayer: " + colour);
         currentPlayer = colour;
     }
 
@@ -90,6 +91,7 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
      * @param g0 the Graphics object to draw to.
      */
     public void paintComponent(Graphics g0) {
+        //System.err.println("Updating: " + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
 

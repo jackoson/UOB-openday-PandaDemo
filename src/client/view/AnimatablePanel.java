@@ -128,7 +128,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         boolean finished = true;
         boolean noLoops = true;
-        List<Animator> finishedAnimators = new ArrayList<Animator>();
+        final List<Animator> finishedAnimators = new ArrayList<Animator>();
         for (Animator a : activeAnimators) {
             AnimationState f = a.step();
             if (f == AnimationState.FINISHED) finishedAnimators.add(a);
@@ -151,8 +151,12 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             if (noLoops) timer.stop();
             checkFinishes = false;
         }
-        revalidate();
-        if (repaints) repaint();
+
+        if (repaints) {
+            revalidate();
+            repaint();
+        }
+
     }
 
     public void setRepaints(boolean repaints) {

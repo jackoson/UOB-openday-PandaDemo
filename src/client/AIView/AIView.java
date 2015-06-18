@@ -51,15 +51,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
     */
 
     private String[] aiHints = {
-        "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> AI works by playing every possible move for each player in turn, generating a game tree. This simulates every possible scenario for the game and hence it can work out the best move to make.</font></html>",
-        "<html><font size=+2 face='Helvetica Neue'>Hint</font><font face='Helvetica Neue'> two.</font></html>",
-        "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> red sequence of moves above represents the path that leads to the best outcome for Mr X at the depth searched to. As such, the first move in this sequence is the move Mr X will make.</font></html>"
+        "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> AI works by exploring every possible move for each player in turn, generating the above structure called a game tree. Using this tree, it can determine the best possible move for a player, employing a minimax algorithm to do so.</font></html>",
+        "<html><font size=+2 face='Helvetica Neue'>You</font><font face='Helvetica Neue'> can see how this tree relates to the game on the left, as each move that the AI considers is drawn over the board.</font></html>",
+        "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> red sequence of moves above represents the path that leads to the best outcome for the player. You can see it changing as the AI explores further into the game.</font></html>"
     };
 
     private String[] tutorialHints = {
         "<font size=+2>The aim:</font> The Detective (Blue counter) must land on the same location as Mr X (Black counter) to win.",
-        "<font size=+2>To move:</font> Click on the location you would like to move to, then click on the ticket you want to use. You can only move to a location to which you can travel using your available tickets.",
-        "<font size=+2>Tips:</font> It is best to go to the locations with more transport options when Mr X is not visible."
+        "<font size=+2>To move:</font> Click on the location you would like to move to, then click on the ticket you wish to use. You can only move to a location to which you can travel using your available tickets.",
+        "<font size=+2>Tips:</font> Mr X's location only updates on certain rounds (full circles), so try using his previous moves to predict where he will be next. It is best to go to the locations with more transport options when Mr X is not visible or when you're not sure where he is."
     };
 
     public AIView(FileAccess fileAccess) {
@@ -86,7 +86,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0, true);
             alphaAnimator = null;
 
-            time = new Timer(50, this);
+            time = new Timer(1000, this);
             time.setActionCommand("rep");
             time.start();
 
@@ -105,6 +105,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g0) {
+        //System.err.println("Updating: " + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -148,10 +149,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void setRep(TreeNode treeNode) {
-        //setRepaints(false);
-        //time = new Timer(50, this);
-        //time.setActionCommand("rep");
-        //time.start();
         running = true;
         graphHandler.setTreeNode(treeNode);
         tutorialView.stop();
@@ -161,8 +158,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void stop() {
-        //time.stop();
-        //setRepaints(true);
         running = false;
         tutorialView.start(null);
         switchToView(TUTORIAL);
@@ -185,6 +180,10 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void showTree() {
         if (onTreeView) return;
+        setRepaints(false);
+        time = new Timer(1000, this);
+        time.setActionCommand("rep");
+        time.start();
         if (gameTree != null) gameTree.pause();
         graphHandler.showTree(this);
         Double rotateValue = rotateAnimator.value();
@@ -196,6 +195,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void showSphere() {
         if (!onTreeView) return;
+        time.stop();
+        setRepaints(true);
         synchronized (graphHandler) {
             threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         }
@@ -205,6 +206,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         removeAnimator(rotateAnimator);
         rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0, true);
         onTreeView = false;
+        System.gc();
     }
 
     public void rateMove(Move move) {
@@ -228,7 +230,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 if (onTreeView) {
                     if (!graphHandler.animating()) {
                         graphHandler.cleanSpiders();
-                        AnimatablePanel p = this;
+                        final AnimatablePanel p = this;
                         new Thread(new Runnable() {
                             public void run() {
                                 threadCom.putUpdate("show_route", graphHandler.updateTree(p));

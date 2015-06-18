@@ -29,6 +29,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private boolean onTreeView = false;
     private boolean running = false;
     private GameTree gameTree = null;
+    private Timer time;
 
     private JPanel hintPanel;
     private JButton button;
@@ -70,7 +71,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(50, this);
+            time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
 
@@ -88,6 +89,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g0) {
+        //System.err.println("Painting" + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -127,12 +129,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void setRep(TreeNode treeNode) {
         graphHandler.setTreeNode(treeNode);
         setRepaints(false);
+        time = new Timer(50, this);
+        time.setActionCommand("rep");
+        time.start();
         running = true;
         switchToView(HINTS);
         showTree();
     }
 
     public void stop() {
+        time.stop();
         setRepaints(true);
         running = false;
         switchToView(TUTORIAL);
@@ -160,7 +166,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void showSphere() {
         if (!onTreeView) return;
-        threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        synchronized (graphHandler) {
+            threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        }
         graphHandler.returnFromTree(this);
         onTreeView = false;
     }
@@ -169,7 +177,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         if (detBestMove != null) {
             boolean goodMove;
             /*Work out if good move*/
-            
+
             //ratingView.update(goodMove, detBestMove, reason);
             switchToView(RATING);
         }
@@ -183,9 +191,9 @@ public class AIView extends AnimatablePanel implements ActionListener {
         if (e.getActionCommand() != null && e.getActionCommand().equals("rep")) {
             if (running) {
                 if (onTreeView) {
-                    graphHandler.updateTree(this);
                     if (!graphHandler.animating()) {
-                        //threadCom.putUpdate("show_route", makeSpiders(graphHandler.treeNode(), null));
+                        graphHandler.cleanSpiders();
+                        threadCom.putUpdate("show_route", graphHandler.updateTree(this));
                     }
                 } else {
                     graphHandler.updateNodes();

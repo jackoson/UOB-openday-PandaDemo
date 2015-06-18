@@ -12,6 +12,7 @@ public class Node extends Vector {
     private Node parent;
     private boolean selected;
     private boolean tree;
+    private boolean best;
 
     private AnimatablePanel.Animator xAnimator = null;
     private AnimatablePanel.Animator yAnimator = null;
@@ -26,6 +27,7 @@ public class Node extends Vector {
         this.parent = null;
         this.selected = false;
         this.tree = false;
+        this.best = false;
     }
 
     public void setSelected(boolean selected) {
@@ -44,11 +46,24 @@ public class Node extends Vector {
         return tree;
     }
 
+    public Color getTrueColor() {
+        return this.color;
+    }
+
     public Color getColor() {
         Double alpha = this.alpha;
         if(alphaAnimator != null) alpha = alphaAnimator.value();
+        if (best && tree) return new Color(255, 0, 0, (int) (alpha * 255));
         if (selected) return new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(alpha * 255));
         else return new Color(255, 255, 255, (int)(alpha * 255));
+    }
+
+    public void setBest(boolean best) {
+        this.best = best;
+    }
+
+    public boolean isBest() {
+        return best;
     }
 
     public void setParent(Node p) {

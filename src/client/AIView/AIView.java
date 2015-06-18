@@ -29,6 +29,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private boolean onTreeView = false;
     private boolean running = false;
     private GameTree gameTree = null;
+    private Timer time;
 
     private JPanel hintPanel;
     private JButton button;
@@ -39,7 +40,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private String TUTORIAL = "TUTORIAL";
     private String RATING = "RATING";
     private String HINTS = "HINTS";
-    private String BUTTON = "BUTTON";
 
     /*
     ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
@@ -58,8 +58,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             add(ratingView, "RATING");
             hintsView = new HintsView(fileAccess);
             add(hintsView, "HINTS");
-            add(new ButtonView(this), "BUTTON");
-            switchToView(BUTTON);
 
             FileReader fileReader = new FileReader(new File("resources/GUIResources/AIData.txt"));
             JsonReader reader = new JsonReader(fileReader);
@@ -71,10 +69,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
 
-            Timer time = new Timer(50, this);
+            time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
 
+            switchToView(HINTS);
+            showTree();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -87,15 +87,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g0) {
+        //System.err.println("Painting" + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
         graphHandler.rotateNodes(rotateAnimator.value());
-
         Dimension size = getSize();
-        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 100, 0.0));
+        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 200, 0.0));
 
         drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
         drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
@@ -127,18 +127,20 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void setRep(TreeNode treeNode) {
         graphHandler.setTreeNode(treeNode);
         setRepaints(false);
+        time = new Timer(50, this);
+        time.setActionCommand("rep");
+        time.start();
         running = true;
-        switchToView(BUTTON);
+        switchToView(HINTS);
         showTree();
     }
 
     public void stop() {
+        time.stop();
         setRepaints(true);
         running = false;
-        humanPlaying(onTreeView);
         switchToView(TUTORIAL);
         showSphere();
-
     }
 
     public void setGameTree(GameTree gameTree) {
@@ -149,12 +151,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
         this.threadCom = threadCom;
     }
 
-    public void humanPlaying(boolean human) {
-        System.err.println("Sending" + human);
-        if (human) threadCom.putEvent("human_playing", true);
-        else threadCom.putEvent("ai_playing", true);
-    }
-
     private void switchToView(String view) {
         CardLayout layout = (CardLayout) getLayout();
         layout.show(this, view);
@@ -162,18 +158,17 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void showTree() {
         if (onTreeView) return;
-        humanPlaying(true);
         onTreeView = true;
         graphHandler.showTree(this);
-        System.err.println("Switch");
     }
 
     public void showSphere() {
         if (!onTreeView) return;
-        threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        synchronized (graphHandler) {
+            threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
+        }
         graphHandler.returnFromTree(this);
         onTreeView = false;
-        humanPlaying(false);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -189,19 +184,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 }
                 repaint();
             }
-        } else if (e.getActionCommand() != null && e.getActionCommand().equals("switch_views")) {
-            if (onTreeView) {
-                threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
-                graphHandler.returnFromTree(this);
-                onTreeView = false;
-                humanPlaying(false);
-            } else {
-                humanPlaying(true);
-                onTreeView = true;
-                graphHandler.showTree(this);
-                System.err.println("Switch");
-            }
-        }else {
+        } else {
             super.actionPerformed(e);
         }
     }

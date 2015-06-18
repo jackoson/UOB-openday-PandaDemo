@@ -33,7 +33,6 @@ public class FileAccess {
     private BufferedImage badMove;
     private BufferedImage goodMove;
     private Map<Ticket, BufferedImage> ticketsLarge;
-    private BufferedImage exitButton;
 
     /**
      * Constructs a new FileAccess object.
@@ -233,8 +232,6 @@ public class FileAccess {
             ticketsLarge.put(Ticket.Underground, ImageIO.read(this.getClass().getResource("/resources/tickets/underground.png")));
             ticketsLarge.put(Ticket.Secret, ImageIO.read(this.getClass().getResource("/resources/tickets/secret.png")));
             ticketsLarge.put(Ticket.Double, ImageIO.read(this.getClass().getResource("/resources/tickets/double.png")));
-
-            exitButton = ImageIO.read(this.getClass().getResource("/resources/AI/exitButton.png"));
         } catch (Exception e) {
             System.err.println("Error retrieving images :" + e);
             e.printStackTrace();
@@ -250,10 +247,6 @@ public class FileAccess {
                 System.err.println(e);
             }
         }
-    }
-
-    public BufferedImage getExitButton() {
-        return exitButton;
     }
 
     public BufferedImage getBadMove() {

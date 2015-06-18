@@ -48,13 +48,14 @@ public class TreeNode {
         this.children = new ArrayList<TreeNode>();
     }
 
-    public Integer getTrueLocation() {
-        if (move == null) {
-            GamePlayer player = ModelHelper.getPlayerOfColour(currentState, currentPlayer);
-            return player.location();
-        } else {
-            return ModelHelper.getLocation(move);
-        }
+    public Integer getMoveLocation() {
+        if (move == null) return null;
+        return ModelHelper.getLocation(move);
+    }
+
+    public Integer getPlayerLocation() {
+        GamePlayer player = ModelHelper.getPlayerOfColour(currentState, currentPlayer);
+        return player.location();
     }
 
     /**

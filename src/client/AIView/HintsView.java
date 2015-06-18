@@ -17,8 +17,12 @@ public class HintsView extends JPanel {
         setOpaque(false);
         setLayout(new BorderLayout());
 
-        //JButton exitButton = new JButton("", fileAccess.getExitButton());
-        //Add the button in the top left corner;
+        JLabel label = new JLabel("The AI is thinking", SwingConstants.CENTER);
+        label.setFont(Formatter.defaultFontOfSize(35));
+        label.setForeground(Color.WHITE);
+        label.setBorder(BorderFactory.createEmptyBorder(30, 10, 30, 10));
+
+        add(label, BorderLayout.NORTH);
     }
 
     private JTextPane getPane(String message) {

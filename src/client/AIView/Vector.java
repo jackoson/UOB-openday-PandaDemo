@@ -14,32 +14,40 @@ public class Vector {
     }
 
     public void set(Double x, Double y,Double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        synchronized (this) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
     }
 
     public void add(Vector vector) {
-        x = x + vector.getX();
-        y = y + vector.getY();
-        z = z + vector.getZ();
+        synchronized (this) {
+            x = x + vector.getX();
+            y = y + vector.getY();
+            z = z + vector.getZ();
+        }
     }
 
     public void subtract(Vector vector) {
-        x = x - vector.getX();
-        y = y - vector.getY();
-        z = z - vector.getZ();
+        synchronized (this) {
+            x = x - vector.getX();
+            y = y - vector.getY();
+            z = z - vector.getZ();
+        }
     }
 
     public void rotate(double degrees) {
-        Double angle = Math.toRadians(degrees);
-        Double yy = (Math.cos(angle) * y) - (Math.sin(angle) * z);
-        z = (Math.sin(angle) * y) + (Math.cos(angle) * z);
-        y=yy;
+        synchronized (this) {
+            Double angle = Math.toRadians(degrees);
+            Double yy = (Math.cos(angle) * y) - (Math.sin(angle) * z);
+            z = (Math.sin(angle) * y) + (Math.cos(angle) * z);
+            y=yy;
 
-        Double zz = (Math.cos(angle) * z) - (Math.sin(angle) * x);
-        x = (Math.cos(angle) * x) + (Math.sin(angle) * z);
-        z = zz;
+            Double zz = (Math.cos(angle) * z) - (Math.sin(angle) * x);
+            x = (Math.cos(angle) * x) + (Math.sin(angle) * z);
+            z = zz;
+        }
     }
 
     public Vector scale(double s0, double s1, double s2) {

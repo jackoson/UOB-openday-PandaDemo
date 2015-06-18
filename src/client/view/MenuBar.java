@@ -8,12 +8,12 @@ import java.awt.*;
  */
 
 public class MenuBar extends JPanel {
-  
+
     private static final long serialVersionUID = -8366257729974330405L;
-    
+
     private ChatEventView eventView;
     private JPanel bar;
-    
+
     /**
      * Constructs a new MenuBar object.
      *
@@ -26,48 +26,49 @@ public class MenuBar extends JPanel {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(1200, 200));
         setOpaque(false);
-        
+
         this.eventView = eventView;
         eventView.setPreferredSize(new Dimension(280, 100));
         add(eventView, BorderLayout.WEST);
         eventView.setVisible(false);
-        
+
         bar = new JPanel(new BorderLayout());
         bar.setPreferredSize(new Dimension(1200, 40));
-        
+        bar.setBackground(Formatter.aiBackgroundColor());
+
         bar.add(chat, BorderLayout.WEST);
-        
+
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setOpaque(false);
         centerPanel.add(ticket, BorderLayout.WEST);
         centerPanel.add(roundView, BorderLayout.EAST);
-        
+
         bar.add(centerPanel, BorderLayout.CENTER);
         bar.add(timer, BorderLayout.EAST);
         add(bar, BorderLayout.SOUTH);
     }
-    
+
     /**
      * Sets the background Color of the MenuBar.
      *
      * @param color the new Color of the MenuBar.
      */
     public void setBackgroundColor(Color color) {
-        bar.setBackground(color);
+        //bar.setBackground(color);
     }
-    
+
     /**
      * Shows the game log (ChatEventView);
      */
     public void showChat() {
         eventView.setVisible(true);
     }
-    
+
     /**
      * Hides the game log (ChatEventView);
      */
     public void hideChat() {
         eventView.setVisible(false);
     }
-    
+
 }

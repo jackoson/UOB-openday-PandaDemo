@@ -34,6 +34,8 @@ public class GameTree implements Runnable {
     private Move mrXMove;
     private Move detMove;
 
+    private boolean canFinish = false;
+
     /**
      * Constructs a new GameTree object.
      *
@@ -81,9 +83,23 @@ public class GameTree implements Runnable {
         Double result = alphaBeta(root, 2, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         getMoves(root, detRoot);
+
+        while (!canFinish) {
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+        }
+
         threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         threadCom.putUpdate("det_move", getDetMove());
         threadCom.putUpdate("ai_end", true);
+    }
+
+    public void setCanFinish(boolean canFinish) {
+        this.canFinish = canFinish;
     }
 
     private void getMoves(TreeNode node, TreeNode detNode) {

@@ -3,6 +3,7 @@ package client.application;
 import scotlandyard.*;
 import net.*;
 import client.view.*;
+import client.view.Formatter;
 import client.model.*;
 import player.*;
 import client.aiview.*;
@@ -60,6 +61,9 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setMinimumSize(new Dimension(1200, 800));
         window.setPreferredSize(new Dimension(1200, 800));
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setBackground(Formatter.aiBackgroundColor());
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //window.setUndecorated(true);
         container = new JPanel(new CardLayout());
         setUpView = new SetUpView(fileAccess);
         setUpView.setActionListener(this);
@@ -78,6 +82,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.addComponentListener(gameView);
         container.add(gameView);
         JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Formatter.aiBackgroundColor());
         GridBagConstraints constraints = new GridBagConstraints(0,
                                                                 0,
                                                                 2,

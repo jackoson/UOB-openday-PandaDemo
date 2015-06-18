@@ -79,6 +79,7 @@ public class GraphHandler {
 
     public synchronized void rotateNodes(Double angle) {
         Double diff = angle - this.angle;
+        //System.err.println("ROTATING: " + diff);
         for (Node node : allNodes) {
             node.rotate(diff);
         }
@@ -150,10 +151,7 @@ public class GraphHandler {
         animating = true;
         List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false, true);
         for (Node n : allNodes) {
-            if (!n.inTree()) n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
-        }
-        for (Edge e : edges) {
-            if (!e.inTree()) e.setAnimator(panel.createDelayedAnimator(1.0, 0.0, 1.0));
+            if (!n.inTree()) n.setAnimators(null, null, null);
         }
         panel.start();
         return spider;
@@ -165,7 +163,7 @@ public class GraphHandler {
             List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true, true);
             for (Node n : allNodes) {
                 if (!n.inTree()) {
-                    n.setAnimators(null, null, null, panel.createDelayedAnimator(1.0, 0.0, 1.0));
+                    n.setAnimators(null, null, null);
                     n.forwardAnimators(1.0);
                 }
             }
@@ -207,14 +205,15 @@ public class GraphHandler {
                 return allHints;
             }
             if (node.inTree()){
-                node = new Node(node.getTrueX(), node.getTrueY(), node.getTrueZ(), node.getColor(), node.location());
+                node = new Node(node.getTrueX(), node.getTrueY(), node.getTrueZ(), node.getTrueColor(), node.location());
                 allNodes.add(node);
             }
+
                 //Set the colour for the best child.
             if (bestChild) node.setBest(true);
             else node.setBest(false);
 
-            node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0), null);
+            node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0));
             if (rebuilding) node.forwardAnimators(1.0);
             node.setTree(true);
             node.setSelected(true);
@@ -222,8 +221,6 @@ public class GraphHandler {
                 Edge<Node> e = new Edge<Node>(node, parent);
                 e.setSelected(true);
                 e.setInTree(true);
-                e.setAnimator(panel.createDelayedAnimator(0.0, 1.0, 1.0));
-                if (rebuilding) e.forwardAnimators(1.0);
                 addEdge(e);
                 node.setParent(parent);
             }
@@ -262,12 +259,14 @@ public class GraphHandler {
 
     public synchronized void returnFromTree(AnimatablePanel panel) {
         animating = true;
+        /*
         for (Node n : allNodes) {
             n.reverseAnimation(1.0, panel);
         }
         for (Edge e : edges) {
             e.reverseAnimation(1.0, panel);
         }
+        */
     }
 
     public synchronized void finishTreeBuild() {

@@ -35,6 +35,7 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
     private final int kDetectiveWait = 3000;
     private final int kMoveWait = 2000;
     private final int kAnimationWait = 500;
+    private final int kRateMoveWait = 10000;
 
     private int[] detectiveLocations = {26, 29, 50, 53, 91, 94, 103, 112, 117, 123, 138, 141, 155, 174};
     private int[] mrXLocations = {35, 45, 51, 71, 78, 104, 106, 127, 132, 166, 170, 172};
@@ -288,6 +289,8 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 if (moves.contains(move)) {
                     threadCom.putUpdate("highlight_node", 0);
                     threadCom.putUpdate("human_move", move);
+                    threadCom.putUpdate("stop_timer", true);
+                    wait(kRateMoveWait);
                     break;
                 } else {
                     pda.reset();

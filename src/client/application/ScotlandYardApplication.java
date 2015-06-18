@@ -63,7 +63,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setBackground(Formatter.aiBackgroundColor());
         window.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //window.setUndecorated(true);
+        window.setUndecorated(true);
         container = new JPanel(new CardLayout());
         setUpView = new SetUpView(fileAccess);
         setUpView.setActionListener(this);
@@ -98,7 +98,7 @@ public class ScotlandYardApplication implements WindowListener, ActionListener, 
                                                                   0,
                                                                   1,
                                                                   1,
-                                                                  0.5,
+                                                                  0.6,
                                                                   1.0,
                                                                   GridBagConstraints.CENTER,
                                                                   GridBagConstraints.BOTH,

@@ -55,6 +55,7 @@ public class GeneHunt implements Player {
      */
     @Override
     public Move notify(int location, Set<Move> moves) {
+        threadCom.putUpdate("current_player", Colour.Black);
         threadCom.putUpdate("valid_moves", new HashSet<Move>());
         Colour player = view.getCurrentPlayer();
         if (threadCom != null) updateUI(player);

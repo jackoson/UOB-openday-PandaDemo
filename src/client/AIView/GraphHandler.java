@@ -11,6 +11,7 @@ import scotlandyard.*;
 public class GraphHandler {
 
     private Map<Integer, Node> nodes;
+    private Map<TreeNode, Node> treeMap;
     private List<Node> allNodes;
     private List<Edge<Node>> edges;
     private Map<String, List<Map<String, Double>>> json;
@@ -24,6 +25,7 @@ public class GraphHandler {
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
         nodes = new HashMap<Integer, Node>();
+        treeMap = new HashMap<TreeNode, Node>();
         allNodes = new ArrayList<Node>();
         edges = new ArrayList<Edge<Node>>();
         this.json = json;
@@ -149,6 +151,7 @@ public class GraphHandler {
         cleanTree();
         panel.cancelAllAnimations();
         animating = true;
+        treeMap.clear();
         List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null);
@@ -199,25 +202,25 @@ public class GraphHandler {
             }
             //Tree
             Double x =  xStart + (width / 2.0);
-            Node node = getNode(treeNode.getPlayerLocation());
+            Node node = treeMap.get(treeNode);
             if (node == null) {
-                System.err.println("Null node when creating tree.");
-                return allHints;
-            }
-            if (node.inTree()){
-                node = new Node(node.getTrueX(), node.getTrueY(), node.getTrueZ(), node.getColor(), node.location());
-                allNodes.add(node);
-            }
-            node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0));
-            if (rebuilding) node.forwardAnimators(1.0);
-            node.setTree(true);
-            node.setSelected(true);
-            if (parent != null)  {
-                Edge<Node> e = new Edge<Node>(node, parent);
-                e.setSelected(true);
-                e.setInTree(true);
-                addEdge(e);
-                node.setParent(parent);
+                node = getNode(treeNode.getPlayerLocation());
+
+                if (node.inTree()){
+                    node = new Node(node.getTrueX(), node.getTrueY(), node.getTrueZ(), node.getColor(), node.location());
+                    allNodes.add(node);
+                }
+                node.setAnimators(panel.createDelayedAnimator(node.getX(), x, 1.0), panel.createDelayedAnimator(node.getY(), y, 1.0), panel.createDelayedAnimator(node.getZ(), 165.0, 1.0));
+                if (rebuilding) node.forwardAnimators(1.0);
+                node.setTree(true);
+                node.setSelected(true);
+                if (parent != null)  {
+                    Edge<Node> e = new Edge<Node>(node, parent);
+                    e.setSelected(true);
+                    e.setInTree(true);
+                    addEdge(e);
+                    node.setParent(parent);
+                }
             }
             int size = Math.min(treeNode.getChildren().size(), 4);
             width = width / size;
@@ -249,14 +252,10 @@ public class GraphHandler {
 
     public synchronized void returnFromTree(AnimatablePanel panel) {
         animating = true;
-        /*
+
         for (Node n : allNodes) {
             n.reverseAnimation(1.0, panel);
         }
-        for (Edge e : edges) {
-            e.reverseAnimation(1.0, panel);
-        }
-        */
     }
 
     public synchronized void finishTreeBuild() {

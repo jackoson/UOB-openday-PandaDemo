@@ -67,16 +67,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
             graphHandler = new GraphHandler(json);
 
-            rotateAnimator = createAnimator(0.0, 360.0, 10.0);
-            rotateAnimator.setLoops(true);
+            rotateAnimator = createAnimator(0.0, 360.0, 10.0, true);
             alphaAnimator = null;
 
             time = new Timer(50, this);
             time.setActionCommand("rep");
             time.start();
 
-            switchToView(HINTS);
-            showTree();
+            running = true;
+            //switchToView(HINTS);
+            //showTree();
         } catch (FileNotFoundException e) {
             System.err.println("Error in the AI :" + e);
             e.printStackTrace();
@@ -89,7 +89,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g0) {
-        //System.err.println("Painting" + (new Random()).nextInt());
         super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -105,7 +104,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
-            if (onTreeView && !node.inTree()) continue;
+            if (onTreeView && !node.inTree() && alphaAnimator == null) continue;
             Color c = node.getColor();
             if (alphaAnimator != null && !node.inTree()) c = new Color(c.getRed(), c.getGreen(), c.getBlue(), (int)(alphaAnimator.value() * 255));
             g.setColor(c);
@@ -121,7 +120,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Node n2 = edge.getNode2();
-            if (onTreeView && !edge.inTree()) continue;
+            if (onTreeView && !edge.inTree() && alphaAnimator == null) continue;
             Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
 
@@ -132,25 +131,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
-    public void setRep(TreeNode treeNode) {
-        graphHandler.setTreeNode(treeNode);
-        setRepaints(false);
-        time = new Timer(50, this);
-        time.setActionCommand("rep");
-        time.start();
-        running = true;
-        switchToView(HINTS);
-        showTree();
-    }
-
-    public void stop() {
-        time.stop();
-        setRepaints(true);
-        running = false;
-        switchToView(TUTORIAL);
-        showSphere();
-    }
-
     public void setGameTree(GameTree gameTree) {
         this.gameTree = gameTree;
     }
@@ -159,25 +139,55 @@ public class AIView extends AnimatablePanel implements ActionListener {
         this.threadCom = threadCom;
     }
 
+
     private void switchToView(String view) {
         CardLayout layout = (CardLayout) getLayout();
         layout.show(this, view);
     }
 
+
+    //
+
+    public void setRep(TreeNode treeNode) {
+        //setRepaints(false);
+        //time = new Timer(50, this);
+        //time.setActionCommand("rep");
+        //time.start();
+        running = true;
+        //switchToView(HINTS);
+        graphHandler.setTreeNode(treeNode);
+        showTree();
+    }
+
+    public void stop() {
+        //time.stop();
+        //setRepaints(true);
+        running = false;
+        //switchToView(TUTORIAL);
+        showSphere();
+    }
+
     public void showTree() {
-        alphaAnimator = createAnimator(1.0, 0.0, 1.0);
         if (onTreeView) return;
-        onTreeView = true;
+        if (gameTree != null) gameTree.pause();
         graphHandler.showTree(this);
+        Double rotateValue = rotateAnimator.value();
+        removeAnimator(rotateAnimator);
+        rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 2.0, false);
+        alphaAnimator = createAnimator(1.0, 0.0, 1.0, false);
+        onTreeView = true;
     }
 
     public void showSphere() {
-        alphaAnimator = createAnimator(0.0, 1.0, 1.0);
         if (!onTreeView) return;
         synchronized (graphHandler) {
             threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         }
         graphHandler.returnFromTree(this);
+        alphaAnimator = createAnimator(0.0, 1.0, 1.0, false);
+        Double rotateValue = rotateAnimator.value();
+        removeAnimator(rotateAnimator);
+        rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0, true);
         onTreeView = false;
     }
 
@@ -187,7 +197,12 @@ public class AIView extends AnimatablePanel implements ActionListener {
                 if (onTreeView) {
                     if (!graphHandler.animating()) {
                         graphHandler.cleanSpiders();
-                        threadCom.putUpdate("show_route", graphHandler.updateTree(this));
+                        AnimatablePanel p = this;
+                        new Thread(new Runnable() {
+                            public void run() {
+                                threadCom.putUpdate("show_route", graphHandler.updateTree(p));
+                            }
+                        }).start();
                     }
                 } else {
                     graphHandler.updateNodes();
@@ -196,27 +211,16 @@ public class AIView extends AnimatablePanel implements ActionListener {
             }
         } else {
             super.actionPerformed(e);
-            //System.err.println("Animating");
         }
     }
 
     @Override
     public void animationCompleted() {
-        System.err.println("FINISHED");
         if (!onTreeView) {
-            System.err.println("ANIM COMP NOT TREE" + rotateAnimator.value());
             graphHandler.cleanTree();
-            Double rotateValue = rotateAnimator.value();
-            removeAnimator(rotateAnimator);
-            rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0);
-            rotateAnimator.setLoops(true);
         } else {
             graphHandler.finishTreeBuild();
+            if (gameTree != null) gameTree.resume();
         }
-    }
-
-    @Override
-    public void animationBegun() {
-        System.err.println("BEGAN");
     }
 }

@@ -55,6 +55,7 @@ public class TreeNode {
 
     public Integer getPlayerLocation() {
         GamePlayer player = ModelHelper.getPlayerOfColour(currentState, currentPlayer);
+        //?add check here for player == null
         return player.location();
     }
 

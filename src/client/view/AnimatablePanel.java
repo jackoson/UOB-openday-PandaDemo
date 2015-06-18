@@ -41,7 +41,6 @@ public class AnimatablePanel extends JPanel implements ActionListener {
      */
     public AnimatablePanel() {
         timer = new Timer((int)(1000.0*kTimeInterval), this);
-        timer.setActionCommand("ANIM");
         activeAnimators = new CopyOnWriteArrayList<Animator>();
         pendingAnimators = new CopyOnWriteArrayList<Animator>();
     }
@@ -136,19 +135,21 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             finished &= (f != AnimationState.RUNNING);
             noLoops &= (f != AnimationState.LOOPING);
         }
-        //System.err.println("A1c" + finishedAnimators.size() + ", " + activeAnimators.size());
-        for (Animator a : finishedAnimators) {
-            //System.err.println("r" + (new Random()).nextInt());
-            activeAnimators.remove(a);
-            a = null;
-        }
+        new Thread(new Runnable() {
+            public void run() {
+                for (Animator a : finishedAnimators) {
+                    activeAnimators.remove(a);
+                    a = null;
+                }
+            }
+        }).start();
         if(preferredSizeX != null && preferredSizeY != null) setPreferredSize(new Dimension(preferredSizeX.value().intValue(), preferredSizeY.value().intValue()));
-        if(red != null && green != null && blue != null && alpha != null) setBackground(new Color((int)(255*red.value()), (int)(255*green.value()), (int)(255*blue.value()), (int)(255*alpha.value())));
+        if(red != null && green != null && blue != null && alpha != null) setBackground(new Color((int) (255 * red.value()), (int) (255 * green.value()), (int) (255 * blue.value()), (int) (255 * alpha.value())));
 
         if (finished && checkFinishes) {
-            checkFinishes = false;
             animationCompleted();
             if (noLoops) timer.stop();
+            checkFinishes = false;
         }
         revalidate();
         if (repaints) repaint();
@@ -204,11 +205,12 @@ public class AnimatablePanel extends JPanel implements ActionListener {
      * @param target the end value of the animation.
      * @param duration the duration of the animation.
      */
-    public Animator createAnimator(Double value, Double target, Double duration) {
-        checkFinishes = true;
+    public Animator createAnimator(Double value, Double target, Double duration, boolean loops) {
+        if (!loops) checkFinishes = true;
         Animator animator = new Animator(value, duration, target);
+        animator.setLoops(loops);
         activeAnimators.add(animator);
-        if (! timer.isRunning()) timer.start();
+        if (!timer.isRunning()) timer.start();
         animationBegun();
         return animator;
     }
@@ -220,7 +222,6 @@ public class AnimatablePanel extends JPanel implements ActionListener {
     }
 
     public void start() {
-        checkFinishes = true;
         activeAnimators.addAll(pendingAnimators);
         pendingAnimators.clear();
         if (!timer.isRunning()) timer.start();
@@ -242,7 +243,7 @@ public class AnimatablePanel extends JPanel implements ActionListener {
         private Double change;
         private Double duration;
         private boolean increasing = true;
-        private boolean loops = false;
+        public boolean loops = false;
 
         /**
          * Constructs a new Animator object.

@@ -227,13 +227,10 @@ public class GraphHandler {
 
             TreeNode bestChildTreeNode = treeNode.getBestChild();
 
-            List<TreeNode> shuffled = treeNode.getChildren();
-            Collections.shuffle(shuffled);
-
             int size = Math.min(treeNode.getChildren().size(), 4);
             width = width / size;
             for (int i = 0; i < size; i++) {
-                TreeNode treeNodeRep = shuffled.get(i);
+                TreeNode treeNodeRep = treeNode.getChildren().get(i);
                 boolean best = false;
                 if (treeNodeRep == bestChildTreeNode) best = true;
                 allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, (best && bestChild)));

@@ -126,6 +126,10 @@ public class AnimatablePanel extends JPanel implements ActionListener {
      * @param e the ActionEvent containing information about which object sent it.
      */
     public void actionPerformed(ActionEvent e) {
+        SwingUtilities.invokeLater(this::updateAnimators);
+    }
+
+    private void updateAnimators() {
         boolean finished = true;
         boolean noLoops = true;
         final List<Animator> finishedAnimators = new ArrayList<Animator>();
@@ -135,14 +139,10 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             finished &= (f != AnimationState.RUNNING);
             noLoops &= (f != AnimationState.LOOPING);
         }
-        new Thread(new Runnable() {
-            public void run() {
-                for (Animator a : finishedAnimators) {
-                    activeAnimators.remove(a);
-                    a = null;
-                }
-            }
-        }).start();
+        //for (Animator a : finishedAnimators) {
+        //    activeAnimators.remove(a);
+        //    a = null;
+        //}
         if(preferredSizeX != null && preferredSizeY != null) setPreferredSize(new Dimension(preferredSizeX.value().intValue(), preferredSizeY.value().intValue()));
         if(red != null && green != null && blue != null && alpha != null) setBackground(new Color((int) (255 * red.value()), (int) (255 * green.value()), (int) (255 * blue.value()), (int) (255 * alpha.value())));
 
@@ -156,7 +156,6 @@ public class AnimatablePanel extends JPanel implements ActionListener {
             revalidate();
             repaint();
         }
-
     }
 
     public void setRepaints(boolean repaints) {

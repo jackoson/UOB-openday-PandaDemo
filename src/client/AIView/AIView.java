@@ -23,6 +23,7 @@ import com.google.gson.stream.*;
 public class AIView extends AnimatablePanel implements ActionListener {
 
     private AnimatablePanel.Animator rotateAnimator;
+    private Animator alphaAnimator;
     private ThreadCommunicator threadCom;
     private GraphHandler graphHandler;
 
@@ -68,6 +69,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
             rotateAnimator = createAnimator(0.0, 360.0, 10.0);
             rotateAnimator.setLoops(true);
+            alphaAnimator = null;
 
             time = new Timer(50, this);
             time.setActionCommand("rep");
@@ -103,8 +105,11 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     private void drawVectors(Graphics2D g, Set<Node> nodes, Vector origin) {
         for (Node node : nodes) {
-            if (node.getColor().getAlpha() == 0) continue;
-            g.setColor(node.getColor());
+            if (onTreeView && !node.inTree()) continue;
+            Color c = node.getColor();
+            if (alphaAnimator != null && !node.inTree()) c = new Color(c.getRed(), c.getGreen(), c.getBlue(), (int)(alphaAnimator.value() * 255));
+            g.setColor(c);
+
             Vector vector = origin.offsetAdd(node);
             Double diameter = 13.75 - (vector.getZ() * (12.5 / 360.0));
             Double radius = diameter / 2;
@@ -116,10 +121,13 @@ public class AIView extends AnimatablePanel implements ActionListener {
         for (Edge<Node> edge : edges) {
             Node n1 = edge.getNode1();
             Node n2 = edge.getNode2();
-            if (edge.getAlpha() == 0.0) continue;
+            if (onTreeView && !edge.inTree()) continue;
             Vector node1 = origin.offsetAdd(n1);
             Vector node2 = origin.offsetAdd(n2);
-            g.setColor(edge.getColor());
+
+            Color c = edge.getColor();
+            if (alphaAnimator != null && !edge.inTree()) c = new Color(c.getRed(), c.getGreen(), c.getBlue(), (int)(alphaAnimator.value() * 255));
+            g.setColor(c);
             g.drawLine(node1.getX().intValue(), node1.getY().intValue(), node2.getX().intValue(), node2.getY().intValue());
         }
     }
@@ -157,12 +165,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
     }
 
     public void showTree() {
+        alphaAnimator = createAnimator(1.0, 0.0, 1.0);
         if (onTreeView) return;
         onTreeView = true;
         graphHandler.showTree(this);
     }
 
     public void showSphere() {
+        alphaAnimator = createAnimator(0.0, 1.0, 1.0);
         if (!onTreeView) return;
         synchronized (graphHandler) {
             threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
@@ -186,12 +196,15 @@ public class AIView extends AnimatablePanel implements ActionListener {
             }
         } else {
             super.actionPerformed(e);
+            //System.err.println("Animating");
         }
     }
 
     @Override
     public void animationCompleted() {
+        System.err.println("FINISHED");
         if (!onTreeView) {
+            System.err.println("ANIM COMP NOT TREE" + rotateAnimator.value());
             graphHandler.cleanTree();
             Double rotateValue = rotateAnimator.value();
             removeAnimator(rotateAnimator);
@@ -202,4 +215,8 @@ public class AIView extends AnimatablePanel implements ActionListener {
         }
     }
 
+    @Override
+    public void animationBegun() {
+        System.err.println("BEGAN");
+    }
 }

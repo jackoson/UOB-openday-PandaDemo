@@ -226,14 +226,15 @@ public class GraphHandler {
             else node.setBest(false);
 
             TreeNode bestChildTreeNode = treeNode.getBestChild();
-
+            int bestIndex = treeNode.getChildren().indexOf(bestChildTreeNode);
             int size = Math.min(treeNode.getChildren().size(), 4);
             width = width / size;
+            allHints.addAll(buildTree(panel, bestChildTreeNode, xStart + (width * Math.min(bestIndex, 3)), width, y + 80, node, rebuilding, bestChild));
+            if (bestIndex >= size) size--;
             for (int i = 0; i < size; i++) {
                 TreeNode treeNodeRep = treeNode.getChildren().get(i);
-                boolean best = false;
-                if (treeNodeRep == bestChildTreeNode) best = true;
-                allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, (best && bestChild)));
+                if (treeNodeRep == bestChildTreeNode) continue;
+                allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, false));
             }
 
             return allHints;

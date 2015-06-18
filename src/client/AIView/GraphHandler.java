@@ -41,31 +41,13 @@ public class GraphHandler {
         @Override
         protected void done() {
             try {
-                if (threadCom != null) threadCom.putUpdate("show_route", get());
-
+                List<RouteHint> hints = get();
+                if (threadCom != null && hints.size() != 0) threadCom.putUpdate("show_route", hints);
             } catch (Exception ex) {
                 System.err.println(ex);
             }
         }
     }
-/*
-    class BuildWorker extends SwingWorker<List<RouteHint>, Integer> {
-        private AnimatablePanel panel;
-
-        public BuildWorker(AnimatablePanel panel) {
-            this.panel = panel;
-        }
-
-        @Override
-        public List<RouteHint> doInBackground() {
-            return showTree(panel);
-        }
-
-        @Override
-        protected void done() {
-        }
-    }
-    */
 
     public GraphHandler(Map<String, List<Map<String, Double>>> json) {
         animating = false;
@@ -196,7 +178,7 @@ public class GraphHandler {
         panel.cancelAllAnimations();
         animating = true;
         treeMap.clear();
-        List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 590.0, -180.0, null, false, true);
+        List<RouteHint> spider = buildTree(panel, treeNode(), -290.0, 580.0, -180.0, null, false, true);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null);
         }
@@ -205,20 +187,9 @@ public class GraphHandler {
     }
 
     public synchronized List<RouteHint> updateTree(AnimatablePanel panel) {
-        if (!animating) {
-            cleanRebuiltTree();
-            List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 590.0, -180.0, null, true, true);
-            /*
-            for (Node n : allNodes) {
-                if (!n.inTree()) {
-                    n.setAnimators(null, null, null);
-                    //n.forwardAnimators(1.0);
-                }
-            }
-            */
-            return spider;
-        }
-        return null;
+        cleanRebuiltTree();
+        List<RouteHint> spider = buildTree(panel, treeNode(), -290.0, 580.0, -180.0, null, true, true);
+        return spider;
     }
 
     private synchronized List<RouteHint> buildTree(AnimatablePanel panel, TreeNode treeNode, Double xStart, Double width, Double y, Node parent, boolean rebuilding, boolean bestChild) {

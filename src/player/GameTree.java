@@ -81,6 +81,13 @@ public class GameTree implements Runnable {
         for (int i = 0; i < 5; i++) {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             game.setAiMove(getDetMove());
+
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                System.err.println(e);
+                e.printStackTrace();
+            }
         }
 
         //Run detective game tree
@@ -106,7 +113,6 @@ public class GameTree implements Runnable {
             }
         }
 
-        threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         threadCom.putUpdate("ai_end", true);
     }
 

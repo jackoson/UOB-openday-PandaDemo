@@ -188,9 +188,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void showSphere() {
         if (!onTreeView) return;
         time.stop();
-        synchronized (graphHandler) {
-            threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
-        }
         graphHandler.returnFromTree(this);
         alphaAnimator = createAnimator(0.0, 1.0, 1.0, false);
         Double rotateValue = rotateAnimator.value();
@@ -221,6 +218,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
     @Override
     public void animationCompleted() {
         if (!onTreeView) {
+            threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
             graphHandler.cleanTree();
         } else {
             graphHandler.finishTreeBuild();

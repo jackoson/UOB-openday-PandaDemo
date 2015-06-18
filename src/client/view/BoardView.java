@@ -68,7 +68,6 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
     }
 
     public void setCurrentPlayer(Colour colour) {
-        System.err.println("UpdatingPLayer: " + colour);
         currentPlayer = colour;
     }
 

@@ -151,7 +151,7 @@ public class GraphHandler {
         panel.cancelAllAnimations();
         animating = true;
         treeMap.clear();
-        List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, false, true);
+        List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, false, true);
         for (Node n : allNodes) {
             if (!n.inTree()) n.setAnimators(null, null, null);
         }
@@ -162,7 +162,7 @@ public class GraphHandler {
     public synchronized List<RouteHint> updateTree(AnimatablePanel panel) {
         if (!animating) {
             cleanRebuiltTree();
-            List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -80.0, null, true, true);
+            List<RouteHint> spider = buildTree(panel, treeNode(), -300.0, 600.0, -180.0, null, true, true);
             for (Node n : allNodes) {
                 if (!n.inTree()) {
                     n.setAnimators(null, null, null);
@@ -227,10 +227,13 @@ public class GraphHandler {
 
             TreeNode bestChildTreeNode = treeNode.getBestChild();
 
+            List<TreeNode> shuffled = treeNode.getChildren();
+            Collections.shuffle(shuffled);
+
             int size = Math.min(treeNode.getChildren().size(), 4);
             width = width / size;
             for (int i = 0; i < size; i++) {
-                TreeNode treeNodeRep = treeNode.getChildren().get(i);
+                TreeNode treeNodeRep = shuffled.get(i);
                 boolean best = false;
                 if (treeNodeRep == bestChildTreeNode) best = true;
                 allHints.addAll(buildTree(panel, treeNodeRep, xStart + (width * i), width, y + 80, node, rebuilding, (best && bestChild)));

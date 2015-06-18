@@ -288,9 +288,6 @@ public class ScotlandYardGame implements Player, Spectator, Runnable {
                 move = pda.createMove(model.getCurrentPlayer());
                 if (moves.contains(move)) {
                     threadCom.putUpdate("highlight_node", 0);
-                    threadCom.putUpdate("human_move", move);
-                    threadCom.putUpdate("stop_timer", true);
-                    wait(kRateMoveWait);
                     break;
                 } else {
                     pda.reset();

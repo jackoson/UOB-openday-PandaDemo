@@ -35,23 +35,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
     private JPanel hintPanel;
     private JButton button;
 
-    private RatingView ratingView;
     private MessageView hintsView;
     private MessageView tutorialView;
 
     private String TUTORIAL = "TUTORIAL";
-    private String RATING = "RATING";
     private String HINTS = "HINTS";
 
-    private Move detBestMove = null;
-
-    /*
-    ratingView.update(true, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-    ratingView.update(false, MoveDouble.instance(Colour.Black, Ticket.Taxi, 12, Ticket.Underground, 46), "this location has more transport links than the one you chose");
-    */
-
     private String[] aiHints = {
-        "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> AI works by playing every possible move for each player in turn, generating a game tree. This simulates every possible scenario for the game and hence it can work out the best move to make.</font></html>",
+        "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> AI works by exploring every possible move for each player in turn, generating the above structure called a game tree. This simulates every possible scenario for the game and hence it can work out the best move to make.</font></html>",
         "<html><font size=+2 face='Helvetica Neue'>Hint</font><font face='Helvetica Neue'> two.</font></html>",
         "<html><font size=+2 face='Helvetica Neue'>The</font><font face='Helvetica Neue'> red sequence of moves above represents the path that leads to the best outcome for Mr X at the depth searched to. As such, the first move in this sequence is the move Mr X will make.</font></html>"
     };
@@ -69,8 +60,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
             setPreferredSize(new Dimension(400, 800));
 
             setLayout(new CardLayout());
-            ratingView = new RatingView(fileAccess);
-            add(ratingView, "RATING");
             hintsView = new MessageView("The AI is thinking", aiHints, false);
             add(hintsView, "HINTS");
             tutorialView = new MessageView("How to play:", tutorialHints, true);
@@ -86,7 +75,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
             rotateAnimator = createAnimator(0.0, 360.0, 10.0, true);
             alphaAnimator = null;
 
-            time = new Timer(50, this);
+            time = new Timer(300, this);
             time.setActionCommand("rep");
             time.start();
 
@@ -112,7 +101,7 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
         graphHandler.rotateNodes(rotateAnimator.value());
         Dimension size = getSize();
-        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 200, 0.0));
+        graphHandler.setOrigin(new Vector(size.getWidth() / 2.0, size.getHeight() / 2.0 - 100, 0.0));
 
         drawEdges(g, graphHandler.getEdges(), graphHandler.getOrigin());
         drawVectors(g, graphHandler.getNodes(), graphHandler.getOrigin());
@@ -205,21 +194,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
         removeAnimator(rotateAnimator);
         rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 10.0, true);
         onTreeView = false;
-    }
-
-    public void rateMove(Move move) {
-        if (detBestMove != null) {
-            boolean goodMove;
-            /*Work out if good move*/
-
-            //ratingView.update(goodMove, detBestMove, reason);
-            tutorialView.stop();
-            switchToView(RATING);
-        }
-    }
-
-    public void setDetBestMove(Move move) {
-        detBestMove = move;
     }
 
     public void actionPerformed(ActionEvent e) {

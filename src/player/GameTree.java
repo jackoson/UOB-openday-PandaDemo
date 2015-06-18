@@ -78,16 +78,9 @@ public class GameTree implements Runnable {
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", root);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             game.setAiMove(getDetMove());
-
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                System.err.println(e);
-                e.printStackTrace();
-            }
         }
 
         //Run detective game tree

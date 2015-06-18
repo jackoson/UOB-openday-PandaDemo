@@ -169,15 +169,14 @@ public class AIView extends AnimatablePanel implements ActionListener {
 
     public void showTree() {
         if (onTreeView) return;
-        setRepaints(false);
         time = new Timer(500, this);
         time.setActionCommand("rep");
         time.start();
         if (gameTree != null) gameTree.pause();
         graphHandler.showTree(this);
-        //Double rotateValue = rotateAnimator.value();
-        //removeAnimator(rotateAnimator);
-        //rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 2.0, false);
+        Double rotateValue = rotateAnimator.value();
+        removeAnimator(rotateAnimator);
+        rotateAnimator = createAnimator(rotateValue, rotateValue + 360.0, 2.0, false);
         alphaAnimator = createAnimator(1.0, 0.0, 1.0, false);
         onTreeView = true;
     }
@@ -189,7 +188,6 @@ public class AIView extends AnimatablePanel implements ActionListener {
     public void showSphere() {
         if (!onTreeView) return;
         time.stop();
-        setRepaints(true);
         synchronized (graphHandler) {
             threadCom.putUpdate("show_route", new ArrayList<RouteHint>());
         }

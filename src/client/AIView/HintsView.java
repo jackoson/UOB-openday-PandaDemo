@@ -9,9 +9,9 @@ import java.awt.*;
 
 public class HintsView extends JPanel {
 
-    private String messageOne = "MessageOne, this is a great hint. ksjdfahdksjh kjh dkajh aksfsjhakdsjh kjh askjh askdjh kjh kjsh kSDHKajsdhkjAS HKJH Asdkjh kAJH.";
-    private String messageTwo = "MessageTwo, this is also a great hint.";
-    private String messageThree = "messageThree, this is a great hint too.";
+    private String messageOne = "The AI works by playing every possible move for each player in turn, generating a game tree. This simulates every possible scenario for the game and hence it can work out the best move to make.";
+    private String messageTwo = "";
+    private String messageThree = "The red sequence of moves above represents the path that leads to the best outcome for Mr X at the depth searched to. As such , the first move in this sequence is the move Mr X will make .";
 
     public HintsView(FileAccess fileAccess) {
         setOpaque(false);
@@ -23,6 +23,8 @@ public class HintsView extends JPanel {
         label.setBorder(BorderFactory.createEmptyBorder(30, 10, 30, 10));
 
         add(label, BorderLayout.NORTH);
+
+        showHint(2);
     }
 
     private JTextPane getPane(String message) {

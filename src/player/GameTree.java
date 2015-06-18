@@ -30,6 +30,7 @@ public class GameTree implements Runnable {
     private final Integer round;
     private final Colour initialPlayer;
     private final List<GamePlayer> initialState;
+    private boolean paused = false;
 
     private Move mrXMove;
     private Move detMove;
@@ -61,10 +62,19 @@ public class GameTree implements Runnable {
         this.game = game;
     }
 
+    public void pause() {
+        paused = true;
+    }
+
+    public void resume() {
+        paused = false;
+    }
+
     /**
      * Starts a new game tree.
      */
     public void run() {
+        paused = false;
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
         threadCom.putUpdate("link_tree", this);
         threadCom.putUpdate("ai_set_rep", root);
@@ -113,10 +123,17 @@ public class GameTree implements Runnable {
                 }
             }
         }
-        System.err.println("Updating best moves" + detMove);
     }
 
     private Double alphaBeta(TreeNode node, int depth, Double alpha, Double beta) {
+        while(paused){
+            try {
+                Thread.sleep(200);
+            } catch (Exception e) {
+                System.err.println(e);
+                e.printStackTrace();
+            }
+        }
         if (ModelHelper.isGameOver(node.getState(), node.getPlayer(), graph, node.getRound())) {
             if (ModelHelper.getWinningPlayers(node.getState(), node.getPlayer(), graph, node.getRound()).contains(Colour.Black)) return Double.POSITIVE_INFINITY;
             else return Double.NEGATIVE_INFINITY;

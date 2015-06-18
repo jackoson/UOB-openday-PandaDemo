@@ -63,13 +63,11 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         locations = new HashMap<Colour, Point>();
         animators = new ArrayList<CounterAnimator>();
         validMoves = new HashSet<Move>();
-        pulseAnimator = createAnimator(0.0, 1.0, 1.0);
-        pulseAnimator.setLoops(true);
+        pulseAnimator = createAnimator(0.0, 1.0, 1.0, true);
         currentPlayer = null;
     }
 
     public void setCurrentPlayer(Colour colour) {
-        System.err.println("Setting current player" + colour);
         currentPlayer = colour;
     }
 
@@ -263,9 +261,9 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
         } else {
             end = fileAccess.getPositions().get(moveTicket.target);
         }
-        AnimatablePanel.Animator xAnimator = createAnimator(start.getX(), end.getX(), 1.0);
+        AnimatablePanel.Animator xAnimator = createAnimator(start.getX(), end.getX(), 1.0, false);
         xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
-        AnimatablePanel.Animator yAnimator = createAnimator(start.getY(), end.getY(), 1.0);
+        AnimatablePanel.Animator yAnimator = createAnimator(start.getY(), end.getY(), 1.0, false);
         yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         animators.add(new CounterAnimator(moveTicket.colour, xAnimator, yAnimator));
     }
@@ -312,11 +310,11 @@ public class BoardView extends AnimatablePanel implements MouseListener, MouseMo
 
         AnimatablePanel.AnimationEase ease = AnimatablePanel.AnimationEase.EASE_IN_OUT;
         double duration = 0.6;
-        AnimatablePanel.Animator scaleAnimator = createAnimator(scaleFactor, newScaleFactor, duration);
+        AnimatablePanel.Animator scaleAnimator = createAnimator(scaleFactor, newScaleFactor, duration, false);
         scaleAnimator.setEase(ease);
-        AnimatablePanel.Animator xAnimator = createAnimator(startX, finalX, duration);
+        AnimatablePanel.Animator xAnimator = createAnimator(startX, finalX, duration, false);
         xAnimator.setEase(ease);
-        AnimatablePanel.Animator yAnimator = createAnimator(startY, finalY, duration);
+        AnimatablePanel.Animator yAnimator = createAnimator(startY, finalY, duration, false);
         yAnimator.setEase(ease);
         boardAnimator = new BoardAnimator(scaleAnimator, xAnimator, yAnimator);
     }

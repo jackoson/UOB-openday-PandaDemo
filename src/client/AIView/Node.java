@@ -88,15 +88,15 @@ public class Node extends Vector {
 
     public void reverseAnimation(Double duration, AnimatablePanel panel) {
         if(this.xAnimator != null) {
-            xAnimator = panel.createAnimator(getX(), super.getX(), duration);
+            xAnimator = panel.createAnimator(getX(), super.getX(), duration, false);
             this.xAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         }
         if(this.yAnimator != null) {
-            yAnimator = panel.createAnimator(getY(), super.getY(), duration);
+            yAnimator = panel.createAnimator(getY(), super.getY(), duration, false);
             this.yAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         }
         if(this.zAnimator != null) {
-            zAnimator = panel.createAnimator(getZ(), super.getZ(), duration);
+            zAnimator = panel.createAnimator(getZ(), super.getZ(), duration, false);
             this.zAnimator.setEase(AnimatablePanel.AnimationEase.EASE_IN_OUT);
         }
     }

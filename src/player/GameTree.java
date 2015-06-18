@@ -76,21 +76,22 @@ public class GameTree implements Runnable {
     public void run() {
         paused = false;
         root = new TreeNode(null, initialState, initialPlayer, round, null, this);
-        threadCom.putUpdate("link_tree", this);
-        threadCom.putUpdate("ai_set_rep", root);
-        for (int i = 0; i < 6; i++) {
-            Double result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            game.setAiMove(getDetMove());
-        }
+
         //Run detective game tree
         GamePlayer mrX = ModelHelper.getPlayerOfColour(initialState, Colour.Black);
         initialState.remove(mrX);
         Integer newLoc = game.mrXLocatation();
         if (newLoc != 0) mrX.setLocation(newLoc);
-
         initialState.add(mrX);
         TreeNode detRoot = new TreeNode(null, initialState, initialPlayer, round, null, this);
         Double result = alphaBeta(root, 2, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
+        threadCom.putUpdate("link_tree", this);
+        threadCom.putUpdate("ai_set_rep", root);
+        for (int i = 0; i < 6; i++) {
+            result = alphaBeta(root, i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            game.setAiMove(getDetMove());
+        }
 
         getMoves(root, detRoot);
 

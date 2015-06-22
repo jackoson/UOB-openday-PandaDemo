@@ -3,6 +3,9 @@ I thought it would be good to have suggested routes appear in the top right, bas
 
 I also thought a chat/ event log might be good idea and have removed other players tickets.
 
+##Running##
+To run, just use `ant client` from the root directory.
+
 ## TODO: ##
 
 + AI GUI 

@@ -5,7 +5,7 @@ To run, just use `ant client` from the root directory.
 If you run the program using `ant client` it will open in a presentation mode where it will endlessly plays games with Mr X as the only AI. As it does so it displays the game board on the left and a representation of the AI on the right, along with some information about what is happening. The sequence it follows is:
 
 * Begin Mr X's move.
-  * Build the game tree for Mr X.
+    * Build the game tree for Mr X.
   * Wait for the tooltips to finish cycling through once.
   * Play Mr X's move.
 * Begin Blue players move.

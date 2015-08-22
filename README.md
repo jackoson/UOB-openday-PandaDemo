@@ -1,7 +1,7 @@
 ##Running##
 To run, just use `ant client` from the root directory.
 
-##Useage##
+##Usage##
 If you run the program using `ant client` it will open in a presentation mode where it will endlessly plays games with Mr X as the only AI. As it does so it displays the game board on the left and a representation of the AI on the left, along with some information about what is happening. The sequence it follows is:
 
 * Begin Mr X's move.

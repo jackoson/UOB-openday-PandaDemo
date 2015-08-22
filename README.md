@@ -6,11 +6,11 @@ If you run the program using `ant client` it will open in a presentation mode wh
 
 * Begin Mr X's move.
     * Build the game tree for Mr X.
-  * Wait for the tooltips to finish cycling through once.
-  * Play Mr X's move.
+    * Wait for the tooltips to finish cycling through once.
+    * Play Mr X's move.
 * Begin Blue players move.
-  * Wait for 20s or for someone to make a move.
-  * If no move has been played, play an AI move.
+    * Wait for 20s or for someone to make a move.
+    * If no move has been played, play an AI move.
 
 ## TODO: ##
 

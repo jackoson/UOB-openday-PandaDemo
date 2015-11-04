@@ -11,10 +11,10 @@ import java.awt.*;
  */
 
 class RoundCounterView extends JPanel {
-    
+
     private List<RoundView> views;
     private RoundView selectedView;
-    
+
     /**
      * Constructs a new RoundCounterView object.
      *
@@ -23,18 +23,18 @@ class RoundCounterView extends JPanel {
     public RoundCounterView(List<Boolean> rounds) {
         setLayout(new GridBagLayout());
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
-        
+        setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+
         this.selectedView = null;
         this.views = new ArrayList<RoundView>();
-        
+
         for (int i = 1; i < rounds.size(); i++) {
             RoundView roundView  = new RoundView(rounds.get(i));
             views.add(roundView);
             add(roundView);
         }
     }
-    
+
     /**
      * Sets the RoundView to be selected.
      *
@@ -46,13 +46,13 @@ class RoundCounterView extends JPanel {
         v.setSelected(true);
         selectedView = v;
     }
-    
+
     // A view to display the circles to represent when Mr X is visible.
     private class RoundView extends JPanel {
-        
+
         private boolean selected;
         private boolean filled;
-        
+
         /**
          * Constructs a new RoundView object.
          *
@@ -62,9 +62,9 @@ class RoundCounterView extends JPanel {
             setOpaque(false);
             this.selected = false;
             this.filled = filled;
-            setPreferredSize(new Dimension(16, 40));
+            setPreferredSize(new Dimension(14, 40));
         }
-        
+
         /**
          * Sets the circle to be selected.
          *
@@ -73,7 +73,7 @@ class RoundCounterView extends JPanel {
         public void setSelected(boolean selected) {
             this.selected = selected;
         }
-        
+
         /**
          * Draws the circle.
          *
@@ -82,19 +82,19 @@ class RoundCounterView extends JPanel {
         public void paintComponent(Graphics g0) {
             super.paintComponent(g0);
             Graphics2D g = (Graphics2D) g0;
-            
+
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                 RenderingHints.VALUE_ANTIALIAS_ON);
-            
+
             g.setColor(Color.WHITE);
             g.setStroke(new BasicStroke(2.0f));
-            
+
             if (filled) g.fillOval(3, 15, 10, 10);
             else g.drawOval(4, 16, 8, 8);
-            
+
             if (selected) g.drawLine(5, 30, 11, 30);
         }
-        
+
     }
-    
+
 }

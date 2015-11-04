@@ -42,7 +42,7 @@
 	<target name="jar" depends="compile">
 		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" />
 	</target>
-  
+
   <target name="jargui" depends="compile">
     <mkdir dir="${classes.dir}/${res.dir}" />
     <copy todir="${classes.dir}/${res.dir}">
@@ -57,11 +57,11 @@
       <zipfileset src="${lib.dir}/${gson_jar}.jar" />
     </jar>
   </target>
-  
+
   <target name="client" depends="jargui">
-    <java fork="true" jar="${jar.dir}/${client_jar}.jar" maxmemory="4096m" />
+    <java fork="true" jar="${jar.dir}/${client_jar}.jar" />
   </target>
-  
+
 
   <target name="gui" depends="jar">
     <java fork="true" classname="${gui_main}">
@@ -94,7 +94,7 @@
       </classpath>
     </java>
   </target>
-  
+
   <target name="players-2" depends="jar">
     <java fork="true" classname="${players_main}">
       <arg line="localhost 8122 ab1234 cd5678" />

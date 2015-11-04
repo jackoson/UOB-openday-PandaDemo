@@ -27,7 +27,7 @@ public class MessageView extends JPanel implements ActionListener {
         this.messages = messages;
         this.next = next;
 
-        timer = new Timer(8000, this);
+        timer = new Timer(10000, this);
         timer.setRepeats(false);
 
         label = new JLabel(title, SwingConstants.CENTER);

@@ -62,7 +62,6 @@
     <java fork="true" jar="${jar.dir}/${client_jar}.jar" />
   </target>
 
-
   <target name="gui" depends="jar">
     <java fork="true" classname="${gui_main}">
       <classpath>

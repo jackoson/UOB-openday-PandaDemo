@@ -1,4 +1,4 @@
-package client.aiview;
+package client.AIView;
 
 import java.util.*;
 import client.view.AnimatablePanel.Animator;

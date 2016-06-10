@@ -1,4 +1,4 @@
-package client.aiview;
+package client.AIView;
 
 import client.view.Formatter;
 import client.application.FileAccess;
